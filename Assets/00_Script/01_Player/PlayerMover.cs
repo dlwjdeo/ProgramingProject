@@ -7,12 +7,13 @@ public class PlayerMover : MonoBehaviour
 {
     [Header("¿Ãµø")]
     [SerializeField] private float playerSpeed = 5f;
-    [SerializeField] private float junpForce = 5f;
+    [SerializeField] private float jumpForce = 5f;
     [SerializeField] private int maxJump = 1;
     private int remainJunp;
 
     private Rigidbody2D _rigidbody2D;
     private PlayerInputReader _playerInputReader;
+    private GroundChecker _groundChecker;
 
     private Vector2 move;
     private bool jumpRequested = false;
@@ -26,6 +27,7 @@ public class PlayerMover : MonoBehaviour
     {
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _playerInputReader = GetComponent<PlayerInputReader>();
+        _groundChecker = GetComponentInChildren<GroundChecker>();
         InitializeJump();
     }
 
@@ -33,6 +35,7 @@ public class PlayerMover : MonoBehaviour
     private void Update()
     {
         move = _playerInputReader.GetMove();
+        CheckGround();
     }
 
     private void FixedUpdate()
@@ -63,11 +66,17 @@ public class PlayerMover : MonoBehaviour
 
     private void TryJump()
     {
-        if(jumpRequested == false) return;
+        if (!_groundChecker.IsGrounded) return;
+        if(!jumpRequested) return;
         if (remainJunp <= 0) return;
-        _rigidbody2D.AddForce(Vector2.up * 5f, ForceMode2D.Impulse);
+        _rigidbody2D.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         jumpRequested = false;
         remainJunp--;
+    }
+
+    private void CheckGround()
+    {
+        if(_groundChecker.IsGrounded) InitializeJump();
     }
 
     //API
