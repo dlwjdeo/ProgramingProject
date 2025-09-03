@@ -9,3 +9,14 @@ public static class TagName
     public const string GameController = "GameController";
     public const string Ground = "Ground";
 }
+
+public enum Item
+{
+    RustKey,
+    Knife,
+
+
+
+
+    Null,
+}

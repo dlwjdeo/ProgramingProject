@@ -9,11 +9,13 @@ public class PlayerInputReader : MonoBehaviour
     private Vector2 move;
 
     public event Action Jump;
+    public event Action Interaction;
 
     private void Update()
     {
         ReadMove();
         DetectJump();
+        DetectInteraction();
     }
 
     private void ReadMove()
@@ -29,6 +31,13 @@ public class PlayerInputReader : MonoBehaviour
         }
     }
 
+    private void DetectInteraction()
+    {
+        if (Input.GetKeyDown(KeyCode.E)) 
+        {
+            Interaction?.Invoke();
+        }
+    }
 
     //API
     public Vector2 GetMove() {  return move; }
