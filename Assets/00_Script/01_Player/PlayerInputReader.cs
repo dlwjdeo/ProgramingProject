@@ -36,6 +36,7 @@ public class PlayerInputReader : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E)) 
         {
             Interaction?.Invoke();
+            Debug.Log("인터렉션");
         }
     }
 
