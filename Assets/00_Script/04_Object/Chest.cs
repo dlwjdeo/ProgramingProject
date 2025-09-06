@@ -6,7 +6,7 @@ using UnityEngine;
 public class Chest : MonoBehaviour, IInteractable
 {
     [SerializeField] private Item KeyItem;
-    public Player player;
+    private Player player;
     public void Interact()
     {
         Debug.Log("상자 작동");
