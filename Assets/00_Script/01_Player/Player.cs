@@ -5,7 +5,6 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public Item item = Item.Null;
-    private IInteractable interactable;
 
     public void ChangeItem(Item changeItem)
     {

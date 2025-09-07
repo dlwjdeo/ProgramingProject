@@ -1,16 +1,16 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-//인게임 플레이어 관련 인풋만 받는 class
+//인게임 플레이어 관련 입력만 받는 class
 public class PlayerInputReader : MonoBehaviour
 {
     private Vector2 move;
 
+    //단순 행동 이벤트
     public event Action Jump;
     public event Action Interaction;
 
+    //입력값은 Update, 물리적 계산은 LateUpdate 
     private void Update()
     {
         ReadMove();
@@ -36,7 +36,6 @@ public class PlayerInputReader : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E)) 
         {
             Interaction?.Invoke();
-            Debug.Log("인터렉션");
         }
     }
 

@@ -1,14 +1,12 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Chest : MonoBehaviour, IInteractable
 {
     [SerializeField] private Item KeyItem;
-    private Player player;
+    private Player player; //플레이어가 현재 가지고 있는 아이템 확인용
     public void Interact()
     {
+        //TODO: 실질적인 작동 내용 작성
         Debug.Log("상자 작동");
         if(player != null && player.item == KeyItem)
         {

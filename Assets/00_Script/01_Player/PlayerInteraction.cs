@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//현재 플레이어와 상호작용 가능한 오브젝트의 Interaction 실행하는 class
 public class PlayerInteraction : MonoBehaviour
 {
     private IInteractable _interactable;
@@ -11,6 +12,8 @@ public class PlayerInteraction : MonoBehaviour
     {
         _playerInputReader = GetComponent<PlayerInputReader>();
     }
+
+    //IInteactable 인터페이스를 가지고 있는 오브젝트를 식별
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.TryGetComponent<IInteractable>(out var interactable))
@@ -40,6 +43,5 @@ public class PlayerInteraction : MonoBehaviour
     private void Interact()
     {
         _interactable.Interact();
-        Debug.Log("플레이어 인터렉션");
     }
 }
