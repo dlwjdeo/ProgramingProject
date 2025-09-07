@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Chest : MonoBehaviour, IInteractable
 {
+    //TODO: Strategy 패턴 구현 점검
+
     [SerializeField] private Item KeyItem;
     private Player player; //플레이어가 현재 가지고 있는 아이템 확인용
     public void Interact()
