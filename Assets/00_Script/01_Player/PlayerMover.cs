@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 //플레이어의 직접적인 이동만 관리하는 class
@@ -11,7 +9,7 @@ public class PlayerMover : MonoBehaviour
     [SerializeField] private int maxJump = 1;
     private int remainJunp;
 
-    private Rigidbody2D rigidbody2D;
+    private Rigidbody2D _rigidbody2D;  //레거시 프로퍼티로 rigidbody2D가 존재해서 이름 겹침
     private PlayerInputReader playerInputReader;
     private GroundChecker groundChecker;
 
@@ -25,7 +23,7 @@ public class PlayerMover : MonoBehaviour
 
     private void Awake()
     {
-        rigidbody2D = GetComponent<Rigidbody2D>();
+        _rigidbody2D = GetComponent<Rigidbody2D>();
         playerInputReader = GetComponent<PlayerInputReader>();
         groundChecker = GetComponentInChildren<GroundChecker>();
         initializeJump();
@@ -40,7 +38,7 @@ public class PlayerMover : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rigidbody2D.velocity = new Vector2(move.x * playerSpeed, rigidbody2D.velocity.y);
+        _rigidbody2D.velocity = new Vector2(move.x * playerSpeed, _rigidbody2D.velocity.y);
         tryJump();
     }
 
@@ -69,14 +67,14 @@ public class PlayerMover : MonoBehaviour
         if (!groundChecker.IsGrounded) return;
         if(!jumpRequested) return;
         if (remainJunp <= 0) return;
-        rigidbody2D.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        _rigidbody2D.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         jumpRequested = false;
         remainJunp--;
     }
 
     private void checkGround()
     {
-        if(groundChecker.IsGrounded) InitializeJump();
+        if(groundChecker.IsGrounded) initializeJump();
     }
 
     //API

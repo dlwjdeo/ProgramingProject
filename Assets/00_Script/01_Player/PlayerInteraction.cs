@@ -5,7 +5,7 @@ using UnityEngine;
 //현재 플레이어와 상호작용 가능한 오브젝트의 Interaction 실행하는 class
 public class PlayerInteraction : MonoBehaviour
 {
-    private IInteractable interactable;
+    private Interactable interactable;
     private PlayerInputReader playerInputReader;
 
     private void Awake()
@@ -16,7 +16,7 @@ public class PlayerInteraction : MonoBehaviour
     //IInteactable 인터페이스를 가지고 있는 오브젝트를 식별
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.TryGetComponent<IInteractable>(out var interactableObject))
+        if(collision.TryGetComponent<Interactable>(out var interactableObject))
         {
             interactable = interactableObject;
         }
@@ -24,7 +24,7 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if(collision.TryGetComponent<IInteractable>(out var interactableObject) && interactable != null)
+        if(collision.TryGetComponent<Interactable>(out var interactableObject) && interactable != null)
         {
             interactable = null;
         }
