@@ -13,17 +13,17 @@ public class PlayerInputReader : MonoBehaviour
     //입력값은 Update, 물리적 계산은 LateUpdate 
     private void Update()
     {
-        ReadMove();
-        DetectJump();
-        DetectInteraction();
+        readMove();
+        detectJump();
+        detectInteraction();
     }
 
-    private void ReadMove()
+    private void readMove()
     {
         move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
     }
 
-    private void DetectJump()
+    private void detectJump()
     {
         if(Input.GetKeyDown(KeyCode.Space))
         {
@@ -31,7 +31,7 @@ public class PlayerInputReader : MonoBehaviour
         }
     }
 
-    private void DetectInteraction()
+    private void detectInteraction()
     {
         if (Input.GetKeyDown(KeyCode.E)) 
         {

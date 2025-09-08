@@ -5,43 +5,43 @@ using UnityEngine;
 //현재 플레이어와 상호작용 가능한 오브젝트의 Interaction 실행하는 class
 public class PlayerInteraction : MonoBehaviour
 {
-    private IInteractable _interactable;
-    private PlayerInputReader _playerInputReader;
+    private IInteractable interactable;
+    private PlayerInputReader playerInputReader;
 
     private void Awake()
     {
-        _playerInputReader = GetComponent<PlayerInputReader>();
+        playerInputReader = GetComponent<PlayerInputReader>();
     }
 
     //IInteactable 인터페이스를 가지고 있는 오브젝트를 식별
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.TryGetComponent<IInteractable>(out var interactable))
+        if(collision.TryGetComponent<IInteractable>(out var interactableObject))
         {
-            _interactable = interactable;
+            interactable = interactableObject;
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if(collision.TryGetComponent<IInteractable>(out var interactable) && _interactable != null)
+        if(collision.TryGetComponent<IInteractable>(out var interactableObject) && interactable != null)
         {
-            _interactable = null;
+            interactable = null;
         }
     }
 
     private void OnEnable()
     {
-        _playerInputReader.Interaction += Interact;
+        playerInputReader.Interaction += interact;
     }
 
     private void OnDisable()
     {
-        _playerInputReader.Interaction -= Interact;
+        playerInputReader.Interaction -= interact;
     }
 
-    private void Interact()
+    private void interact()
     {
-        _interactable.Interact();
+        interactable.Interact();
     }
 }
