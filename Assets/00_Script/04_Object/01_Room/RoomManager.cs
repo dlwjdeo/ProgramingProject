@@ -9,6 +9,7 @@ public class RoomManager : MonoBehaviour
     [Header("¹æ Á¤º¸")]
     [SerializeField] private List<RoomController> rooms = new List<RoomController>();
     [SerializeField] private RoomController currentRoom;
+    
     [SerializeField] private Collider2D playerCollider; 
 
     private void Awake()
