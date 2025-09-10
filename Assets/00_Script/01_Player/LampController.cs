@@ -1,28 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
 public class LampController : MonoBehaviour
 {
     private PlayerInputReader playerInputReader;
+
     [Header("램프 설정")]
-    [SerializeField] private Light2D lamp;
-    [SerializeField] private float maxLamp;
-    [SerializeField] private float currentLamp;
-    [SerializeField] private float drainRate;
-    [SerializeField] private bool toggle;
+    [SerializeField] private Light2D lamp;         
+    [SerializeField] private float maxLamp = 30f;  
+    [SerializeField]private float currentLamp = 30f;
+    [SerializeField] private float decayRate = 1f;
+
     private void Awake()
     {
         playerInputReader = GetComponent<PlayerInputReader>();
-    }
 
-    private void Update()
-    {
-        if(toggle && currentLamp > 0)
-        {
-            useLamp();
-        }
+        currentLamp = maxLamp;
+        turnOff();
     }
 
     private void OnEnable()
@@ -34,43 +28,46 @@ public class LampController : MonoBehaviour
     {
         playerInputReader.Lamp -= lampToggle;
     }
+
+    private void Update()
+    {
+        if (lamp.enabled && currentLamp > 0)
+        {
+            useLamp();
+        }
+    }
+
     private void turnOn()
     {
+        if (currentLamp <= 0) return;
         lamp.enabled = true;
-        toggle = true;
     }
 
     private void turnOff()
     {
         lamp.enabled = false;
-        toggle = false;
     }
 
     private void lampToggle()
     {
-        if (currentLamp <= 0) return;
-        if (toggle)
-        {
+        if (lamp.enabled)
             turnOff();
-        }
         else
-        {
             turnOn();
-        }
     }
 
     private void useLamp()
     {
-        currentLamp -= drainRate * Time.deltaTime;
+        currentLamp -= decayRate * Time.deltaTime;
         currentLamp = Mathf.Clamp(currentLamp, 0, maxLamp);
 
-        if(currentLamp <= 0)
+        if (currentLamp <= 0 && lamp.enabled)
         {
             turnOff();
         }
     }
 
-    //API
+    // 외부에서 충전 API
     public void ChargeLamp(float amount)
     {
         currentLamp += amount;

@@ -17,6 +17,7 @@ public class PlayerInputReader : MonoBehaviour
         readMove();
         detectJump();
         detectInteraction();
+        detectLamp();
     }
 
     private void readMove()
@@ -42,7 +43,7 @@ public class PlayerInputReader : MonoBehaviour
 
     private void detectLamp()
     {
-        if (!Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             Lamp?.Invoke();
         }
