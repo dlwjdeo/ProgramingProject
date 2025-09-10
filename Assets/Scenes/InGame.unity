@@ -824,10 +824,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lamp: {fileID: 2068187696}
-  maxLamp: 0
+  maxLamp: 30
   currentLamp: 0
-  drainRate: 0
-  toggle: 0
+  decayRate: 1
 --- !u!1 &966588635
 GameObject:
   m_ObjectHideFlags: 0
@@ -1973,7 +1972,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2068187695
 Transform:
   m_ObjectHideFlags: 0
