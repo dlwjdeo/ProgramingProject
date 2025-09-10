@@ -9,6 +9,7 @@ public class PlayerInputReader : MonoBehaviour
     //단순 행동 이벤트
     public event Action Jump;
     public event Action Interaction;
+    public event Action Lamp;
 
     //입력값은 Update, 물리적 계산은 LateUpdate 
     private void Update()
@@ -36,6 +37,14 @@ public class PlayerInputReader : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E)) 
         {
             Interaction?.Invoke();
+        }
+    }
+
+    private void detectLamp()
+    {
+        if (!Input.GetKeyDown(KeyCode.F))
+        {
+            Lamp?.Invoke();
         }
     }
 
