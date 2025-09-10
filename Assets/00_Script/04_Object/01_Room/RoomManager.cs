@@ -2,9 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //현재 플레이어가 있는 방의 위치를 조정해주는 Manager
-public class RoomManager : MonoBehaviour
+public class RoomManager : Singleton<RoomManager>
 {
-    public static RoomManager Instance { get; private set; }
 
     [Header("방 정보")]
     [SerializeField] private List<RoomController> rooms = new List<RoomController>();
@@ -12,17 +11,6 @@ public class RoomManager : MonoBehaviour
     
     [SerializeField] private Collider2D playerCollider; 
 
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this; 
-        }
-        else 
-        { 
-            Destroy(gameObject);
-        }
-    }
 
     private void Start()
     {
