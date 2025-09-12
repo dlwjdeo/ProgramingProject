@@ -14,7 +14,8 @@ public enum Item
 {
     RustKey,
     Knife,
-
+    Doll,
+    SeveredFinger,
 
 
 
