@@ -7,7 +7,7 @@ public class Chest : Interactable
     {
         //TODO: 실질적인 작동 내용 작성
         Debug.Log("상자 작동");
-        if(player != null && player.item == KeyItem)
+        if(player != null && player.Item == KeyItem)
         {
             Debug.Log("열렸습니다!");
         }
