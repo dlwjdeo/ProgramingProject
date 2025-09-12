@@ -55,4 +55,9 @@ public class RoomManager : Singleton<RoomManager>
         currentRoom = newRoom;
         currentRoom.Activate();
     }
+
+    public RoomController GetCurrentRoom()
+    {
+        return currentRoom;
+    }
 }
