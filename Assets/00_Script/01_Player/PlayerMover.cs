@@ -9,37 +9,22 @@ public class PlayerMover : MonoBehaviour
     [SerializeField] private int maxJump = 1;
     private int remainJunp;
 
-    private Rigidbody2D _rigidbody2D;  //레거시 프로퍼티로 rigidbody2D가 존재해서 이름 겹침
+    public Rigidbody2D _rigidbody2D { get; private set; }
     private PlayerInputReader playerInputReader;
-    private GroundChecker groundChecker;
+    public GroundChecker GroundChecker { get; private set; }
 
-    private Vector2 move;
-    private bool jumpRequested = false;
+    public Vector2 Move { get; private set; }
 
-    //플레이어가 계단을 이용할 때 x축 이동 방지용
-    private bool moveX = true;
-    private bool moveY = true;
-
+    public PlayerStateMachine StateMachine { get; private set; }
 
     private void Awake()
     {
         _rigidbody2D = GetComponent<Rigidbody2D>();
         playerInputReader = GetComponent<PlayerInputReader>();
-        groundChecker = GetComponentInChildren<GroundChecker>();
+        GroundChecker = GetComponentInChildren<GroundChecker>();
         initializeJump();
-    }
 
-
-    private void Update()
-    {
-        move = playerInputReader.GetMove();
-        checkGround();
-    }
-
-    private void FixedUpdate()
-    {
-        _rigidbody2D.velocity = new Vector2(move.x * playerSpeed, _rigidbody2D.velocity.y);
-        tryJump();
+        StateMachine = new PlayerStateMachine();
     }
 
     private void OnEnable()
@@ -52,6 +37,25 @@ public class PlayerMover : MonoBehaviour
         playerInputReader.Jump -= onJunpPressed;
     }
 
+    private void Start()
+    {
+        StateMachine.ChangeState(StateMachine.Idle, this);
+    }
+
+    private void Update()
+    {
+        Move = playerInputReader.GetMove();
+        checkGround();
+
+        StateMachine.Update(this);
+    }
+
+    private void FixedUpdate()
+    {
+        _rigidbody2D.velocity = new Vector2(Move.x * playerSpeed, _rigidbody2D.velocity.y);
+        //tryJump();
+    }
+
     private void initializeJump()
     {
         remainJunp = maxJump;
@@ -59,28 +63,21 @@ public class PlayerMover : MonoBehaviour
 
     private void onJunpPressed()
     {
-        jumpRequested = true;
-    }
-
-    private void tryJump()
-    {
-        if (!groundChecker.IsGrounded) return;
-        if(!jumpRequested) return;
-        if (remainJunp <= 0) return;
-        _rigidbody2D.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-        jumpRequested = false;
-        remainJunp--;
+        if (GroundChecker.IsGrounded && remainJunp > 0)
+        {
+            StateMachine.ChangeState(StateMachine.Jump, this);
+        }
     }
 
     private void checkGround()
     {
-        if(groundChecker.IsGrounded) initializeJump();
+        if (GroundChecker.IsGrounded) initializeJump();
     }
 
-    //API
-    public void SetMove(bool _moveX, bool _moveY)
+    public void DoJump()
     {
-        moveX = _moveX;
-        moveY = _moveY;
+        _rigidbody2D.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        remainJunp--;
     }
+
 }
