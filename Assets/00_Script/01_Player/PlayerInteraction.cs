@@ -40,6 +40,9 @@ public class PlayerInteraction : MonoBehaviour
 
     private void interact()
     {
-        interactable.Interact();
+        if(interactable != null)
+        {
+            interactable.Interact();
+        }
     }
 }
