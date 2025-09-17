@@ -8,8 +8,11 @@ public class LampController : MonoBehaviour
     [Header("램프 설정")]
     [SerializeField] private Light2D lamp;         
     [SerializeField] private float maxLamp = 30f;  
-    [SerializeField]private float currentLamp = 30f;
+    [SerializeField] private float currentLamp = 30f;
     [SerializeField] private float decayRate = 1f;
+
+    public float MaxLamp => maxLamp;
+    public float CurrentLamp => currentLamp;
 
     private void Awake()
     {
