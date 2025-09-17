@@ -53,7 +53,6 @@ public class PlayerMover : MonoBehaviour
     private void FixedUpdate()
     {
         _rigidbody2D.velocity = new Vector2(Move.x * playerSpeed, _rigidbody2D.velocity.y);
-        //tryJump();
     }
 
     private void initializeJump()

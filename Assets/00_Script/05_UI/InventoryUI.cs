@@ -18,7 +18,11 @@ public class InventoryUI : MonoBehaviour
     }
     private void OnDisable()
     {
-        Player.Instance.OnItemChanged -= ChangeText;
+        //오류 로그 방지
+        if (Player.Instance != null)
+        {
+            Player.Instance.OnItemChanged -= ChangeText;
+        }
     }
     public void ChangeText(Item item)
     {
