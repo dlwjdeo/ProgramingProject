@@ -9,6 +9,8 @@ public class PlayerMover : MonoBehaviour
     [SerializeField] private int maxJump = 1;
     private int remainJunp;
 
+    private bool canMove = true;
+
     public Rigidbody2D _rigidbody2D { get; private set; }
     private PlayerInputReader playerInputReader;
     public GroundChecker GroundChecker { get; private set; }
@@ -52,6 +54,12 @@ public class PlayerMover : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!canMove) //입력이 남아있을 때 미끄러짐 방지
+        {
+            _rigidbody2D.velocity = new Vector2(0, _rigidbody2D.velocity.y);
+            return;
+        }
+
         _rigidbody2D.velocity = new Vector2(Move.x * playerSpeed, _rigidbody2D.velocity.y);
     }
 
@@ -72,11 +80,15 @@ public class PlayerMover : MonoBehaviour
     {
         if (GroundChecker.IsGrounded) initializeJump();
     }
-
+    //API
     public void DoJump()
     {
         _rigidbody2D.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         remainJunp--;
     }
 
+    public void SetMove(bool move)
+    {
+        canMove = move;
+    }
 }
