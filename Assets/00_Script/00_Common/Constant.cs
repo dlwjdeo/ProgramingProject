@@ -21,3 +21,9 @@ public enum Item
 
     Null,
 }
+
+public enum CameraArea
+{
+    Floor1,
+    Floor2
+}
