@@ -20,12 +20,20 @@ public class CameraManager : Singleton<CameraManager>
     }
     public void SwitchCamera(CameraArea area)
     {
-        CinemachineVirtualCamera targetVC = area switch
+        CinemachineVirtualCamera targetVC;
+
+        switch (area)
         {
-            CameraArea.Floor1 => floor1VC,
-            CameraArea.Floor2 => floor2VC,
-            _ => null
-        };
+            case CameraArea.Floor1:
+                targetVC = floor1VC;
+                break;
+            case CameraArea.Floor2:
+                targetVC = floor2VC;
+                break;
+            default:
+                targetVC = null;
+                break;
+        }
 
         if (targetVC == null) return;
 
