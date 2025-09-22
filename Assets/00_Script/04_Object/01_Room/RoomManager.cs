@@ -17,7 +17,7 @@ public class RoomManager : Singleton<RoomManager>
         // 시작 시 현재 방이 지정되어 있지 않다면 플레이어 중심 기준으로 자동 탐색
         if (currentRoom == null && playerCollider != null)
         {
-            UpdatePlayerRoom(playerCollider.bounds.center);
+            updatePlayerRoom(playerCollider.bounds.center);
         }
         else if (currentRoom != null)
         {
@@ -29,11 +29,11 @@ public class RoomManager : Singleton<RoomManager>
     {
         if (playerCollider != null)
         {
-            UpdatePlayerRoom(playerCollider.bounds.center);
+            updatePlayerRoom(playerCollider.bounds.center);
         }
     }
 
-    public void UpdatePlayerRoom(Vector2 point)
+    private void updatePlayerRoom(Vector2 point)
     {
         foreach (var room in rooms)
         {

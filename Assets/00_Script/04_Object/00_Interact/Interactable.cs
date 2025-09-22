@@ -2,6 +2,7 @@ using UnityEngine;
 
 public abstract class Interactable : MonoBehaviour
 {
+    //TODO: 오브젝트의 position값이 강제로 이동되었을 경우 방어코드 필요
     protected Player player;
     protected bool inRange;
 
