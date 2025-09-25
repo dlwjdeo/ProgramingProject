@@ -10,7 +10,17 @@ public class PlayerInputReader : MonoBehaviour
     public event Action Jump;
     public event Action Interaction;
     public event Action Lamp;
+    
+    public bool JumpPressed {  get; private set; }
+    public bool InterationPressed {  get; private set; }
+    public bool LampPressed { get; private set; }
 
+    private void Awake()
+    {
+        JumpPressed = false;
+        InterationPressed = false;
+        LampPressed = false;
+    }
     //입력값은 Update, 물리적 계산은 LateUpdate 
     private void Update()
     {
@@ -30,6 +40,11 @@ public class PlayerInputReader : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Space))
         {
             Jump?.Invoke();
+            JumpPressed = true;
+        }
+        else
+        {
+            JumpPressed = false;
         }
     }
 
@@ -38,6 +53,11 @@ public class PlayerInputReader : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E)) 
         {
             Interaction?.Invoke();
+            InterationPressed = true;
+        }
+        else
+        {
+            InterationPressed = false;
         }
     }
 
@@ -46,6 +66,11 @@ public class PlayerInputReader : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F))
         {
             Lamp?.Invoke();
+            LampPressed = true;
+        }
+        else
+        {
+            LampPressed = false;
         }
     }
 

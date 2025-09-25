@@ -2,60 +2,113 @@ using UnityEngine;
 
 public interface IPlayerState
 {
-    void Enter(PlayerMover player);
-    void Update(PlayerMover player);
-    void Exit(PlayerMover player);
+    void Enter();
+    void Update();
+    void Exit();
 }
 
-public class PlayerIdleState : IPlayerState
+public abstract class PlayerState : IPlayerState
 {
-    public void Enter(PlayerMover player) { }
-    public void Update(PlayerMover player)
-    {
-        if (Mathf.Abs(player.Move.x) > 0.01f)
-            player.StateMachine.ChangeState(player.StateMachine.Run, player);
+    protected Player player;
 
-        if (!player.GroundChecker.IsGrounded)
-            player.StateMachine.ChangeState(player.StateMachine.Fall, player);
+    protected PlayerState(Player player)
+    {
+        this.player = player;
     }
-    public void Exit(PlayerMover player) { }
+
+    public abstract void Enter();
+    public abstract void Update();
+    public abstract void Exit();
 }
 
-public class PlayerRunState : IPlayerState
+public class PlayerIdleState : PlayerState
 {
-    public void Enter(PlayerMover player) { }
-    public void Update(PlayerMover player)
-    {
-        if (Mathf.Abs(player.Move.x) < 0.01f)
-            player.StateMachine.ChangeState(player.StateMachine.Idle, player);
+    public PlayerIdleState(Player player) : base(player) { }
 
-        if (!player.GroundChecker.IsGrounded)
-            player.StateMachine.ChangeState(player.StateMachine.Fall, player);
+    public override void Enter() { }
+
+    public override void Update()
+    {
+        if (Mathf.Abs(player.PlayerMover.Move.x) > 0.01f)
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Run);
+
+        if (!player.PlayerMover.GroundChecker.IsGrounded)
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
     }
-    public void Exit(PlayerMover player) { }
+
+    public override void Exit() { }
 }
 
-public class PlayerJumpState : IPlayerState
+public class PlayerRunState : PlayerState
 {
-    public void Enter(PlayerMover player)
+    public PlayerRunState(Player player) : base(player) { }
+
+    public override void Enter() { }
+
+    public override void Update()
     {
-        player.DoJump();
+        if (Mathf.Abs(player.PlayerMover.Move.x) < 0.01f)
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
+
+        if (!player.PlayerMover.GroundChecker.IsGrounded)
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
     }
-    public void Update(PlayerMover player)
-    {
-        if (player._rigidbody2D.velocity.y < 0)
-            player.StateMachine.ChangeState(player.StateMachine.Fall, player);
-    }
-    public void Exit(PlayerMover player) { }
+
+    public override void Exit() { }
 }
 
-public class PlayerFallState : IPlayerState
+public class PlayerJumpState : PlayerState
 {
-    public void Enter(PlayerMover player) { }
-    public void Update(PlayerMover player)
+    public PlayerJumpState(Player player) : base(player) { }
+
+    public override void Enter()
     {
-        if (player.GroundChecker.IsGrounded)
-            player.StateMachine.ChangeState(player.StateMachine.Idle, player);
+        player.PlayerMover.DoJump();
     }
-    public void Exit(PlayerMover player) { }
+
+    public override void Update()
+    {
+        if (player.Rigidbody2D.velocity.y < 0)
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
+    }
+
+    public override void Exit() { }
+}
+
+public class PlayerFallState : PlayerState
+{
+    public PlayerFallState(Player player) : base(player) { }
+
+    public override void Enter() { }
+
+    public override void Update()
+    {
+        if (player.PlayerMover.GroundChecker.IsGrounded)
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
+    }
+
+    public override void Exit() { }
+}
+public class PlayerHideState : PlayerState
+{
+    public PlayerHideState(Player player) : base(player) { }
+
+    public override void Enter()
+    {
+        player.PlayerMover.SetMove(false);
+    }
+
+    public override void Update()
+    {
+        // 다시 인터렉션 입력 시 Idle 복귀
+        if (player.PlayerInputReader.InterationPressed)
+        {
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
+        }
+    }
+
+    public override void Exit()
+    {
+        player.PlayerMover.SetMove(true);
+    }
 }
