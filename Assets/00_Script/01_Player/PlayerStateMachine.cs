@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class PlayerStateMachine
 {
     public PlayerIdleState Idle { get; private set; }
@@ -25,7 +27,8 @@ public class PlayerStateMachine
     public void ChangeState(IPlayerState newState)
     {
         if (currentState == newState) return;
-
+        
+        Debug.Log($"[StateMachine] {currentState?.GetType().Name ?? "None"} -> {newState.GetType().Name}");
         currentState?.Exit();
         currentState = newState;
         currentState.Enter();

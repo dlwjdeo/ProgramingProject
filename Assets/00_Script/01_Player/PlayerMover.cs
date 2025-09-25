@@ -44,7 +44,7 @@ public class PlayerMover : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!canMove)
+        if (canMove == false)
         {
             Rigidbody.velocity = new Vector2(0, Rigidbody.velocity.y);
             return;

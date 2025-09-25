@@ -91,16 +91,25 @@ public class PlayerFallState : PlayerState
 }
 public class PlayerHideState : PlayerState
 {
+    private float hideBuffer = 0.2f;
+    private float timer;
+
     public PlayerHideState(Player player) : base(player) { }
 
     public override void Enter()
     {
         player.PlayerMover.SetMove(false);
+        timer = hideBuffer;
     }
 
     public override void Update()
     {
-        // 다시 인터렉션 입력 시 Idle 복귀
+        if (timer > 0f)
+        {
+            timer -= Time.deltaTime;
+            return;
+        }
+
         if (player.PlayerInputReader.InterationPressed)
         {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
@@ -112,3 +121,4 @@ public class PlayerHideState : PlayerState
         player.PlayerMover.SetMove(true);
     }
 }
+
