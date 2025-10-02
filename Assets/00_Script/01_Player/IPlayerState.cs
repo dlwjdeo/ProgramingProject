@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public interface IPlayerState
+public interface IState
 {
     void Enter();
     void Update();
     void Exit();
 }
 
-public abstract class PlayerState : IPlayerState
+public abstract class PlayerState : IState
 {
     protected Player player;
 
@@ -25,7 +25,10 @@ public class PlayerIdleState : PlayerState
 {
     public PlayerIdleState(Player player) : base(player) { }
 
-    public override void Enter() { }
+    public override void Enter() 
+    {
+        player.State = PlayerStateType.Idle;
+    }
 
     public override void Update()
     {
@@ -43,7 +46,10 @@ public class PlayerRunState : PlayerState
 {
     public PlayerRunState(Player player) : base(player) { }
 
-    public override void Enter() { }
+    public override void Enter() 
+    {
+        player.State = PlayerStateType.Run;
+    }
 
     public override void Update()
     {
@@ -64,6 +70,7 @@ public class PlayerJumpState : PlayerState
     public override void Enter()
     {
         player.PlayerMover.DoJump();
+        player.State = PlayerStateType.Jump;
     }
 
     public override void Update()
@@ -79,7 +86,10 @@ public class PlayerFallState : PlayerState
 {
     public PlayerFallState(Player player) : base(player) { }
 
-    public override void Enter() { }
+    public override void Enter() 
+    {
+        player.State = PlayerStateType.Fall;
+    }
 
     public override void Update()
     {
@@ -98,6 +108,7 @@ public class PlayerHideState : PlayerState
 
     public override void Enter()
     {
+        player.State = PlayerStateType.Hide;
         player.PlayerMover.SetMove(false);
         timer = hideBuffer;
     }

@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Player : Singleton<Player> 
 {
+    public PlayerStateType State;
     public Item Item = Item.Null;
 
     public event Action<Item> OnItemChanged;

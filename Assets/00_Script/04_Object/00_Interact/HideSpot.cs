@@ -7,9 +7,13 @@ public class HideSpot : Interactable
 
     public override void Interact()
     {
-        if(player != null)
+        if(player != null && player.State != PlayerStateType.Hide)
         {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Hide);
+        }
+        else
+        {
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
         }
     }
 }

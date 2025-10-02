@@ -27,3 +27,13 @@ public enum CameraArea
     Floor1,
     Floor2
 }
+
+public enum PlayerStateType
+{
+    Idle,
+    Hide,
+    Run,
+    Jump,
+    Fall,
+
+}

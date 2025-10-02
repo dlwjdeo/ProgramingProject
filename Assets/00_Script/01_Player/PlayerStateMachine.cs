@@ -8,7 +8,7 @@ public class PlayerStateMachine
     public PlayerFallState Fall { get; private set; }
     public PlayerHideState Hide { get; private set; }
 
-    private IPlayerState currentState;
+    private IState currentState;
     private Player player;
 
     public PlayerStateMachine(Player player)
@@ -24,7 +24,7 @@ public class PlayerStateMachine
         currentState.Enter();
     }
 
-    public void ChangeState(IPlayerState newState)
+    public void ChangeState(IState newState)
     {
         if (currentState == newState) return;
         
