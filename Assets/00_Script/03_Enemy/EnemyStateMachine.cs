@@ -1,3 +1,4 @@
+using UnityEngine;
 public class EnemyStateMachine
 {
     public EnemyPatrolState Patrol { get; private set; }
@@ -15,7 +16,7 @@ public class EnemyStateMachine
         Suspicious = new EnemySuspiciousState(enemy);
         Chase = new EnemyChaseState(enemy);
 
-        currentState = Patrol; // 초기 상태
+        currentState = Patrol; 
         currentState.Enter();
     }
 
