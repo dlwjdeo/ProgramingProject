@@ -52,7 +52,7 @@ public class RoomManager : Singleton<RoomManager>
             if (room == null) continue;
             if (room.Collider2D.OverlapPoint(point))
             {
-                SetPlayerRoom(room);
+                setPlayerRoom(room);
                 break;
             }
         }
@@ -71,7 +71,7 @@ public class RoomManager : Singleton<RoomManager>
         }
     }
 
-    public void SetPlayerRoom(RoomController newRoom)
+    private void setPlayerRoom(RoomController newRoom)
     {
         if (newRoom == null || newRoom == playerRoom) return;
 
@@ -84,5 +84,10 @@ public class RoomManager : Singleton<RoomManager>
     public RoomController GetCurrentRoom()
     {
         return playerRoom;
+    }
+
+    public bool IsSameFloor()
+    {
+        return playerRoom.Floor == enemyRoom.Floor;
     }
 }

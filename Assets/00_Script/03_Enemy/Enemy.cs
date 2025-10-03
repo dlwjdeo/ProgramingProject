@@ -3,7 +3,7 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     public EnemyStateMachine StateMachine { get; private set; }
-    [SerializeField] private EnemyStateType State;
+    [SerializeField] private EnemyStateType state;
 
     private void Awake()
     {
@@ -17,7 +17,7 @@ public class Enemy : MonoBehaviour
 
     public void SetStateType(EnemyStateType type)
     {
-        State = type;
+        state = type;
     }
 
     public void MoveTowards(Vector3 target, float speed)
