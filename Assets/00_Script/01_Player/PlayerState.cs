@@ -1,11 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-
-public interface IState
-{
-    void Enter();
-    void Update();
-    void Exit();
-}
 
 public abstract class PlayerState : IState
 {
@@ -25,7 +20,7 @@ public class PlayerIdleState : PlayerState
 {
     public PlayerIdleState(Player player) : base(player) { }
 
-    public override void Enter() 
+    public override void Enter()
     {
         player.State = PlayerStateType.Idle;
     }
@@ -46,7 +41,7 @@ public class PlayerRunState : PlayerState
 {
     public PlayerRunState(Player player) : base(player) { }
 
-    public override void Enter() 
+    public override void Enter()
     {
         player.State = PlayerStateType.Run;
     }
@@ -86,7 +81,7 @@ public class PlayerFallState : PlayerState
 {
     public PlayerFallState(Player player) : base(player) { }
 
-    public override void Enter() 
+    public override void Enter()
     {
         player.State = PlayerStateType.Fall;
     }
