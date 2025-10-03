@@ -8,6 +8,7 @@ public class RoomController : MonoBehaviour
 
     [Header("¹æ Á¤º¸")]
     [SerializeField] private int floor;
+    public int Floor => floor;
 
     public Collider2D Collider2D => _collider2D;
 
