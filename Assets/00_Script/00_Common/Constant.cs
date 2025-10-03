@@ -37,3 +37,10 @@ public enum PlayerStateType
     Fall,
 
 }
+
+public enum EnemyStateType
+{
+    Suspicious,
+    Patrol,
+    Chase
+}

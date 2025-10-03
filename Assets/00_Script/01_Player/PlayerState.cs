@@ -22,7 +22,7 @@ public class PlayerIdleState : PlayerState
 
     public override void Enter()
     {
-        player.State = PlayerStateType.Idle;
+        player.SetStateType(PlayerStateType.Idle);
     }
 
     public override void Update()
@@ -43,7 +43,7 @@ public class PlayerRunState : PlayerState
 
     public override void Enter()
     {
-        player.State = PlayerStateType.Run;
+        player.SetStateType(PlayerStateType.Run);
     }
 
     public override void Update()
@@ -65,7 +65,7 @@ public class PlayerJumpState : PlayerState
     public override void Enter()
     {
         player.PlayerMover.DoJump();
-        player.State = PlayerStateType.Jump;
+        player.SetStateType(PlayerStateType.Jump);
     }
 
     public override void Update()
@@ -83,7 +83,7 @@ public class PlayerFallState : PlayerState
 
     public override void Enter()
     {
-        player.State = PlayerStateType.Fall;
+        player.SetStateType(PlayerStateType.Fall);
     }
 
     public override void Update()
@@ -103,7 +103,7 @@ public class PlayerHideState : PlayerState
 
     public override void Enter()
     {
-        player.State = PlayerStateType.Hide;
+        player.SetStateType(PlayerStateType.Hide);
         player.PlayerMover.SetMove(false);
         timer = hideBuffer;
     }

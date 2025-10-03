@@ -4,7 +4,10 @@ using UnityEngine;
 public class RoomController : MonoBehaviour
 {
     [SerializeField] private GameObject overlay;
-    [SerializeField] private Collider2D _collider2D; 
+    [SerializeField] private Collider2D _collider2D;
+
+    [Header("¹æ Á¤º¸")]
+    [SerializeField] private int floor;
 
     public Collider2D Collider2D => _collider2D;
 

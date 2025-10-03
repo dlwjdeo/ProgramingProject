@@ -7,21 +7,29 @@ public class RoomManager : Singleton<RoomManager>
 
     [Header("방 정보")]
     [SerializeField] private List<RoomController> rooms = new List<RoomController>();
-    [SerializeField] private RoomController currentRoom;
+    [SerializeField] private RoomController playerRoom;
+    [SerializeField] private RoomController enemyRoom;
     
-    [SerializeField] private Collider2D playerCollider; 
+    [SerializeField] private Collider2D playerCollider;
+    [SerializeField] private Collider2D enemyCollider;
+    
 
 
     private void Start()
     {
         // 시작 시 현재 방이 지정되어 있지 않다면 플레이어 중심 기준으로 자동 탐색
-        if (currentRoom == null && playerCollider != null)
+        if (playerRoom == null && playerCollider != null)
         {
             updatePlayerRoom(playerCollider.bounds.center);
         }
-        else if (currentRoom != null)
+        else if (playerRoom != null)
         {
-            currentRoom.Activate();
+            playerRoom.Activate();
+        }
+
+        if (enemyRoom == null && enemyCollider != null)
+        {
+            updateEnemyRoom(enemyCollider.bounds.center);
         }
     }
 
@@ -30,6 +38,10 @@ public class RoomManager : Singleton<RoomManager>
         if (playerCollider != null)
         {
             updatePlayerRoom(playerCollider.bounds.center);
+        }
+        if(enemyRoom != null)
+        {
+            updateEnemyRoom(enemyCollider.bounds.center);
         }
     }
 
@@ -40,24 +52,37 @@ public class RoomManager : Singleton<RoomManager>
             if (room == null) continue;
             if (room.Collider2D.OverlapPoint(point))
             {
-                SetCurrentRoom(room);
+                SetPlayerRoom(room);
                 break;
             }
         }
     }
 
-    public void SetCurrentRoom(RoomController newRoom)
+    private void updateEnemyRoom(Vector2 point)
     {
-        if (newRoom == null || newRoom == currentRoom) return;
+        foreach (var room in rooms)
+        {
+            if (room == null) continue;
+            if (room.Collider2D.OverlapPoint(point))
+            {
+                enemyRoom = room;
+                break;
+            }
+        }
+    }
 
-        if (currentRoom != null) currentRoom.Deactivate();
+    public void SetPlayerRoom(RoomController newRoom)
+    {
+        if (newRoom == null || newRoom == playerRoom) return;
 
-        currentRoom = newRoom;
-        currentRoom.Activate();
+        if (playerRoom != null) playerRoom.Deactivate();
+
+        playerRoom = newRoom;
+        playerRoom.Activate();
     }
 
     public RoomController GetCurrentRoom()
     {
-        return currentRoom;
+        return playerRoom;
     }
 }

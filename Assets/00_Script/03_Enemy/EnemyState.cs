@@ -19,7 +19,7 @@ public class EnemyPatrolState : EnemyState
 
     public override void Enter()
     {
-
+        enemy.SetStateType(EnemyStateType.Patrol);
     }
 
     public override void Update()
@@ -42,6 +42,7 @@ public class EnemySuspiciousState : EnemyState
 
     public override void Enter()
     {
+        enemy.SetStateType(EnemyStateType.Suspicious);
         timer = suspicionTime;
     }
 
@@ -65,6 +66,7 @@ public class EnemyChaseState : EnemyState
 
     public override void Enter()
     {
+        enemy.SetStateType(EnemyStateType.Chase);
     }
 
     public override void Update()

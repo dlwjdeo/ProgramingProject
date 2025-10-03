@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class Player : Singleton<Player> 
 {
-    public PlayerStateType State;
+    [SerializeField] private PlayerStateType state;
+    public PlayerStateType State => state;
     public Item Item = Item.Null;
 
     public event Action<Item> OnItemChanged;
@@ -36,5 +37,6 @@ public class Player : Singleton<Player>
         Item = changeItem;
         OnItemChanged?.Invoke(Item);
     }
+    public void SetStateType(PlayerStateType type) {  state = type; }
 
 }
