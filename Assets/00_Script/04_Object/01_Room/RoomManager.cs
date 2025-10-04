@@ -7,6 +7,7 @@ public class RoomManager : Singleton<RoomManager>
 
     [Header("¹æ Á¤º¸")]
     [SerializeField] private List<RoomController> rooms = new List<RoomController>();
+    [SerializeField] private List<Portal> portals = new List<Portal>();
     [SerializeField] private RoomController playerRoom;
     [SerializeField] private RoomController enemyRoom;
     
@@ -44,7 +45,26 @@ public class RoomManager : Singleton<RoomManager>
             updateEnemyRoom(enemyCollider.bounds.center);
         }
     }
+    public Portal FindClosestPortal(int fromFloor, int toFloor, Vector3 enemyPos)
+    {
+        List<Portal> candidates = portals.FindAll(p => p.FromFloor == fromFloor && p.ToFloor == toFloor);
+        if (candidates.Count == 0) return null;
 
+        float minDist = float.MaxValue;
+        Portal closest = null;
+
+        foreach (var portal in candidates)
+        {
+            float dist = Vector2.Distance(enemyPos, portal.transform.position);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closest = portal;
+            }
+        }
+
+        return closest;
+    }
     private void updatePlayerRoom(Vector2 point)
     {
         foreach (var room in rooms)
@@ -81,9 +101,14 @@ public class RoomManager : Singleton<RoomManager>
         playerRoom.Activate();
     }
 
-    public RoomController GetCurrentRoom()
+    public RoomController GetPlayerRoom()
     {
         return playerRoom;
+    }
+
+    public RoomController GetEnemyRoom()
+    {
+        return enemyRoom;
     }
 
     public bool IsSameFloor()

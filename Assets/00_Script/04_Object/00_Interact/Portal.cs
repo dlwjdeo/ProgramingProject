@@ -7,7 +7,12 @@ public class Portal : Interactable
     [Header("포탈 이동 목표지점")]
     [SerializeField] private Transform targetPoint;
     [SerializeField] private CameraArea targetArea;
-    [SerializeField] private int targetFloor;
+
+    [SerializeField] private int fromFloor;
+    [SerializeField] private int toFloor;
+    public int FromFloor => fromFloor;
+    public int ToFloor => toFloor;
+    public Transform TargetPoint => targetPoint;
 
     public override void Interact()
     {

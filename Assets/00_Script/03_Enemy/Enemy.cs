@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    [Header("Enemy Settings")]
+    [SerializeField] private float moveSpeed = 2f;
+
     public EnemyStateMachine StateMachine { get; private set; }
     [SerializeField] private EnemyStateType state;
 
@@ -20,8 +23,13 @@ public class Enemy : MonoBehaviour
         state = type;
     }
 
-    public void MoveTowards(Vector3 target, float speed)
+    public void MoveTowards(Vector3 target)
     {
-        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
+    }
+
+    public void Teleport(Vector3 target)
+    {
+        transform.position = target;
     }
 }

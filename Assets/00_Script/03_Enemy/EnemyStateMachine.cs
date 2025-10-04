@@ -16,15 +16,13 @@ public class EnemyStateMachine
         Suspicious = new EnemySuspiciousState(enemy);
         Chase = new EnemyChaseState(enemy);
 
-        currentState = Patrol; 
+        currentState = Chase; 
         currentState.Enter();
     }
 
     public void ChangeState(EnemyState newState)
     {
         if (currentState == newState) return;
-
-        Debug.Log($"[EnemyStateMachine] {currentState?.GetType().Name ?? "None"} -> {newState.GetType().Name}");
 
         currentState?.Exit();
         currentState = newState;
