@@ -32,4 +32,9 @@ public class Enemy : MonoBehaviour
     {
         transform.position = target;
     }
+
+    public void Move(float dir)
+    {
+        transform.Translate(Vector3.right * dir * moveSpeed * Time.deltaTime);
+    }
 }

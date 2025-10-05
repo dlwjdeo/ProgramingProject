@@ -17,6 +17,7 @@ public class Player : Singleton<Player>
 
     public PlayerStateMachine PlayerStateMachine { get; private set; }
     public Rigidbody2D Rigidbody2D { get; private set; }
+    public BoxCollider2D _Collider2D { get; private set; }
 
     protected override void Awake()
     {
@@ -26,6 +27,7 @@ public class Player : Singleton<Player>
         PlayerInteraction = GetComponent<PlayerInteraction>();
         PlayerStateMachine = new PlayerStateMachine(this);
         Rigidbody2D = GetComponent<Rigidbody2D>();
+        _Collider2D = GetComponent<BoxCollider2D>();
     }
 
     private void Update()

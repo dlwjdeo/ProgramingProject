@@ -1029,7 +1029,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   overlay: {fileID: 185520987}
   _collider2D: {fileID: 0}
-  floor: 0
+  floor: 1
 --- !u!1 &849916842
 GameObject:
   m_ObjectHideFlags: 0
@@ -1111,7 +1111,7 @@ Rigidbody2D:
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!4 &855078113
 Transform:
   m_ObjectHideFlags: 0
@@ -1474,7 +1474,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   overlay: {fileID: 2048308674}
   _collider2D: {fileID: 0}
-  floor: 0
+  floor: 2
 --- !u!1 &1044580831
 GameObject:
   m_ObjectHideFlags: 0
@@ -1523,7 +1523,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   overlay: {fileID: 1877898372}
   _collider2D: {fileID: 0}
-  floor: 0
+  floor: 2
 --- !u!1 &1064112279
 GameObject:
   m_ObjectHideFlags: 0
@@ -1713,7 +1713,7 @@ Transform:
   m_GameObject: {fileID: 1065559228}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -14.78, y: -1.83, z: 0}
+  m_LocalPosition: {x: -17.02, y: 12.23, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1732,7 +1732,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
-  state: 1
+  state: 2
 --- !u!1 &1070099291
 GameObject:
   m_ObjectHideFlags: 0
@@ -3904,7 +3904,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   overlay: {fileID: 763698339}
   _collider2D: {fileID: 0}
-  floor: 0
+  floor: 1
 --- !u!1 &1908660105
 GameObject:
   m_ObjectHideFlags: 0

@@ -68,7 +68,6 @@ public class EnemyChaseState : EnemyState
 
     public override void Enter()
     {
-        Debug.Log("Enemy Chase Enter");
         enemy.SetStateType(EnemyStateType.Chase);
     }
 
@@ -78,20 +77,21 @@ public class EnemyChaseState : EnemyState
         var enemyRoom = RoomManager.Instance.GetEnemyRoom();
         if (playerRoom == null || enemyRoom == null) return;
 
+        // 같은 층이면 플레이어 실제 위치 기준으로 추적
         if (playerRoom.Floor == enemyRoom.Floor)
         {
-            // 같은 층이면 X 좌표 기준
-            float playerX = playerRoom.Collider2D.bounds.center.x;
-            float enemyX = enemyRoom.Collider2D.bounds.center.x;
+            float playerX = Player.Instance._Collider2D.bounds.center.x;
+            float enemyX = enemy.transform.position.x;
 
-            if (playerX > enemyX)
-                enemy.MoveTowards(enemy.transform.position + Vector3.right);
-            else
-                enemy.MoveTowards(enemy.transform.position + Vector3.left);
+            if (Mathf.Abs(playerX - enemyX) > 0.05f)
+            {
+                Vector3 target = new Vector3(playerX, enemy.transform.position.y, enemy.transform.position.z);
+                enemy.MoveTowards(target); 
+            }
         }
         else
         {
-            // 다른 층이면 포탈 찾기
+            // 다른 층이면 포탈 찾아 이동
             Portal portal = RoomManager.Instance.FindClosestPortal(
                 enemyRoom.Floor, playerRoom.Floor, enemy.transform.position);
 
@@ -106,9 +106,8 @@ public class EnemyChaseState : EnemyState
             }
         }
     }
-
     public override void Exit()
     {
-        Debug.Log("Enemy Chase Exit");
+        
     }
 }
