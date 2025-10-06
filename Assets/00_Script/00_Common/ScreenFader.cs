@@ -19,7 +19,7 @@ public class ScreenFader : MonoBehaviour
         yield return Fade(0f);
     }
 
-    public IEnumerator FadeOut() // ¹àÀ½ ¡æ ¾îµÓ
+    public IEnumerator FadeOut()
     {
         yield return Fade(1f);
     }

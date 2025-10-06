@@ -14,7 +14,13 @@ public class RoomManager : Singleton<RoomManager>
     [SerializeField] private Collider2D playerCollider;
     [SerializeField] private Collider2D enemyCollider;
     
+    private Enemy enemy;
 
+    protected override void Awake()
+    {
+        base.Awake();
+        enemy = FindObjectOfType<Enemy>();
+    }
 
     private void Start()
     {
@@ -47,7 +53,25 @@ public class RoomManager : Singleton<RoomManager>
     }
     public Portal FindClosestPortal(int fromFloor, int toFloor, Vector3 enemyPos)
     {
-        List<Portal> candidates = portals.FindAll(p => p.FromFloor == fromFloor && p.ToFloor == toFloor);
+        // fromFloor와 toFloor의 차이가 2이상이면, toFloor을 한 층 차이로 변경
+        if (fromFloor < toFloor)
+        {
+            toFloor = fromFloor + 1;
+        }
+        else if(fromFloor > toFloor)
+        {
+            toFloor = fromFloor - 1;
+        }
+
+        List<Portal> candidates = new List<Portal>();
+
+        foreach (Portal portal in portals)
+        {
+            if (portal.FromFloor == fromFloor && portal.ToFloor == toFloor)
+            {
+                candidates.Add(portal);
+            }
+        }
         if (candidates.Count == 0) return null;
 
         float minDist = float.MaxValue;
@@ -85,7 +109,7 @@ public class RoomManager : Singleton<RoomManager>
             if (room == null) continue;
             if (room.Collider2D.OverlapPoint(point))
             {
-                enemyRoom = room;
+                setEnemyRoom(room);
                 break;
             }
         }
@@ -101,6 +125,12 @@ public class RoomManager : Singleton<RoomManager>
         playerRoom.Activate();
     }
 
+    private void setEnemyRoom(RoomController newRoom)
+    {
+        if (newRoom == null || newRoom == enemyRoom) return;
+        enemyRoom = newRoom;
+        enemy.SetLastRoomEnterTime();
+    }
     public RoomController GetPlayerRoom()
     {
         return playerRoom;

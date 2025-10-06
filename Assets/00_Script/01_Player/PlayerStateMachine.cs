@@ -28,7 +28,6 @@ public class PlayerStateMachine
     {
         if (currentState == newState) return;
         
-        Debug.Log($"[StateMachine] {currentState?.GetType().Name ?? "None"} -> {newState.GetType().Name}");
         currentState?.Exit();
         currentState = newState;
         currentState.Enter();

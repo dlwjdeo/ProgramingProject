@@ -18,6 +18,9 @@ public class Player : Singleton<Player>
     public PlayerStateMachine PlayerStateMachine { get; private set; }
     public Rigidbody2D Rigidbody2D { get; private set; }
     public BoxCollider2D _Collider2D { get; private set; }
+    public float LastHideTime { get; private set; }
+    public bool IsHidden { get; private set; }
+
 
     protected override void Awake()
     {
@@ -41,4 +44,12 @@ public class Player : Singleton<Player>
     }
     public void SetStateType(PlayerStateType type) {  state = type; }
 
+    public void SetHidden(bool hidden) 
+    {
+        IsHidden = hidden; 
+        if(IsHidden == true)
+        {
+            LastHideTime = Time.time;
+        }
+    }
 }

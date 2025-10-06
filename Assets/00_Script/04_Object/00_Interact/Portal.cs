@@ -19,22 +19,48 @@ public class Portal : Interactable
         if (player != null && targetPoint != null)
         {
             // 플레이어 위치 이동
-            StartCoroutine(MoveRoom(targetArea));
+            MoveThroughPortal(player.transform, true);
         }
     }
 
-    IEnumerator MoveRoom(CameraArea nextArea)
+    public void MoveThroughPortal(Transform mover, bool isPlayer)
+    {
+        if (mover == null || targetPoint == null) return;
+
+        if (isPlayer)
+        {
+            Player player = mover.GetComponent<Player>();
+            if (player != null)
+                player.StartCoroutine(MoveRoomForPlayer(player));
+        }
+        else
+        {
+            Enemy enemy = mover.GetComponent<Enemy>();
+            if (enemy != null)
+                enemy.StartCoroutine(MoveRoomForEnemy(enemy));
+        }
+    }
+
+    private IEnumerator MoveRoomForPlayer(Player player)
     {
         ScreenFader fader = FindObjectOfType<ScreenFader>();
-        //방 이동 입력 시 움직임 제어
+
         player.PlayerMover.SetMove(false);
         yield return fader.FadeOut();
 
-
         player.transform.position = targetPoint.position;
-        CameraManager.Instance.SwitchCamera(nextArea);
+        CameraManager.Instance.SwitchCamera(targetArea);
 
         player.PlayerMover.SetMove(true);
         yield return fader.FadeIn();
+    }
+
+    private IEnumerator MoveRoomForEnemy(Enemy enemy)
+    {
+        enemy.SetMove(false);
+        yield return new WaitForSeconds(0.1f);
+
+        enemy.transform.position = targetPoint.position;
+        enemy.SetMove(true);
     }
 }

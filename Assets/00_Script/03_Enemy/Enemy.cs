@@ -8,9 +8,16 @@ public class Enemy : MonoBehaviour
     public EnemyStateMachine StateMachine { get; private set; }
     [SerializeField] private EnemyStateType state;
 
+    public bool CanMove { get; private set; }
+
+    private BoxCollider2D detectCollier;
+
+    public float LastRoomEnterTime { get; private set; }
+
     private void Awake()
     {
         StateMachine = new EnemyStateMachine(this);
+        detectCollier = GetComponentInChildren<BoxCollider2D>();
     }
 
     private void Update()
@@ -18,6 +25,10 @@ public class Enemy : MonoBehaviour
         StateMachine.Update();
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        StateMachine.CurrentState?.OnTriggerEnter2D(collision);
+    }
     public void SetStateType(EnemyStateType type)
     {
         state = type;
@@ -28,13 +39,6 @@ public class Enemy : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
     }
 
-    public void Teleport(Vector3 target)
-    {
-        transform.position = target;
-    }
-
-    public void Move(float dir)
-    {
-        transform.Translate(Vector3.right * dir * moveSpeed * Time.deltaTime);
-    }
+    public void SetMove(bool move) => CanMove = move;
+    public void SetLastRoomEnterTime() => LastRoomEnterTime = Time.time;
 }

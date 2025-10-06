@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 public abstract class EnemyState : IState
 {
@@ -11,6 +12,9 @@ public abstract class EnemyState : IState
     public abstract void Enter();
     public abstract void Update();
     public abstract void Exit();
+
+    public virtual void OnTriggerEnter2D(Collider2D other) { }
+    public virtual void OnTriggerExit2D(Collider2D other) { }
 }
 
 public class EnemyPatrolState : EnemyState
@@ -66,6 +70,33 @@ public class EnemyChaseState : EnemyState
 {
     public EnemyChaseState(Enemy enemy) : base(enemy) { }
 
+    private bool canFindPlayer;
+
+    public override void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag(TagName.Player))
+        {
+            Player player = other.GetComponent<Player>();
+            if (player.IsHidden)
+            {
+                float diff = enemy.LastRoomEnterTime - player.LastHideTime;
+                if (diff < 1f)
+                {
+                    Debug.Log("플레이어가 너무 늦게 숨었음 → 들킴!");
+                }
+                else
+                {
+                    Debug.Log("플레이어가 미리 숨었음 → 무시");
+
+                    enemy.StateMachine.ChangeState(enemy.StateMachine.Chase);
+                }
+            }
+            else
+            {
+                // 숨어있지 않음
+            }
+        }
+    }
     public override void Enter()
     {
         enemy.SetStateType(EnemyStateType.Chase);
@@ -92,8 +123,7 @@ public class EnemyChaseState : EnemyState
         else
         {
             // 다른 층이면 포탈 찾아 이동
-            Portal portal = RoomManager.Instance.FindClosestPortal(
-                enemyRoom.Floor, playerRoom.Floor, enemy.transform.position);
+            Portal portal = RoomManager.Instance.FindClosestPortal(enemyRoom.Floor, playerRoom.Floor, enemy.transform.position);
 
             if (portal != null)
             {
@@ -101,7 +131,7 @@ public class EnemyChaseState : EnemyState
 
                 if (Vector2.Distance(enemy.transform.position, portal.transform.position) < 0.1f)
                 {
-                    enemy.Teleport(portal.TargetPoint.position);
+                    portal.MoveThroughPortal(enemy.transform, false);
                 }
             }
         }

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class HideSpot : Interactable
 {
-
     public override void Interact()
     {
         if(player != null && player.State != PlayerStateType.Hide)

@@ -106,6 +106,7 @@ public class PlayerHideState : PlayerState
         player.SetStateType(PlayerStateType.Hide);
         player.PlayerMover.SetMove(false);
         timer = hideBuffer;
+        player.SetHidden(true);
     }
 
     public override void Update()
@@ -125,6 +126,7 @@ public class PlayerHideState : PlayerState
     public override void Exit()
     {
         player.PlayerMover.SetMove(true);
+        player.SetHidden(false);
     }
 }
 

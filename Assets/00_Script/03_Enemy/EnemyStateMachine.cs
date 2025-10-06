@@ -5,7 +5,7 @@ public class EnemyStateMachine
     public EnemySuspiciousState Suspicious { get; private set; }
     public EnemyChaseState Chase { get; private set; }
 
-    private EnemyState currentState;
+    public EnemyState CurrentState { get; private set; }
     private Enemy enemy;
 
     public EnemyStateMachine(Enemy enemy)
@@ -16,21 +16,22 @@ public class EnemyStateMachine
         Suspicious = new EnemySuspiciousState(enemy);
         Chase = new EnemyChaseState(enemy);
 
-        currentState = Chase; 
-        currentState.Enter();
+        CurrentState = Suspicious; 
+        CurrentState.Enter();
     }
 
     public void ChangeState(EnemyState newState)
     {
-        if (currentState == newState) return;
+        if (CurrentState == newState) return;
 
-        currentState?.Exit();
-        currentState = newState;
-        currentState.Enter();
+        CurrentState?.Exit();
+        CurrentState = newState;
+        CurrentState.Enter();
     }
 
     public void Update()
     {
-        currentState?.Update();
+        CurrentState?.Update();
     }
+
 }
