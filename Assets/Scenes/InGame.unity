@@ -1776,10 +1776,6 @@ MonoBehaviour:
   - {fileID: 2049861080}
   - {fileID: 873601032}
   - {fileID: 530363520}
-  playerRoom: {fileID: 0}
-  enemyRoom: {fileID: 0}
-  playerCollider: {fileID: 855078117}
-  enemyCollider: {fileID: 1065559230}
 --- !u!4 &966588637
 Transform:
   m_ObjectHideFlags: 0
@@ -2107,6 +2103,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 2
   state: 2
+  _collider2D: {fileID: 1065559230}
+  detectCollier: {fileID: 677805045}
 --- !u!1 &1070099291
 GameObject:
   m_ObjectHideFlags: 0
