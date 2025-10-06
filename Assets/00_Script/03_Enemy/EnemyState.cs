@@ -82,11 +82,11 @@ public class EnemyChaseState : EnemyState
                 float diff = enemy.LastRoomEnterTime - player.LastHideTime;
                 if (diff < 1f)
                 {
-                    Debug.Log("플레이어가 너무 늦게 숨었음 → 들킴!");
+                    Debug.Log("들킴");
                 }
                 else
                 {
-                    Debug.Log("플레이어가 미리 숨었음 → 무시");
+                    Debug.Log("무시");
 
                     enemy.StateMachine.ChangeState(enemy.StateMachine.Chase);
                 }

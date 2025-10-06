@@ -27,4 +27,9 @@ public class RoomController : MonoBehaviour
     {
         if (overlay != null) overlay.SetActive(true);
     }
+
+    public Vector3 GetCenterPosition()
+    {
+         return _collider2D.bounds.center;
+    }
 }

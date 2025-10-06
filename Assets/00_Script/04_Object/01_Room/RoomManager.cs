@@ -145,4 +145,11 @@ public class RoomManager : Singleton<RoomManager>
     {
         return playerRoom.Floor == enemyRoom.Floor;
     }
+
+    public RoomController GetRandomRoom()
+    {
+        if (rooms == null) return null;
+        int index = Random.Range(0, rooms.Count);
+        return rooms[index];
+    }
 }

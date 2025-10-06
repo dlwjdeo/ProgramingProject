@@ -16,7 +16,7 @@ public class EnemyStateMachine
         Suspicious = new EnemySuspiciousState(enemy);
         Chase = new EnemyChaseState(enemy);
 
-        CurrentState = Chase; 
+        CurrentState = Patrol; 
         CurrentState.Enter();
     }
 
