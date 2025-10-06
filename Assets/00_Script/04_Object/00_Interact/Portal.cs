@@ -19,23 +19,23 @@ public class Portal : Interactable
         if (player != null && targetPoint != null)
         {
             // 플레이어 위치 이동
-            MoveThroughPortal(player.transform, true);
+            InteractPortal(player.transform, true);
         }
     }
 
-    public void MoveThroughPortal(Transform mover, bool isPlayer)
+    public void InteractPortal(Transform target, bool isPlayer)
     {
-        if (mover == null || targetPoint == null) return;
+        if (target == null || targetPoint == null) return;
 
         if (isPlayer)
         {
-            Player player = mover.GetComponent<Player>();
+            Player player = target.GetComponent<Player>();
             if (player != null)
                 player.StartCoroutine(MoveRoomForPlayer(player));
         }
         else
         {
-            Enemy enemy = mover.GetComponent<Enemy>();
+            Enemy enemy = target.GetComponent<Enemy>();
             if (enemy != null)
                 enemy.StartCoroutine(MoveRoomForEnemy(enemy));
         }

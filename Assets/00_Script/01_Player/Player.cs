@@ -21,6 +21,8 @@ public class Player : Singleton<Player>
     public float LastHideTime { get; private set; }
     public bool IsHidden { get; private set; }
 
+    public RoomController CurrentRoom { get; private set; }
+
 
     protected override void Awake()
     {
@@ -35,7 +37,29 @@ public class Player : Singleton<Player>
 
     private void Update()
     {
+        UpdateCurrentRoom();
         PlayerStateMachine.Update();
+    }
+
+    private void UpdateCurrentRoom()
+    {
+        Vector2 center = _Collider2D.bounds.center;
+
+        foreach (var room in RoomManager.Instance.Rooms)
+        {
+            if (room == null) continue;
+
+            if (room.Collider2D.OverlapPoint(center))
+            {
+                if (room != CurrentRoom)
+                {
+                    CurrentRoom?.Deactivate();
+                    CurrentRoom = room;
+                    CurrentRoom.Activate();
+                }
+                return;
+            }
+        }
     }
     public void ChangeItem(Item changeItem)
     {

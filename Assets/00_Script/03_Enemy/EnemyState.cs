@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 public abstract class EnemyState : IState
 {
@@ -20,15 +19,35 @@ public abstract class EnemyState : IState
 public class EnemyPatrolState : EnemyState
 {
     public EnemyPatrolState(Enemy enemy) : base(enemy) { }
+    private RoomController targetRoom;
+    private float waitTime = 2f;
+    private bool arrived;
 
     public override void Enter()
     {
         enemy.SetStateType(EnemyStateType.Patrol);
+        targetRoom = RoomManager.Instance.GetRandomRoom();
     }
-
     public override void Update()
     {
+        enemy.MoveAI(targetRoom);
 
+        if (!arrived && enemy.IsArrived(targetRoom))
+        {
+            arrived = true;
+            waitTime = 2f;
+        }
+
+        if (arrived)
+        {
+            waitTime -= Time.deltaTime;
+            if (waitTime <= 0f)
+            {
+                targetRoom = RoomManager.Instance.GetRandomRoom();
+                Debug.Log("목적지 변경: " + targetRoom.name);
+                arrived = false; // 리셋
+            }
+        }
     }
 
     public override void Exit()
@@ -86,9 +105,7 @@ public class EnemyChaseState : EnemyState
                 }
                 else
                 {
-                    Debug.Log("무시");
-
-                    enemy.StateMachine.ChangeState(enemy.StateMachine.Chase);
+                    Debug.Log("안들킴");
                 }
             }
             else
@@ -104,37 +121,7 @@ public class EnemyChaseState : EnemyState
 
     public override void Update()
     {
-        var playerRoom = RoomManager.Instance.GetPlayerRoom();
-        var enemyRoom = RoomManager.Instance.GetEnemyRoom();
-        if (playerRoom == null || enemyRoom == null) return;
-
-        // 같은 층이면 플레이어 실제 위치 기준으로 추적
-        if (playerRoom.Floor == enemyRoom.Floor)
-        {
-            float playerX = Player.Instance._Collider2D.bounds.center.x;
-            float enemyX = enemy.transform.position.x;
-
-            if (Mathf.Abs(playerX - enemyX) > 0.05f)
-            {
-                Vector3 target = new Vector3(playerX, enemy.transform.position.y, enemy.transform.position.z);
-                enemy.MoveTowards(target); 
-            }
-        }
-        else
-        {
-            // 다른 층이면 포탈 찾아 이동
-            Portal portal = RoomManager.Instance.FindClosestPortal(enemyRoom.Floor, playerRoom.Floor, enemy.transform.position);
-
-            if (portal != null)
-            {
-                enemy.MoveTowards(portal.transform.position);
-
-                if (Vector2.Distance(enemy.transform.position, portal.transform.position) < 0.1f)
-                {
-                    portal.MoveThroughPortal(enemy.transform, false);
-                }
-            }
-        }
+        enemy.MoveAI(Player.Instance.CurrentRoom);
     }
     public override void Exit()
     {
