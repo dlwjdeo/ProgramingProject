@@ -12,6 +12,7 @@ public class Enemy : MonoBehaviour
 
     private BoxCollider2D detectCollier;
 
+
     public float LastRoomEnterTime { get; private set; }
 
     private void Awake()

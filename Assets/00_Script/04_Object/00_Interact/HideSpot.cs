@@ -8,7 +8,7 @@ public class HideSpot : Interactable
     {
         if(player != null && player.State != PlayerStateType.Hide)
         {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Hide);
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Hide); 
         }
         else
         {
