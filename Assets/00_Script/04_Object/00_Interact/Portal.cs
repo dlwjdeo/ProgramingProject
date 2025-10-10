@@ -5,18 +5,28 @@ using UnityEngine;
 public class Portal : Interactable
 {
     [Header("포탈 이동 목표지점")]
+    [SerializeField] private Portal targetPorta;
     [SerializeField] private Transform targetPoint;
     [SerializeField] private CameraArea targetArea;
 
     [SerializeField] private int fromFloor;
     [SerializeField] private int toFloor;
+
+    [Header("잠금")]
+    [SerializeField] private Item keyItem;
+    [SerializeField] private bool isLocked;
     public int FromFloor => fromFloor;
     public int ToFloor => toFloor;
     public Transform TargetPoint => targetPoint;
+    private bool isOperated = false;
 
     public override void Interact()
     {
-        if (player != null && targetPoint != null)
+        if (isLocked)
+        {
+            if (keyItem == Player.Instance.Item) isLocked = false;
+        }
+        if (player != null && targetPoint != null && !isLocked)
         {
             // 플레이어 위치 이동
             InteractPortal(player.transform, true);
@@ -36,7 +46,7 @@ public class Portal : Interactable
         else
         {
             Enemy enemy = target.GetComponent<Enemy>();
-            if (enemy != null)
+            if (enemy != null && isOperated == false)
                 enemy.StartCoroutine(MoveRoomForEnemy(enemy));
         }
     }
@@ -57,10 +67,12 @@ public class Portal : Interactable
 
     private IEnumerator MoveRoomForEnemy(Enemy enemy)
     {
+        isOperated = true;
         enemy.SetMove(false);
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(1f);
 
         enemy.transform.position = targetPoint.position;
         enemy.SetMove(true);
+        isOperated = false;
     }
 }
