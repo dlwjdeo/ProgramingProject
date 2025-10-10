@@ -4,6 +4,14 @@ public class Enemy : MonoBehaviour
 {
     [Header("Enemy Settings")]
     [SerializeField] private float moveSpeed = 2f;
+    [SerializeField] private float viewRange = 5f;
+
+    public float DefultMoveSpeed { get; private set; } = 2f;
+
+    public float ViewRange => viewRange;
+    public RoomController LastKnownRoom {  get; private set; }
+
+    public bool CanSeePlayer { get; private set; }
 
     public EnemyStateMachine StateMachine { get; private set; }
     [SerializeField] private EnemyStateType state;
@@ -25,7 +33,8 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
-        UpdateCurrentRoom();
+        updateCurrentRoom();
+        updateVision();
         StateMachine.Update();
     }
 
@@ -34,7 +43,7 @@ public class Enemy : MonoBehaviour
         StateMachine.CurrentState?.OnTriggerEnter2D(collision);
     }
 
-    private void UpdateCurrentRoom()
+    private void updateCurrentRoom()
     {
         Vector2 center = _collider2D.bounds.center;
 
@@ -53,20 +62,43 @@ public class Enemy : MonoBehaviour
             }
         }
     }
-    public void SetStateType(EnemyStateType type)
+
+    private void updateVision()
     {
-        state = type;
+        var player = Player.Instance;
+        var playerRoom = Player.Instance.CurrentRoom;
+        if (playerRoom == null || playerRoom != CurrentRoom)
+        {
+            CanSeePlayer = false;
+            return;
+        }
+
+        //TODO: 적이 바라보는 방향만 가능하게 수정
+        float distance = Vector2.Distance(transform.position, player.transform.position);
+        if (distance < viewRange)
+        {
+            CanSeePlayer = true;
+            return;
+        }
     }
-    public void MoveAI(RoomController targetRoom)
+    public void SetStateType(EnemyStateType type) { state = type; }
+    public void MoveAI(RoomController targetRoom, bool chasePlayer = false)
     {
         if (targetRoom == null || CurrentRoom == null)
             return;
 
-        // 단순히 넘겨받은 Room 기준으로만 이동 (상태에서 판단)
         if (targetRoom.Floor == CurrentRoom.Floor)
         {
-            Vector3 targetPoint = targetRoom.Collider2D.bounds.center;
-            moveToTarget(targetPoint);
+            if (chasePlayer && Player.Instance != null) //플레이어 추적
+            {
+                Vector3 playerPos = Player.Instance.transform.position;
+                moveToTarget(playerPos);
+            }
+            else //방 중심 추적
+            {
+                Vector3 targetPoint = targetRoom.Collider2D.bounds.center;
+                moveToTarget(targetPoint);
+            }
         }
         else
         {
@@ -101,7 +133,10 @@ public class Enemy : MonoBehaviour
     }
     public void MoveTowards(Vector3 target)
     {
-        transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
+        Vector3 current = transform.position;
+        Vector3 targetPos = new Vector3(target.x, current.y, current.z);
+
+        transform.position = Vector3.MoveTowards(current, targetPos, moveSpeed * Time.deltaTime);
     }
 
     public void SetMove(bool move) => CanMove = move; //TODO: 실제 멈추는 로직 필요
@@ -112,4 +147,9 @@ public class Enemy : MonoBehaviour
         float distanceX = Mathf.Abs(transform.position.x - targetX);
         return distanceX <= 0.2f;
     }
+
+    public void SetLastKnowRoom(RoomController playerRoom) { LastKnownRoom = playerRoom; }
+    public bool IsPlayerVisible() => CanSeePlayer;
+
+    public void SetMoveSpeed(float speed) { moveSpeed = speed; }
 }

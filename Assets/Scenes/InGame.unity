@@ -2102,6 +2102,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
+  viewRange: 5
   state: 2
   _collider2D: {fileID: 1065559230}
   detectCollier: {fileID: 677805045}
