@@ -20,44 +20,63 @@ public class EnemyPatrolState : EnemyState
 {
     public EnemyPatrolState(Enemy enemy) : base(enemy) { }
     private RoomController targetRoom;
-    private float waitTime = 2f;
-    private bool arrived;
 
     public override void Enter()
     {
-        enemy.SetStateType(EnemyStateType.Patrol);
         targetRoom = RoomManager.Instance.GetRandomRoom();
     }
+
     public override void Update()
     {
         if (enemy.IsPlayerVisible())
         {
             enemy.StateMachine.ChangeState(enemy.StateMachine.Chase);
+            return;
         }
 
         enemy.MoveAI(targetRoom);
 
-        if (!arrived && enemy.IsArrived(targetRoom))
+        if (enemy.IsArrived(targetRoom))
         {
-            arrived = true;
-            waitTime = 2f;
-        }
-
-        if (arrived)
-        {
-            waitTime -= Time.deltaTime;
-            if (waitTime <= 0f)
-            {
-                targetRoom = RoomManager.Instance.GetRandomRoom();
-                Debug.Log("목적지 변경: " + targetRoom.name);
-                arrived = false; 
-            }
+            enemy.StateMachine.ChangeState(enemy.StateMachine.Wait);
         }
     }
 
     public override void Exit()
     {
 
+    }
+}
+
+public class EnemyWaitState : EnemyState
+{
+    public EnemyWaitState(Enemy enemy) : base(enemy) { }
+    private float waitTime = 2f;
+
+    public override void Enter()
+    {
+        enemy.SetStateType(EnemyStateType.Wait);
+        waitTime = 2f;
+    }
+
+    public override void Update()
+    {
+        if (enemy.IsPlayerVisible())
+        {
+            enemy.StateMachine.ChangeState(enemy.StateMachine.Chase);
+            return;
+        }
+
+        waitTime -= Time.deltaTime;
+        if (waitTime <= 0f)
+        {
+            enemy.StateMachine.ChangeState(enemy.StateMachine.Patrol);
+        }
+    }
+
+    public override void Exit()
+    {
+        
     }
 }
 
@@ -119,7 +138,7 @@ public class EnemyChaseState : EnemyState
 {
     private float lostPlayerDelay = 10f;     // 플레이어를 놓친 뒤 대기 시간
     private float lostTimer;
-    private bool isPlayerVisible;
+    private bool prevVisible;
     private float chaseSpeed = 3f;
 
     public EnemyChaseState(Enemy enemy) : base(enemy) { }
@@ -128,7 +147,7 @@ public class EnemyChaseState : EnemyState
     {
         enemy.SetStateType(EnemyStateType.Chase);
         lostTimer = lostPlayerDelay;
-        isPlayerVisible = true;
+        prevVisible = true;
         enemy.SetMoveSpeed(chaseSpeed);
     }
 
@@ -138,18 +157,18 @@ public class EnemyChaseState : EnemyState
 
         enemy.MoveAI(playerRoom, true);
 
-        if (CanSeePlayer())
+        if (enemy.IsPlayerVisible())
         {
             // 플레이어 위치 갱신
             enemy.SetLastKnowRoom(playerRoom);
             lostTimer = lostPlayerDelay;
-            isPlayerVisible = true;
+            prevVisible = true;
         }
         else
         {
-            if (isPlayerVisible)
+            if (prevVisible)
             {
-                isPlayerVisible = false;
+                prevVisible = false;
                 enemy.SetLastKnowRoom(playerRoom);
             }
 
@@ -159,19 +178,6 @@ public class EnemyChaseState : EnemyState
                 enemy.StateMachine.ChangeState(enemy.StateMachine.Suspicious);
             }
         }
-    }
-
-    private bool CanSeePlayer()
-    {
-        if (Player.Instance == null)
-            return false;
-
-        var playerRoom = Player.Instance.CurrentRoom;
-        if (playerRoom == null || playerRoom.Floor != enemy.CurrentRoom.Floor)
-            return false;
-
-        float distance = Vector2.Distance(enemy.transform.position, Player.Instance.transform.position);
-        return distance <= enemy.ViewRange;
     }
 
     public override void OnTriggerEnter2D(Collider2D other)
@@ -204,7 +210,7 @@ public class EnemyChaseState : EnemyState
     public override void Exit()
     {
         lostTimer = 0f;
-        isPlayerVisible = false;
+        prevVisible = false;
         enemy.SetMoveSpeed(enemy.DefultMoveSpeed);
     }
 }

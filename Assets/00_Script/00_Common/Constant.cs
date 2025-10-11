@@ -42,5 +42,6 @@ public enum EnemyStateType
 {
     Suspicious,
     Patrol,
-    Chase
+    Chase,
+    Wait
 }

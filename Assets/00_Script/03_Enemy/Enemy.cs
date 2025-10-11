@@ -11,7 +11,7 @@ public class Enemy : MonoBehaviour
     public float ViewRange => viewRange;
     public RoomController LastKnownRoom {  get; private set; }
 
-    public bool CanSeePlayer { get; private set; }
+    private bool canSeePlayer;
 
     public EnemyStateMachine StateMachine { get; private set; }
     [SerializeField] private EnemyStateType state;
@@ -69,7 +69,7 @@ public class Enemy : MonoBehaviour
         var playerRoom = Player.Instance.CurrentRoom;
         if (playerRoom == null || playerRoom != CurrentRoom)
         {
-            CanSeePlayer = false;
+            canSeePlayer = false;
             return;
         }
 
@@ -77,7 +77,7 @@ public class Enemy : MonoBehaviour
         float distance = Vector2.Distance(transform.position, player.transform.position);
         if (distance < viewRange)
         {
-            CanSeePlayer = true;
+            canSeePlayer = true;
             return;
         }
     }
@@ -149,7 +149,7 @@ public class Enemy : MonoBehaviour
     }
 
     public void SetLastKnowRoom(RoomController playerRoom) { LastKnownRoom = playerRoom; }
-    public bool IsPlayerVisible() => CanSeePlayer;
+    public bool IsPlayerVisible() => canSeePlayer;
 
     public void SetMoveSpeed(float speed) { moveSpeed = speed; }
 }
