@@ -11,7 +11,7 @@ public class PickupItem : Interactable
         if (player != null)
         {
             player.ChangeItem(item);
-
+            ShowSuccess();
             Destroy(gameObject);
         }
     }

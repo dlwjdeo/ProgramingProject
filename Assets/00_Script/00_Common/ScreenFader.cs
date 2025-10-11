@@ -13,33 +13,31 @@ public class ScreenFader : MonoBehaviour
         if (fadeImage != null)
             fadeImage.color = new Color(0, 0, 0, 0); 
     }
-
-    public IEnumerator FadeIn() 
+    public IEnumerator FadeIn()
     {
-        yield return Fade(0f);
+        yield return StartCoroutine(FadeRoutine(1f, 0f));
     }
 
     public IEnumerator FadeOut()
     {
-        yield return Fade(1f);
+        yield return StartCoroutine(FadeRoutine(0f, 1f));
     }
 
-    private IEnumerator Fade(float targetAlpha)
+    private IEnumerator FadeRoutine(float from, float to)
     {
-        if (fadeImage == null) yield break;
-
-        float startAlpha = fadeImage.color.a;
         float time = 0f;
+        Color color = fadeImage.color;
 
         while (time < fadeDuration)
         {
             time += Time.deltaTime;
-            float t = time / fadeDuration;
-            float alpha = Mathf.SmoothStep(startAlpha, targetAlpha, t);
-            fadeImage.color = new Color(0, 0, 0, alpha);
+            float alpha = Mathf.SmoothStep(from, to, time / fadeDuration);
+            color.a = alpha;
+            fadeImage.color = color;
             yield return null;
         }
 
-        fadeImage.color = new Color(0, 0, 0, targetAlpha);
+        color.a = to;
+        fadeImage.color = color;
     }
 }

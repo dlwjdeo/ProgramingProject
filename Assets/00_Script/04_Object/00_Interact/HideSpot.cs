@@ -9,10 +9,12 @@ public class HideSpot : Interactable
         if(player != null && player.State != PlayerStateType.Hide)
         {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Hide); 
+            ShowSuccess();
         }
         else
         {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
+            ShowFail();
         }
     }
 }

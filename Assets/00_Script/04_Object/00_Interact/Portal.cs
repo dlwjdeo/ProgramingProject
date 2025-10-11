@@ -5,8 +5,7 @@ using UnityEngine;
 public class Portal : Interactable
 {
     [Header("포탈 이동 목표지점")]
-    [SerializeField] private Portal targetPorta;
-    [SerializeField] private Transform targetPoint;
+    [SerializeField] private Portal targetPortal;
     [SerializeField] private CameraArea targetArea;
 
     [SerializeField] private int fromFloor;
@@ -17,16 +16,24 @@ public class Portal : Interactable
     [SerializeField] private bool isLocked;
     public int FromFloor => fromFloor;
     public int ToFloor => toFloor;
-    public Transform TargetPoint => targetPoint;
     private bool isOperated = false;
 
     public override void Interact()
     {
         if (isLocked)
         {
-            if (keyItem == Player.Instance.Item) isLocked = false;
+            if (keyItem == Player.Instance.Item)
+            {
+                OpenPortal();
+                targetPortal.OpenPortal(); //쌍방향 포탈 오픈
+                ShowSuccess();
+            }
+            else
+            {
+                ShowFail();
+            }
         }
-        if (player != null && targetPoint != null && !isLocked)
+        if (player != null && targetPortal != null && !isLocked)
         {
             // 플레이어 위치 이동
             InteractPortal(player.transform, true);
@@ -35,7 +42,7 @@ public class Portal : Interactable
 
     public void InteractPortal(Transform target, bool isPlayer)
     {
-        if (target == null || targetPoint == null) return;
+        if (target == null || targetPortal == null) return;
 
         if (isPlayer)
         {
@@ -53,16 +60,14 @@ public class Portal : Interactable
 
     private IEnumerator MoveRoomForPlayer(Player player)
     {
-        ScreenFader fader = FindObjectOfType<ScreenFader>();
-
         player.PlayerMover.SetMove(false);
-        yield return fader.FadeOut();
+        yield return UIManager.Instance.FadeOut();
 
-        player.transform.position = targetPoint.position;
+        player.transform.position = targetPortal.transform.position;
         CameraManager.Instance.SwitchCamera(targetArea);
 
         player.PlayerMover.SetMove(true);
-        yield return fader.FadeIn();
+        yield return UIManager.Instance.FadeIn();
     }
 
     private IEnumerator MoveRoomForEnemy(Enemy enemy)
@@ -71,8 +76,13 @@ public class Portal : Interactable
         enemy.SetMove(false);
         yield return new WaitForSeconds(1f);
 
-        enemy.transform.position = targetPoint.position;
+        enemy.transform.position = targetPortal.transform.position;
         enemy.SetMove(true);
         isOperated = false;
+    }
+
+    public void OpenPortal()
+    {
+        isLocked = false;
     }
 }
