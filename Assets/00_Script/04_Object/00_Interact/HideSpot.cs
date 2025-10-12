@@ -11,10 +11,5 @@ public class HideSpot : Interactable
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Hide); 
             ShowSuccess();
         }
-        else
-        {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
-            ShowFail();
-        }
     }
 }
