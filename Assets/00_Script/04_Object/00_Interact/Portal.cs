@@ -13,14 +13,14 @@ public class Portal : Interactable
 
     [Header("잠금")]
     [SerializeField] private Item keyItem;
-    [SerializeField] private bool isLocked;
+    [SerializeField] private bool isOpend = false;
     public int FromFloor => fromFloor;
     public int ToFloor => toFloor;
     private bool isOperated = false;
 
     public override void Interact()
     {
-        if (isLocked)
+        if (!isOpend)
         {
             if (keyItem == Player.Instance.Item)
             {
@@ -33,7 +33,7 @@ public class Portal : Interactable
                 ShowFail();
             }
         }
-        if (player != null && targetPortal != null && !isLocked)
+        if (player != null && targetPortal != null && isOpend)
         {
             // 플레이어 위치 이동
             InteractPortal(player.transform, true);
@@ -83,6 +83,6 @@ public class Portal : Interactable
 
     public void OpenPortal()
     {
-        isLocked = false;
+        isOpend = true;
     }
 }
