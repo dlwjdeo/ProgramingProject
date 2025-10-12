@@ -23,6 +23,7 @@ public class EnemyPatrolState : EnemyState
 
     public override void Enter()
     {
+        enemy.SetStateType(EnemyStateType.Patrol);
         targetRoom = RoomManager.Instance.GetRandomRoom();
     }
 
