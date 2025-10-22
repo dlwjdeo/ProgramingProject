@@ -10,7 +10,40 @@ public class RoomManager : Singleton<RoomManager>
     [SerializeField] private List<RoomController> rooms = new List<RoomController>();
     public List<RoomController> Rooms => rooms;
     [SerializeField] private List<Portal> portals = new List<Portal>();
-    
+
+    [Header("초기 할당 인덱스")]
+    [SerializeField] private int playerRoomIndex = 0;
+    [SerializeField] private int enemyRoomIndex = 3;
+
+    public RoomController PlayerRoom;// { get; private set; }
+    public RoomController EnemyRoom;// { get; private set; }
+
+    private void Start()
+    {
+        initializeRooms();
+    }
+    private void initializeRooms()
+    {
+        SetPlayerRoom(rooms[playerRoomIndex]);
+        SetEnemyRoom(rooms[enemyRoomIndex]);
+        Debug.Log($"초기 PlayerRoom: {PlayerRoom.name}, EnemyRoom: {EnemyRoom.name}");
+    }
+    public void SetPlayerRoom(RoomController room)
+    {
+        if (PlayerRoom == room) return;
+
+        var prev = PlayerRoom;
+        PlayerRoom = room;
+        if (prev != null)
+            prev.Deactivate();
+        PlayerRoom.Activate();
+    }
+
+    public void SetEnemyRoom(RoomController room)
+    {
+        EnemyRoom = room;
+    }
+
     public Portal FindClosestPortal(int fromFloor, int toFloor, Vector3 enemyPos)
     {
         // fromFloor와 toFloor의 차이가 2이상이면, toFloor을 한 층 차이로 변경

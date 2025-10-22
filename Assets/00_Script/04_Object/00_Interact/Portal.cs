@@ -7,6 +7,7 @@ public class Portal : Interactable
     [Header("포탈 이동 목표지점")]
     [SerializeField] private Portal targetPortal;
     [SerializeField] private CameraArea targetArea;
+    [SerializeField] private RoomController targetRoom;
 
     [SerializeField] private int fromFloor;
     [SerializeField] private int toFloor;
@@ -64,6 +65,7 @@ public class Portal : Interactable
         yield return UIManager.Instance.FadeOut();
 
         player.transform.position = targetPortal.transform.position;
+        RoomManager.Instance.SetPlayerRoom(targetRoom);
         CameraManager.Instance.SwitchCamera(targetArea);
 
         player.PlayerMover.SetMove(true);
@@ -77,6 +79,7 @@ public class Portal : Interactable
         yield return new WaitForSeconds(1f);
 
         enemy.transform.position = targetPortal.transform.position;
+        RoomManager.Instance.SetEnemyRoom(targetRoom);
         enemy.SetMove(true);
         isOperated = false;
     }

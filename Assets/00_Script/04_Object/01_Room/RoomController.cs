@@ -5,6 +5,8 @@ public class RoomController : MonoBehaviour
 {
     [SerializeField] private GameObject overlay;
     [SerializeField] private Collider2D _collider2D;
+    [SerializeField] private RoomEntranceTrigger leftEntrance;
+    [SerializeField] private RoomEntranceTrigger rightEntrance;
 
     [Header("¹æ Á¤º¸")]
     [SerializeField] private int floor;

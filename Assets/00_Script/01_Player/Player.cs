@@ -37,7 +37,6 @@ public class Player : Singleton<Player>
 
     private void Update()
     {
-        UpdateCurrentRoom();
         PlayerStateMachine.Update();
     }
 
