@@ -41,25 +41,13 @@ public class Enemy : MonoBehaviour
     {
         StateMachine.CurrentState?.OnTriggerEnter2D(collision);
     }
-
-    private void updateCurrentRoom()
+    private void OnEnable()
     {
-        Vector2 center = _collider2D.bounds.center;
-
-        foreach (var room in RoomManager.Instance.Rooms)
-        {
-            if (room == null) continue;
-
-            if (room.Collider2D.OverlapPoint(center))
-            {
-                if (room != CurrentRoom)
-                {
-                    CurrentRoom = room;
-                    setLastRoomEnterTime();
-                }
-                return;
-            }
-        }
+        RoomManager.Instance.OnChangedPlayerRoom += SetCurrentRoom;
+    }
+    private void OnDisable()
+    {
+        RoomManager.Instance.OnChangedEnemyRoom -= SetCurrentRoom;
     }
 
     private void updateVision()
@@ -81,55 +69,35 @@ public class Enemy : MonoBehaviour
         }
     }
     public void SetStateType(EnemyStateType type) { state = type; }
-    public void MoveAI(RoomController targetRoom, bool chasePlayer = false)
-    {
-        if (targetRoom == null || CurrentRoom == null)
-            return;
 
+    public void MoveToRoom(RoomController targetRoom)
+    {
+        if (targetRoom == null || CurrentRoom == null) return;
+
+        // 같은 층
         if (targetRoom.Floor == CurrentRoom.Floor)
         {
-            if (chasePlayer && Player.Instance != null) //플레이어 추적
-            {
-                Vector3 playerPos = Player.Instance.transform.position;
-                moveToTarget(playerPos);
-            }
-            else //방 중심 추적
-            {
-                Vector3 targetPoint = targetRoom.Collider2D.bounds.center;
-                moveToTarget(targetPoint);
-            }
+            Vector3 targetPoint = targetRoom.Collider2D.bounds.center;
+            MoveTowards(targetPoint);
         }
         else
         {
-            moveToPortal(targetRoom);
+            MoveToPortal(targetRoom);
         }
     }
 
-    private void moveToTarget(Vector3 targetPoint)
-    {
-        float distanceX = Mathf.Abs(targetPoint.x - transform.position.x);
-
-        if (distanceX > 0.05f)
-        {
-            Vector3 movePoint = new Vector3(targetPoint.x, transform.position.y, transform.position.z);
-            MoveTowards(movePoint);
-        }
-    }
-
-    private void moveToPortal(RoomController targetRoom)
+    public void MoveToPortal(RoomController targetRoom)
     {
         Portal portal = RoomManager.Instance.FindClosestPortal(CurrentRoom.Floor, targetRoom.Floor, transform.position);
 
-        if (portal != null)
-        {
-            MoveTowards(portal.transform.position);
+        if (portal == null) return;
 
-            if (Vector2.Distance(transform.position, portal.transform.position) < 0.1f)
-            {
-                portal.InteractPortal(transform, false);
-            }
-        }
+        MoveTowards(portal.transform.position);
+
+        if (Vector2.Distance(transform.position, portal.transform.position) < 0.1f)
+            portal.InteractPortal(transform, false);
     }
+
     public void MoveTowards(Vector3 target)
     {
         Vector3 current = transform.position;
@@ -144,11 +112,19 @@ public class Enemy : MonoBehaviour
     {
         float targetX = targetRoom.Collider2D.bounds.center.x;
         float distanceX = Mathf.Abs(transform.position.x - targetX);
-        return distanceX <= 0.2f;
+        return distanceX <= 0.1f;
     }
 
-    public void SetLastKnowRoom(RoomController playerRoom) { LastKnownRoom = playerRoom; }
+    public bool IsArrived(Vector3 pos)
+    {
+        float targetX = pos.x;
+        float distanceX = Mathf.Abs(transform.position.x - targetX);
+        return distanceX <= 0.1f;
+    }
+
+    public void SetLastKnownRoom(RoomController playerRoom) { LastKnownRoom = playerRoom; }
     public bool IsPlayerVisible() => canSeePlayer;
 
     public void SetMoveSpeed(float speed) { moveSpeed = speed; }
+    public void SetCurrentRoom(RoomController room) { CurrentRoom = room; }
 }

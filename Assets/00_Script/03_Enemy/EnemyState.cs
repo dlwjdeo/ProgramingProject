@@ -35,11 +35,21 @@ public class EnemyPatrolState : EnemyState
             return;
         }
 
-        enemy.MoveAI(targetRoom);
+        if (targetRoom == null) return;
 
-        if (enemy.IsArrived(targetRoom))
+        if (targetRoom.Floor == enemy.CurrentRoom.Floor)
         {
-            enemy.StateMachine.ChangeState(enemy.StateMachine.Wait);
+            Vector3 targetPoint = targetRoom.Collider2D.bounds.center;
+            enemy.MoveTowards(targetPoint);
+
+            if (enemy.IsArrived(targetPoint))
+            {
+                enemy.StateMachine.ChangeState(enemy.StateMachine.Wait); Debug.Log("웨이트");
+            }
+        }
+        else
+        {
+            enemy.MoveToPortal(targetRoom);
         }
     }
 
@@ -105,14 +115,17 @@ public class EnemySuspiciousState : EnemyState
         if (enemy.IsPlayerVisible())
         {
             enemy.StateMachine.ChangeState(enemy.StateMachine.Chase);
+            return;
         }
 
-        // 아직 도착 전이면 이동
-        if (!arrived)
-        {
-            enemy.MoveAI(targetRoom);
+        if (targetRoom == null) return;
 
-            if (enemy.IsArrived(targetRoom))
+        if (targetRoom.Floor == enemy.CurrentRoom.Floor)
+        {
+            Vector3 center = targetRoom.Collider2D.bounds.center;
+            enemy.MoveTowards(center);
+
+            if (enemy.IsArrived(center))
             {
                 arrived = true;
                 timer = suspicionTime;
@@ -120,11 +133,14 @@ public class EnemySuspiciousState : EnemyState
         }
         else
         {
+            enemy.MoveToPortal(targetRoom);
+        }
+
+        if (arrived)
+        {
             timer -= Time.deltaTime;
             if (timer <= 0f)
-            {
                 enemy.StateMachine.ChangeState(enemy.StateMachine.Patrol);
-            }
         }
     }
 
@@ -137,7 +153,7 @@ public class EnemySuspiciousState : EnemyState
 
 public class EnemyChaseState : EnemyState
 {
-    private float lostPlayerDelay = 10f;     // 플레이어를 놓친 뒤 대기 시간
+    private float lostPlayerDelay = 10f;
     private float lostTimer;
     private bool prevVisible;
     private float chaseSpeed = 3f;
@@ -147,21 +163,31 @@ public class EnemyChaseState : EnemyState
     public override void Enter()
     {
         enemy.SetStateType(EnemyStateType.Chase);
+        enemy.SetMoveSpeed(chaseSpeed);
         lostTimer = lostPlayerDelay;
         prevVisible = true;
-        enemy.SetMoveSpeed(chaseSpeed);
     }
 
     public override void Update()
     {
+        if (Player.Instance == null) return;
         RoomController playerRoom = Player.Instance.CurrentRoom;
 
-        enemy.MoveAI(playerRoom, true);
+        if (playerRoom == null || enemy.CurrentRoom == null)
+            return;
+
+        if (playerRoom.Floor == enemy.CurrentRoom.Floor)
+        {
+            enemy.MoveTowards(Player.Instance.transform.position);
+        }
+        else
+        {
+            enemy.MoveToPortal(playerRoom);
+        }
 
         if (enemy.IsPlayerVisible())
         {
-            // 플레이어 위치 갱신
-            enemy.SetLastKnowRoom(playerRoom);
+            enemy.SetLastKnownRoom(playerRoom);
             lostTimer = lostPlayerDelay;
             prevVisible = true;
         }
@@ -170,14 +196,12 @@ public class EnemyChaseState : EnemyState
             if (prevVisible)
             {
                 prevVisible = false;
-                enemy.SetLastKnowRoom(playerRoom);
+                enemy.SetLastKnownRoom(playerRoom);
             }
 
             lostTimer -= Time.deltaTime;
-            if (lostTimer <= 0f )
-            {
+            if (lostTimer <= 0f)
                 enemy.StateMachine.ChangeState(enemy.StateMachine.Suspicious);
-            }
         }
     }
 

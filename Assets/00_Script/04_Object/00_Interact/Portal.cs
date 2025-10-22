@@ -56,6 +56,7 @@ public class Portal : Interactable
             Enemy enemy = target.GetComponent<Enemy>();
             if (enemy != null && isOperated == false)
                 enemy.StartCoroutine(MoveRoomForEnemy(enemy));
+            Debug.Log("ÀûÀÌµ¿");
         }
     }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.LowLevel;
@@ -5,6 +6,8 @@ using UnityEngine.LowLevel;
 //현재 플레이어가 있는 방의 위치를 조정해주는 Manager
 public class RoomManager : Singleton<RoomManager>
 {
+    public event Action<RoomController> OnChangedPlayerRoom;
+    public event Action<RoomController> OnChangedEnemyRoom;
 
     [Header("방 정보")]
     [SerializeField] private List<RoomController> rooms = new List<RoomController>();
@@ -26,7 +29,6 @@ public class RoomManager : Singleton<RoomManager>
     {
         SetPlayerRoom(rooms[playerRoomIndex]);
         SetEnemyRoom(rooms[enemyRoomIndex]);
-        Debug.Log($"초기 PlayerRoom: {PlayerRoom.name}, EnemyRoom: {EnemyRoom.name}");
     }
     public void SetPlayerRoom(RoomController room)
     {
@@ -37,11 +39,13 @@ public class RoomManager : Singleton<RoomManager>
         if (prev != null)
             prev.Deactivate();
         PlayerRoom.Activate();
+        OnChangedPlayerRoom?.Invoke(room);
     }
 
     public void SetEnemyRoom(RoomController room)
     {
         EnemyRoom = room;
+        OnChangedEnemyRoom?.Invoke(room);
     }
 
     public Portal FindClosestPortal(int fromFloor, int toFloor, Vector3 enemyPos)
@@ -85,7 +89,7 @@ public class RoomManager : Singleton<RoomManager>
     public RoomController GetRandomRoom()
     {
         if (rooms == null) return null;
-        int index = Random.Range(0, rooms.Count);
+        int index = UnityEngine.Random.Range(0, rooms.Count);
         return rooms[index];
     }
 }

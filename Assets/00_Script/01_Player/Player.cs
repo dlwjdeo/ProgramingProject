@@ -39,26 +39,13 @@ public class Player : Singleton<Player>
     {
         PlayerStateMachine.Update();
     }
-
-    private void UpdateCurrentRoom()
+    private void OnEnable()
     {
-        Vector2 center = _Collider2D.bounds.center;
-
-        foreach (var room in RoomManager.Instance.Rooms)
-        {
-            if (room == null) continue;
-
-            if (room.Collider2D.OverlapPoint(center))
-            {
-                if (room != CurrentRoom)
-                {
-                    CurrentRoom?.Deactivate();
-                    CurrentRoom = room;
-                    CurrentRoom.Activate();
-                }
-                return;
-            }
-        }
+        RoomManager.Instance.OnChangedPlayerRoom += SetCurrentRoom;
+    }
+    private void OnDisable()
+    {
+        RoomManager.Instance.OnChangedPlayerRoom -= SetCurrentRoom;
     }
     public void ChangeItem(Item changeItem)
     {
@@ -75,4 +62,5 @@ public class Player : Singleton<Player>
             LastHideTime = Time.time;
         }
     }
+    public void SetCurrentRoom(RoomController room) { CurrentRoom = room; }
 }
