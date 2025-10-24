@@ -64,7 +64,7 @@ public class RoomManager : Singleton<RoomManager>
 
         foreach (Portal portal in portals)
         {
-            if (portal.FromFloor == fromFloor && portal.ToFloor == toFloor)
+            if (portal.FromFloor == fromFloor && portal.ToFloor == toFloor && portal.IsOpend)
             {
                 candidates.Add(portal);
             }

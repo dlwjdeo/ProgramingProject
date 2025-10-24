@@ -15,6 +15,7 @@ public class Portal : Interactable
     [Header("잠금")]
     [SerializeField] private Item keyItem;
     [SerializeField] private bool isOpend = false;
+    public bool IsOpend => isOpend;
     public int FromFloor => fromFloor;
     public int ToFloor => toFloor;
     private bool isOperated = false;
@@ -43,7 +44,7 @@ public class Portal : Interactable
 
     public void InteractPortal(Transform target, bool isPlayer)
     {
-        if (target == null || targetPortal == null) return;
+        if (target == null || targetPortal == null || !isOpend) return;
 
         if (isPlayer)
         {
@@ -55,8 +56,8 @@ public class Portal : Interactable
         {
             Enemy enemy = target.GetComponent<Enemy>();
             if (enemy != null && isOperated == false)
-                enemy.StartCoroutine(MoveRoomForEnemy(enemy));
-            Debug.Log("적이동");
+                enemy.StartCoroutine(MoveRoomForEnemy(enemy)); 
+
         }
     }
 

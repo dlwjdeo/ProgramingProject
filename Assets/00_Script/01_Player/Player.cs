@@ -56,8 +56,9 @@ public class Player : Singleton<Player>
 
     public void SetHidden(bool hidden) 
     {
-        IsHidden = hidden; 
-        if(IsHidden == true)
+        IsHidden = hidden;
+        gameObject.layer = hidden ? LayerMask.NameToLayer("PlayerHidden") : LayerMask.NameToLayer("Player");
+        if (IsHidden == true)
         {
             LastHideTime = Time.time;
         }

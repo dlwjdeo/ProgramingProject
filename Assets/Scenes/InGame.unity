@@ -1093,7 +1093,7 @@ MonoBehaviour:
   fromFloor: 2
   toFloor: 1
   keyItem: 0
-  isOpend: 0
+  isOpend: 1
 --- !u!212 &530363521
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1971,7 +1971,7 @@ MonoBehaviour:
   fromFloor: 1
   toFloor: 2
   keyItem: 0
-  isOpend: 0
+  isOpend: 1
 --- !u!212 &873601033
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2328,6 +2328,59 @@ MonoBehaviour:
   leftEntrance: {fileID: 1771214159}
   rightEntrance: {fileID: 371467955}
   floor: 2
+--- !u!1 &1053981052
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1053981053}
+  - component: {fileID: 1053981054}
+  m_Layer: 6
+  m_Name: ViewPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1053981053
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1053981052}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1065559232}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1053981054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1053981052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 213416e67a4aef74c92160ae9229a419, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rayPoint: {fileID: 1053981053}
+  viewDistance: 6
+  detectInterval: 0.1
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
+  playerMask:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &1064112279
 GameObject:
   m_ObjectHideFlags: 0
@@ -2522,6 +2575,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 677805044}
+  - {fileID: 1053981053}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1065559233
@@ -2541,6 +2595,7 @@ MonoBehaviour:
   state: 1
   _collider2D: {fileID: 1065559230}
   detectCollier: {fileID: 677805045}
+  CurrentRoom: {fileID: 0}
 --- !u!1 &1070099291
 GameObject:
   m_ObjectHideFlags: 0

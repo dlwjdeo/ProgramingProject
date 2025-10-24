@@ -6,12 +6,11 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float moveSpeed = 2f;
     [SerializeField] private float viewRange = 5f;
 
+    public EnemyVision EnemyVision {  get; private set; }
+
     public float DefultMoveSpeed { get; private set; } = 2f;
 
-    public float ViewRange => viewRange;
     public RoomController LastKnownRoom {  get; private set; }
-
-    private bool canSeePlayer;
 
     public EnemyStateMachine StateMachine { get; private set; }
     [SerializeField] private EnemyStateType state;
@@ -21,19 +20,21 @@ public class Enemy : MonoBehaviour
     [SerializeField] private BoxCollider2D _collider2D;
     [SerializeField] private BoxCollider2D detectCollier;
 
-    public RoomController CurrentRoom { get; private set; }
+    public RoomController CurrentRoom;// { get; private set; }
 
 
     public float LastRoomEnterTime { get; private set; }
 
+    public float Direction { get; private set; } = 1;
+
     private void Awake()
     {
         StateMachine = new EnemyStateMachine(this);
+        EnemyVision = GetComponentInChildren<EnemyVision>();
     }
 
     private void Update()
     {
-        updateVision();
         StateMachine.Update();
     }
 
@@ -43,30 +44,11 @@ public class Enemy : MonoBehaviour
     }
     private void OnEnable()
     {
-        RoomManager.Instance.OnChangedPlayerRoom += SetCurrentRoom;
+        RoomManager.Instance.OnChangedEnemyRoom += SetCurrentRoom;
     }
     private void OnDisable()
     {
         RoomManager.Instance.OnChangedEnemyRoom -= SetCurrentRoom;
-    }
-
-    private void updateVision()
-    {
-        var player = Player.Instance;
-        var playerRoom = Player.Instance.CurrentRoom;
-        if (playerRoom == null || playerRoom != CurrentRoom)
-        {
-            canSeePlayer = false;
-            return;
-        }
-
-        //TODO: 적이 바라보는 방향만 가능하게 수정
-        float distance = Vector2.Distance(transform.position, player.transform.position);
-        if (distance < viewRange)
-        {
-            canSeePlayer = true;
-            return;
-        }
     }
     public void SetStateType(EnemyStateType type) { state = type; }
 
@@ -94,7 +76,7 @@ public class Enemy : MonoBehaviour
 
         MoveTowards(portal.transform.position);
 
-        if (Vector2.Distance(transform.position, portal.transform.position) < 0.1f)
+        if (IsArrived(portal.transform.position))
             portal.InteractPortal(transform, false);
     }
 
@@ -102,10 +84,32 @@ public class Enemy : MonoBehaviour
     {
         Vector3 current = transform.position;
         Vector3 targetPos = new Vector3(target.x, current.y, current.z);
+        Vector3 dir = (targetPos - current).normalized;
 
         transform.position = Vector3.MoveTowards(current, targetPos, moveSpeed * Time.deltaTime);
+
+        HandleFlip(dir.x);
+    }
+    private void HandleFlip(float dirX)
+    {
+        if (dirX > 0.05f && Direction < 0)
+        {
+            Flip();
+            Direction = 1;
+        }
+        else if (dirX < -0.05f && Direction > 0)
+        {
+            Flip();
+            Direction = -1;
+        }
     }
 
+    private void Flip()
+    {
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+    }
     public void SetMove(bool move) => CanMove = move; //TODO: 실제 멈추는 로직 필요
     private void setLastRoomEnterTime() => LastRoomEnterTime = Time.time;
     public bool IsArrived(RoomController targetRoom)
@@ -123,7 +127,6 @@ public class Enemy : MonoBehaviour
     }
 
     public void SetLastKnownRoom(RoomController playerRoom) { LastKnownRoom = playerRoom; }
-    public bool IsPlayerVisible() => canSeePlayer;
 
     public void SetMoveSpeed(float speed) { moveSpeed = speed; }
     public void SetCurrentRoom(RoomController room) { CurrentRoom = room; }
