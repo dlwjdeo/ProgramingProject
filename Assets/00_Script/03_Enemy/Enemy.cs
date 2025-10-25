@@ -10,8 +10,6 @@ public class Enemy : MonoBehaviour
 
     public float DefultMoveSpeed { get; private set; } = 2f;
 
-    public RoomController LastKnownRoom {  get; private set; }
-
     public EnemyStateMachine StateMachine { get; private set; }
     [SerializeField] private EnemyStateType state;
 
@@ -20,10 +18,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private BoxCollider2D _collider2D;
     [SerializeField] private BoxCollider2D detectCollier;
 
-    public RoomController CurrentRoom;// { get; private set; }
-
-
-    public float LastRoomEnterTime { get; private set; }
+    public RoomController CurrentRoom { get; private set; }
 
     public float Direction { get; private set; } = 1;
 
@@ -110,8 +105,7 @@ public class Enemy : MonoBehaviour
         scale.x *= -1;
         transform.localScale = scale;
     }
-    public void SetMove(bool move) => CanMove = move; //TODO: 실제 멈추는 로직 필요
-    private void setLastRoomEnterTime() => LastRoomEnterTime = Time.time;
+    public void SetMove(bool move) => CanMove = move; 
     public bool IsArrived(RoomController targetRoom)
     {
         float targetX = targetRoom.Collider2D.bounds.center.x;
@@ -125,8 +119,6 @@ public class Enemy : MonoBehaviour
         float distanceX = Mathf.Abs(transform.position.x - targetX);
         return distanceX <= 0.1f;
     }
-
-    public void SetLastKnownRoom(RoomController playerRoom) { LastKnownRoom = playerRoom; }
 
     public void SetMoveSpeed(float speed) { moveSpeed = speed; }
     public void SetCurrentRoom(RoomController room) { CurrentRoom = room; }
