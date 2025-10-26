@@ -55,10 +55,10 @@ public class EnemyVision : MonoBehaviour
         Vector2 lookDir = new Vector2(enemy.Direction, 0f);
         float dist = Vector2.Distance(origin, player.transform.position);
 
-        if (dist > viewDistance)
+        if (Mathf.Abs(dist) > viewDistance)
             return;
 
-        RaycastHit2D hit = Physics2D.Raycast(origin, lookDir, viewDistance, obstacleMask | playerMask);
+        RaycastHit2D hit = Physics2D.Raycast(origin, lookDir, viewDistance, playerMask);
         if (hit.collider != null && hit.collider.CompareTag(TagName.Player))
         {
             IsPlayerVisible = true;

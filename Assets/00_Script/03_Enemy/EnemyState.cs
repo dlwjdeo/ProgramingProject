@@ -126,7 +126,7 @@ public class EnemySuspiciousState : EnemyState
             Vector3 center = targetRoom.Collider2D.bounds.center;
             enemy.MoveTowards(center);
 
-            if (enemy.IsArrived(center))
+            if (enemy.IsArrived(center) && !arrived)
             {
                 arrived = true;
                 timer = suspicionTime;
@@ -140,6 +140,7 @@ public class EnemySuspiciousState : EnemyState
         if (arrived)
         {
             timer -= Time.deltaTime;
+            Debug.Log(timer);
             if (timer <= 0f)
             {
                 enemy.StateMachine.ChangeState(enemy.StateMachine.Patrol);
@@ -213,7 +214,7 @@ public class EnemyChaseState : EnemyState
 
             if (player.IsHidden)
             {
-                float diff = lastDetectTime - player.LastHideTime;
+                float diff = player.LastHideTime - lastDetectTime;
                 if (diff < 1f)
                 {
                     Debug.Log("들킴 게임오버");
