@@ -7,10 +7,6 @@ public class Player : Singleton<Player>
 {
     [SerializeField] private PlayerStateType state;
     public PlayerStateType State => state;
-    public Item Item = Item.Null;
-
-    public event Action<Item> OnItemChanged;
-
     public PlayerInputReader PlayerInputReader {  get; private set; }
     public PlayerMover PlayerMover { get; private set; }
     public PlayerInteraction PlayerInteraction { get; private set; }
@@ -23,16 +19,19 @@ public class Player : Singleton<Player>
 
     public RoomController CurrentRoom { get; private set; }
 
+    public PlayerInventory PlayerInventory { get; private set; }
+
 
     protected override void Awake()
     {
         base.Awake();
         PlayerInputReader = GetComponent<PlayerInputReader>();
         PlayerMover = GetComponent<PlayerMover>();
-        PlayerInteraction = GetComponent<PlayerInteraction>();
+        PlayerInteraction = GetComponentInChildren<PlayerInteraction>();
         PlayerStateMachine = new PlayerStateMachine(this);
         Rigidbody2D = GetComponent<Rigidbody2D>();
         _Collider2D = GetComponent<BoxCollider2D>();
+        PlayerInventory = GetComponent<PlayerInventory>();
     }
 
     private void Update()
@@ -46,11 +45,6 @@ public class Player : Singleton<Player>
     private void OnDisable()
     {
         RoomManager.Instance.OnChangedPlayerRoom -= SetCurrentRoom;
-    }
-    public void ChangeItem(Item changeItem)
-    {
-        Item = changeItem;
-        OnItemChanged?.Invoke(Item);
     }
     public void SetStateType(PlayerStateType type) {  state = type; }
 

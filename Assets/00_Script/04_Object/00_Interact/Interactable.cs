@@ -5,9 +5,20 @@ public abstract class Interactable : MonoBehaviour
     [Header("상호작용 메시지")]
     [SerializeField] protected string successMessage;
     [SerializeField] protected string failMessage;
+
+    [Header("우선도")]
+    [SerializeField] protected int priority;
+    private int originalPriority;
+    public int Priority => priority;
+
     //TODO: 오브젝트의 position값이 강제로 이동되었을 경우 방어코드 필요
     protected Player player;
     protected bool inRange;
+
+    protected virtual void Awake()
+    {
+        originalPriority = priority;
+    }
 
     protected virtual void OnTriggerEnter2D(Collider2D other)
     {
@@ -31,4 +42,8 @@ public abstract class Interactable : MonoBehaviour
     protected void ShowSuccess() => UIManager.Instance.ShowMessage(successMessage);
 
     protected void ShowFail() => UIManager.Instance.ShowMessage(failMessage);
+
+    public void SetPriority(int value) => priority = value;
+
+    public void ResetPriority() => priority = originalPriority;
 }

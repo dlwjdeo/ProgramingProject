@@ -6,22 +6,27 @@ using UnityEngine;
 public class InventoryUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI inventoryText;
+    private PlayerInventory playerInventory;
 
+    private void Awake()
+    {
+        playerInventory = Player.Instance.PlayerInventory;
+    }
     private void Start()
     {
-        ChangeText(Player.Instance.Item);
+        ChangeText(playerInventory.CurrentItem);
     }
 
     private void OnEnable()
     {
-        Player.Instance.OnItemChanged += ChangeText;
+        playerInventory.OnItemChanged += ChangeText;
     }
     private void OnDisable()
     {
         //오류 로그 방지
-        if (Player.Instance != null)
+        if (playerInventory != null)
         {
-            Player.Instance.OnItemChanged -= ChangeText;
+            playerInventory.OnItemChanged -= ChangeText;
         }
     }
     public void ChangeText(Item item)

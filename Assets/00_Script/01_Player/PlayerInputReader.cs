@@ -10,16 +10,19 @@ public class PlayerInputReader : MonoBehaviour
     public event Action Jump;
     public event Action Interaction;
     public event Action Lamp;
-    
+    public event Action DropItem;
+
     public bool JumpPressed {  get; private set; }
     public bool InterationPressed {  get; private set; }
     public bool LampPressed { get; private set; }
+    public bool DropItemPressed { get; private set; }
 
     private void Awake()
     {
         JumpPressed = false;
         InterationPressed = false;
         LampPressed = false;
+        DropItemPressed = false;
     }
     //입력값은 Update, 물리적 계산은 LateUpdate 
     private void Update()
@@ -28,6 +31,7 @@ public class PlayerInputReader : MonoBehaviour
         detectJump();
         detectInteraction();
         detectLamp();
+        detectDropItem();
     }
 
     private void readMove()
@@ -72,6 +76,20 @@ public class PlayerInputReader : MonoBehaviour
         {
             LampPressed = false;
         }
+    }
+
+    private void detectDropItem()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            DropItem?.Invoke();
+            DropItemPressed = true;
+        }
+        else
+        {
+            DropItemPressed = false;
+        }
+
     }
 
     //API

@@ -59,7 +59,7 @@ public class EnemyVision : MonoBehaviour
             return;
 
         RaycastHit2D hit = Physics2D.Raycast(origin, lookDir, viewDistance, obstacleMask | playerMask);
-        if (hit.collider != null && hit.collider.CompareTag("Player"))
+        if (hit.collider != null && hit.collider.CompareTag(TagName.Player))
         {
             IsPlayerVisible = true;
         }

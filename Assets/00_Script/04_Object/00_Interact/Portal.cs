@@ -24,7 +24,7 @@ public class Portal : Interactable
     {
         if (!isOpend)
         {
-            if (keyItem == Player.Instance.Item)
+            if (keyItem == Player.Instance.PlayerInventory.CurrentItem)
             {
                 OpenPortal();
                 targetPortal.OpenPortal(); //½Ö¹æÇâ Æ÷Å» ¿ÀÇÂ

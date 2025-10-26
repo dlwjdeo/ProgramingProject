@@ -4,7 +4,6 @@ public class Enemy : MonoBehaviour
 {
     [Header("Enemy Settings")]
     [SerializeField] private float moveSpeed = 2f;
-    [SerializeField] private float viewRange = 5f;
 
     public EnemyVision EnemyVision {  get; private set; }
 

@@ -1,19 +1,38 @@
+using System;
 using UnityEngine;
 
 public class Chest : Interactable
 {
     [SerializeField] private Item keyItem;
     [SerializeField] private Item dropItem;
+    [SerializeField] private GameObject dropPrefab;
+    [SerializeField] private Transform dropPoint;
+
+    private bool isOpened = false;
     public override void Interact()
     {
-        if(player != null && player.Item == keyItem)
+        if (isOpened) return;
+
+        if (player == null) return;
+
+        if (keyItem == Item.Null || player.PlayerInventory.CurrentItem == keyItem)
         {
-            ShowSuccess();
-            //TODO:상자 아이템 드랍 로직
+            OpenChest();
         }
         else
         {
             ShowFail();
+        }
+    }
+    private void OpenChest()
+    {
+        isOpened = true;
+        SetPriority(0);
+        ShowSuccess();
+
+        if (dropPrefab != null && dropPoint != null)
+        {
+            Instantiate(dropPrefab, dropPoint.position, Quaternion.identity);
         }
     }
 }
