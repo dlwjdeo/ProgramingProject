@@ -5681,6 +5681,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 720599338397255899, guid: ea2729103cfa3f44db1e3ea2b3486db6, type: 3}
+      propertyPath: keyItem
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 720599338397255899, guid: ea2729103cfa3f44db1e3ea2b3486db6, type: 3}
       propertyPath: targetRoom
       value: 
       objectReference: {fileID: 1038045401}
