@@ -20,11 +20,13 @@ public class EnemyPatrolState : EnemyState
 {
     public EnemyPatrolState(Enemy enemy) : base(enemy) { }
     private RoomController targetRoom;
+    private bool arrived;
 
     public override void Enter()
     {
         enemy.SetStateType(EnemyStateType.Patrol);
         targetRoom = RoomManager.Instance.GetRandomRoom();
+        arrived = false;
     }
 
     public override void Update()
@@ -32,11 +34,16 @@ public class EnemyPatrolState : EnemyState
         if (enemy.EnemyVision.IsPlayerVisible)
         {
             enemy.StateMachine.ChangeState(enemy.StateMachine.Chase);
-            Debug.Log("¹ß°ß");
             return;
         }
 
         if (targetRoom == null) return;
+
+        if(arrived)
+        {
+            enemy.StateMachine.ChangeState(enemy.StateMachine.Wait);
+            return;
+        }
 
         if (targetRoom.Floor == enemy.CurrentRoom.Floor)
         {
@@ -45,8 +52,7 @@ public class EnemyPatrolState : EnemyState
 
             if (enemy.IsArrived(targetPoint))
             {
-                enemy.StateMachine.ChangeState(enemy.StateMachine.Wait);
-                return;
+                arrived = true;
             }
         }
         else
@@ -121,6 +127,16 @@ public class EnemySuspiciousState : EnemyState
 
         if (targetRoom == null) return;
 
+        if (arrived)
+        {
+            timer -= Time.deltaTime;
+            if (timer <= 0f)
+            {
+                enemy.StateMachine.ChangeState(enemy.StateMachine.Patrol);
+            }
+            return;
+        }
+
         if (targetRoom.Floor == enemy.CurrentRoom.Floor)
         {
             Vector3 center = targetRoom.Collider2D.bounds.center;
@@ -135,16 +151,6 @@ public class EnemySuspiciousState : EnemyState
         else
         {
             enemy.MoveToPortal(targetRoom);
-        }
-
-        if (arrived)
-        {
-            timer -= Time.deltaTime;
-            if (timer <= 0f)
-            {
-                enemy.StateMachine.ChangeState(enemy.StateMachine.Patrol);
-                return;
-            }
         }
     }
 

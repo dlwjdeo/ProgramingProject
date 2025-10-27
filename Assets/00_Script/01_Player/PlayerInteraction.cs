@@ -47,14 +47,14 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (interactables.Count == 0) return;
 
-        var target = GetPriorityInteractable(interactables);
+        var target = getPriorityInteractable(interactables);
         if(target != null)
         {
             target.Interact();
         }
     }
 
-    private Interactable GetPriorityInteractable(List<Interactable> interactables)
+    private Interactable getPriorityInteractable(List<Interactable> interactables)
     {
         Interactable highest = null;
         int maxPriority = int.MinValue;

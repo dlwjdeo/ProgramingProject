@@ -2861,7 +2861,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72682d722adc4034da3f7605bc198109, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  successMessage: 
+  successMessage: Lamp refilled.
   failMessage: 
   priority: 0
   amount: 100

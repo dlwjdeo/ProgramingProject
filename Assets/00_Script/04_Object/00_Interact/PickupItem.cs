@@ -9,9 +9,8 @@ public class PickupItem : Interactable
     public override void Interact()
     {
         if (player == null) return;
-        if (player.PlayerInventory.CurrentItem != Item.Null) return;
+        if (!player.PlayerInventory.TryAddItem(item)) return;
 
-        player.PlayerInventory.ChangeItem(item);
         player.PlayerInventory.SetItemObject(this);
 
         ShowSuccess();

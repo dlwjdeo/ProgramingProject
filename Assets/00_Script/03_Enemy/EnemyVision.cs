@@ -10,7 +10,6 @@ public class EnemyVision : MonoBehaviour
     [SerializeField] private float detectInterval = 0.1f; // 감지 주기 (0.1초마다 검사)
     [SerializeField] private LayerMask obstacleMask;
     [SerializeField] private LayerMask playerMask;
-
     public bool IsPlayerVisible { get; private set; }
 
     private Enemy enemy;

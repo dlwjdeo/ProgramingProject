@@ -30,6 +30,13 @@ public class PlayerInventory : MonoBehaviour
         OnItemChanged?.Invoke(currentItem);
     }
 
+    public bool TryAddItem(Item item)
+    {
+        if (currentItem != Item.Null) return false;
+        ChangeItem(item);
+        return true;
+    }
+
     public void DropItem()
     {
         if (itemObject == null) return;

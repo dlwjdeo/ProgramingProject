@@ -12,6 +12,7 @@ public class LampCharger : Interactable
         {
             var lampController = player.GetComponent<LampController>();
             lampController.ChargeLamp(amount);
+            ShowSuccess();
             Destroy(gameObject);
         }
     }
