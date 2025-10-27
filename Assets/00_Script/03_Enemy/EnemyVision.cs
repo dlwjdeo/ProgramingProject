@@ -23,7 +23,7 @@ public class EnemyVision : MonoBehaviour
 
     private void OnEnable()
     {
-        detectRoutine = StartCoroutine(DetectLoop());
+        detectRoutine = StartCoroutine(detectLoop());
     }
 
     private void OnDisable()
@@ -32,18 +32,18 @@ public class EnemyVision : MonoBehaviour
             StopCoroutine(detectRoutine);
     }
 
-    private IEnumerator DetectLoop()
+    private IEnumerator detectLoop()
     {
         var wait = new WaitForSeconds(detectInterval);
 
         while (true)
         {
-            DetectPlayer();
+            detectPlayer();
             yield return wait;
         }
     }
 
-    private void DetectPlayer()
+    private void detectPlayer()
     {
         IsPlayerVisible = false;
 

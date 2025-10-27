@@ -82,23 +82,23 @@ public class Enemy : MonoBehaviour
 
         transform.position = Vector3.MoveTowards(current, targetPos, moveSpeed * Time.deltaTime);
 
-        HandleFlip(dir.x);
+        handleFlip(dir.x);
     }
-    private void HandleFlip(float dirX)
+    private void handleFlip(float dirX)
     {
         if (dirX > 0.05f && Direction < 0)
         {
-            Flip();
+            flip();
             Direction = 1;
         }
         else if (dirX < -0.05f && Direction > 0)
         {
-            Flip();
+            flip();
             Direction = -1;
         }
     }
 
-    private void Flip()
+    private void flip()
     {
         Vector3 scale = transform.localScale;
         scale.x *= -1;

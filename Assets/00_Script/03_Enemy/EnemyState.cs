@@ -140,7 +140,6 @@ public class EnemySuspiciousState : EnemyState
         if (arrived)
         {
             timer -= Time.deltaTime;
-            Debug.Log(timer);
             if (timer <= 0f)
             {
                 enemy.StateMachine.ChangeState(enemy.StateMachine.Patrol);
