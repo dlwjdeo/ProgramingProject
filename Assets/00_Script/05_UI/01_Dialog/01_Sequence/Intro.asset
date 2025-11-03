@@ -12,4 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7077b2f51888714687ef44aaa9ba9b3, type: 3}
   m_Name: Intro
   m_EditorClassIdentifier: 
-  lines: []
+  Lines:
+  - speaker: {fileID: 11400000, guid: 71f623175a1aec346b85ee8453c71453, type: 2}
+    text: 
+  - speaker: {fileID: 0}
+    text: 
+  - speaker: {fileID: 0}
+    text: 
+  - speaker: {fileID: 0}
+    text: 
+  - speaker: {fileID: 0}
+    text: 
+  - speaker: {fileID: 0}
+    text: 
