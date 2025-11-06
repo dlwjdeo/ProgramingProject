@@ -4,7 +4,7 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 
-public class DialogManager : Singleton<DialogManager>
+public class DialogManager : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private GameObject dialogPanel;
@@ -18,24 +18,33 @@ public class DialogManager : Singleton<DialogManager>
     private int currentIndex = 0;
     private Coroutine typingCoroutine;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-        dialogPanel.SetActive(false);
         canvasGroup.alpha = 0;
         canvasGroup.interactable = false;
+    }
+
+    private void OnEnable()
+    {
+        if(Player.Instance != null) Player.Instance.PlayerInputReader.Dialog += NextLine;
+    }
+
+    private void OnDisable()
+    {
+        if(Player.Instance != null) Player.Instance.PlayerInputReader.Dialog -= NextLine;
     }
 
     // 대화 시작
     public void StartDialog(DialogSequence sequence)
     {
         if (sequence == null || sequence.Lines.Count == 0) return;
-        
 
+        GameManager.Instance.SetGameState(GameState.Dialog);
         lines = sequence.Lines;
         currentIndex = 0;
         ShowCurrentLine();
         StartCoroutine(FadeIn());
+        Player.Instance.PlayerMover.SetMove(false);
     }
 
     // 다음 대사로 진행
@@ -50,12 +59,14 @@ public class DialogManager : Singleton<DialogManager>
         }
 
         currentIndex++;
-        if (currentIndex < lines.Count)
+        if (currentIndex < lines.Count - 1)
         {
             ShowCurrentLine();
         }
         else
         {
+            GameManager.Instance.SetGameState(GameState.Playing);
+            Player.Instance.PlayerMover.SetMove(true);
             StartCoroutine(FadeOut());
         }
     }
@@ -99,7 +110,6 @@ public class DialogManager : Singleton<DialogManager>
 
     private IEnumerator FadeIn()
     {
-        dialogPanel.SetActive(true);
         float t = 0;
         while (t < 1)
         {
@@ -120,6 +130,5 @@ public class DialogManager : Singleton<DialogManager>
             canvasGroup.alpha = Mathf.Lerp(1, 0, t);
             yield return null;
         }
-        dialogPanel.SetActive(false);
     }
 }

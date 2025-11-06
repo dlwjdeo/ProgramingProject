@@ -7,6 +7,7 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private InventoryUI inventoryUI;
     [SerializeField] private InterationMessageUI interationMessageUI;
     [SerializeField] private ScreenFader screenFader;
+    [SerializeField] private DialogManager dialogManager;
 
     public IEnumerator FadeIn()
     {
@@ -18,4 +19,6 @@ public class UIManager : Singleton<UIManager>
         yield return screenFader.FadeOut();
     }
     public void ShowMessage(string message) => interationMessageUI.ShowMessage(message);
+
+    public void StartDialog(DialogSequence sequence) => dialogManager.StartDialog(sequence);
 }

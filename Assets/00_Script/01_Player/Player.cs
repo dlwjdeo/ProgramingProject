@@ -40,11 +40,11 @@ public class Player : Singleton<Player>
     }
     private void OnEnable()
     {
-        RoomManager.Instance.OnChangedPlayerRoom += SetCurrentRoom;
+        if (RoomManager.Instance != null) RoomManager.Instance.OnChangedPlayerRoom += SetCurrentRoom;
     }
     private void OnDisable()
     {
-        RoomManager.Instance.OnChangedPlayerRoom -= SetCurrentRoom;
+        if(RoomManager.Instance != null) RoomManager.Instance.OnChangedPlayerRoom -= SetCurrentRoom;
     }
     public void SetStateType(PlayerStateType type) {  state = type; }
 

@@ -45,3 +45,10 @@ public enum EnemyStateType
     Chase,
     Wait
 }
+
+public enum GameState
+{
+    Playing,
+    Dialog,
+    Paused,
+}

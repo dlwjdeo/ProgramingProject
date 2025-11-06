@@ -42,7 +42,10 @@ public class Enemy : MonoBehaviour
     }
     private void OnDisable()
     {
-        RoomManager.Instance.OnChangedEnemyRoom -= SetCurrentRoom;
+        if(RoomManager.Instance != null)
+        {
+            RoomManager.Instance.OnChangedEnemyRoom -= SetCurrentRoom;
+        }
     }
     public void SetStateType(EnemyStateType type) { state = type; }
 

@@ -7,6 +7,6 @@ public class DialogTrigger : Interactable
     [SerializeField] private DialogSequence dialogSequence;
     public override void Interact()
     {
-        DialogManager.Instance.StartDialog(dialogSequence);
+        UIManager.Instance.StartDialog(dialogSequence);
     }
 }

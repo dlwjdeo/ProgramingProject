@@ -11,11 +11,13 @@ public class PlayerInputReader : MonoBehaviour
     public event Action Interaction;
     public event Action Lamp;
     public event Action DropItem;
+    public event Action Dialog;
 
     public bool JumpPressed {  get; private set; }
     public bool InterationPressed {  get; private set; }
     public bool LampPressed { get; private set; }
     public bool DropItemPressed { get; private set; }
+    public bool DialogPressed { get; private set; }
 
     private void Awake()
     {
@@ -27,11 +29,33 @@ public class PlayerInputReader : MonoBehaviour
     //입력값은 Update, 물리적 계산은 LateUpdate 
     private void Update()
     {
+        switch (GameManager.Instance.CurrentState)
+        {
+            case GameState.Playing:
+                HandlePlayInput();
+                break;
+
+            case GameState.Dialog:
+                HandleDialogInput();
+                break;
+
+            case GameState.Paused:
+                break;
+        }
+    }
+
+    private void HandlePlayInput()
+    {
         readMove();
         detectJump();
         detectInteraction();
         detectLamp();
         detectDropItem();
+    }
+
+    private void HandleDialogInput()
+    {
+        detectDialog();
     }
 
     private void readMove()
@@ -90,6 +114,19 @@ public class PlayerInputReader : MonoBehaviour
             DropItemPressed = false;
         }
 
+    }
+
+    private void detectDialog()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Z))
+        {
+            Dialog?.Invoke();
+            DialogPressed = true;
+        }
+        else
+        {
+            DialogPressed = false;
+        }
     }
 
     //API
