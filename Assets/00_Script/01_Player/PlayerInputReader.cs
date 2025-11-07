@@ -19,12 +19,16 @@ public class PlayerInputReader : MonoBehaviour
     public bool DropItemPressed { get; private set; }
     public bool DialogPressed { get; private set; }
 
+    public bool RunPressed { get; private set; }
+
     private void Awake()
     {
         JumpPressed = false;
         InterationPressed = false;
         LampPressed = false;
         DropItemPressed = false;
+        DialogPressed = false;
+        RunPressed = false;
     }
     //입력값은 Update, 물리적 계산은 LateUpdate 
     private void Update()
@@ -51,6 +55,7 @@ public class PlayerInputReader : MonoBehaviour
         detectInteraction();
         detectLamp();
         detectDropItem();
+        detectRun();
     }
 
     private void HandleDialogInput()
@@ -127,6 +132,11 @@ public class PlayerInputReader : MonoBehaviour
         {
             DialogPressed = false;
         }
+    }
+
+    private void detectRun()
+    {
+        RunPressed = Input.GetKey(KeyCode.LeftShift);
     }
 
     //API

@@ -178,11 +178,18 @@ public class EnemyChaseState : EnemyState
 
     public override void Update()
     {
-        if (Player.Instance == null) return;
+        if (Player.Instance == null) {
+            Debug.Log("1");
+            return; 
+        }
         RoomController playerRoom = Player.Instance.CurrentRoom;
 
         if (playerRoom == null || enemy.CurrentRoom == null)
+        {
+            Debug.Log(playerRoom);
             return;
+        }
+
 
         if (enemy.EnemyVision.IsPlayerVisible)
         {

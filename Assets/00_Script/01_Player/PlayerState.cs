@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Windows;
 
 public abstract class PlayerState : IState
 {
@@ -27,32 +29,54 @@ public class PlayerIdleState : PlayerState
 
     public override void Update()
     {
+        player.PlayerStamina.Recover(Time.deltaTime);
+
         if (Mathf.Abs(player.PlayerMover.Move.x) > 0.01f)
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Run);
+        {
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Walk);
+            return;
+        }
 
         if (!player.PlayerMover.GroundChecker.IsGrounded)
+        {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
+            return;
+        }
     }
 
     public override void Exit() { }
 }
 
-public class PlayerRunState : PlayerState
+public class PlayerWalkState : PlayerState
 {
-    public PlayerRunState(Player player) : base(player) { }
+    public PlayerWalkState(Player player) : base(player) { }
 
     public override void Enter()
     {
-        player.SetStateType(PlayerStateType.Run);
+        player.SetStateType(PlayerStateType.Walk);
     }
 
     public override void Update()
     {
+        player.PlayerStamina.Recover(Time.deltaTime);
+
         if (Mathf.Abs(player.PlayerMover.Move.x) < 0.01f)
+        {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
+            return;
+        }
 
         if (!player.PlayerMover.GroundChecker.IsGrounded)
+        {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
+            return;
+        }
+
+        if (player.PlayerInputReader.RunPressed && !player.PlayerStamina.IsEmpty)
+        {
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Run);
+            return;
+        }
     }
 
     public override void Exit() { }
@@ -66,12 +90,17 @@ public class PlayerJumpState : PlayerState
     {
         player.PlayerMover.DoJump();
         player.SetStateType(PlayerStateType.Jump);
+        player.PlayerStamina.Consume(10f);
     }
 
     public override void Update()
     {
+
         if (player.Rigidbody2D.velocity.y < 0)
+        {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
+            return;
+        }
     }
 
     public override void Exit() { }
@@ -89,7 +118,10 @@ public class PlayerFallState : PlayerState
     public override void Update()
     {
         if (player.PlayerMover.GroundChecker.IsGrounded)
+        {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
+            return;
+        }
     }
 
     public override void Exit() { }
@@ -111,6 +143,8 @@ public class PlayerHideState : PlayerState
 
     public override void Update()
     {
+        player.PlayerStamina.Recover(Time.deltaTime);
+
         if (timer > 0f)
         {
             timer -= Time.deltaTime;
@@ -120,6 +154,7 @@ public class PlayerHideState : PlayerState
         if (player.PlayerInputReader.InterationPressed)
         {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
+            return;
         }
     }
 
@@ -127,6 +162,40 @@ public class PlayerHideState : PlayerState
     {
         player.PlayerMover.SetMove(true);
         player.SetHidden(false);
+    }
+}
+
+public class PlayerRunState : PlayerState
+{
+    private PlayerStamina stamina;
+    private PlayerMover mover;
+
+    public PlayerRunState(Player player) : base(player)
+    {
+        player.SetStateType(PlayerStateType.Run);
+        stamina = player.PlayerStamina;
+        mover = player.PlayerMover;
+    }
+
+    public override void Enter()
+    {
+        mover.SetSpeedMultiplier(1.7f); // 기본 속도의 1.7배
+    }
+
+    public override void Update()
+    {
+        if (!player.PlayerInputReader.RunPressed || stamina.IsEmpty)
+        {
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
+            return;
+        }
+
+        stamina.Decrease(Time.deltaTime);
+    }
+
+    public override void Exit()
+    {
+        mover.SetSpeedMultiplier(1f);
     }
 }
 

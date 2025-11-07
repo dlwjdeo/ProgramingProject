@@ -35,6 +35,7 @@ public enum PlayerStateType
     Run,
     Jump,
     Fall,
+    Walk,
 
 }
 

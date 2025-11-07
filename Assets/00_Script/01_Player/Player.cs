@@ -12,6 +12,8 @@ public class Player : Singleton<Player>
     public PlayerInteraction PlayerInteraction { get; private set; }
 
     public PlayerStateMachine PlayerStateMachine { get; private set; }
+
+    public PlayerStamina PlayerStamina { get; private set; }
     public Rigidbody2D Rigidbody2D { get; private set; }
     public BoxCollider2D _Collider2D { get; private set; }
     public float LastHideTime { get; private set; }
@@ -28,6 +30,7 @@ public class Player : Singleton<Player>
         PlayerInputReader = GetComponent<PlayerInputReader>();
         PlayerMover = GetComponent<PlayerMover>();
         PlayerInteraction = GetComponentInChildren<PlayerInteraction>();
+        PlayerStamina = GetComponent<PlayerStamina>();
         PlayerStateMachine = new PlayerStateMachine(this);
         Rigidbody2D = GetComponent<Rigidbody2D>();
         _Collider2D = GetComponent<BoxCollider2D>();
@@ -38,9 +41,9 @@ public class Player : Singleton<Player>
     {
         PlayerStateMachine.Update();
     }
-    private void OnEnable()
+    private void Start()
     {
-        if (RoomManager.Instance != null) RoomManager.Instance.OnChangedPlayerRoom += SetCurrentRoom;
+        RoomManager.Instance.OnChangedPlayerRoom += SetCurrentRoom;
     }
     private void OnDisable()
     {

@@ -4,6 +4,8 @@ using UnityEngine;
 public class PlayerMover : MonoBehaviour
 {
     [Header("ÀÌµ¿")]
+    private float speedMultiplier = 1f;
+    [SerializeField] private float baseSpeed = 5f;
     [SerializeField] private float playerSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private int maxJump = 1;
@@ -50,7 +52,7 @@ public class PlayerMover : MonoBehaviour
             return;
         }
 
-        Rigidbody.velocity = new Vector2(Move.x * playerSpeed, Rigidbody.velocity.y);
+        Rigidbody.velocity = new Vector2(Move.x * baseSpeed * speedMultiplier, Rigidbody.velocity.y);
     }
 
     private void OnJumpPressed()
@@ -69,4 +71,9 @@ public class PlayerMover : MonoBehaviour
     }
 
     public void SetMove(bool move) => canMove = move;
+
+    public void SetSpeedMultiplier(float multiplier)
+    {
+        speedMultiplier = multiplier;
+    }
 }
