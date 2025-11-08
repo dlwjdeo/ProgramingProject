@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Tsukino
   m_EditorClassIdentifier: 
   speakerName: Tsukino
-  portrait: {fileID: 21300000, guid: 6304693e95e80804f86049e32fb8f50a, type: 3}
+  portrait: {fileID: 21300000, guid: bd97b1e7822e07142ada46a935c501a8, type: 3}

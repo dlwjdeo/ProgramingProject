@@ -54,4 +54,6 @@ public class PlayerInventory : MonoBehaviour
     {
         itemObject = pickupItem;
     }
+
+    public bool HasItem(Item item) { return currentItem == item; }
 }

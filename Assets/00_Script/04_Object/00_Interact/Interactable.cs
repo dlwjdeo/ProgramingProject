@@ -6,7 +6,7 @@ public abstract class Interactable : MonoBehaviour
     [SerializeField] protected string successMessage;
     [SerializeField] protected string failMessage;
 
-    [Header("우선도")]
+    [Header("우선도/숫자가 클수록 우선도가 높음")]
     [SerializeField] protected int priority;
     private int originalPriority;
     public int Priority => priority;

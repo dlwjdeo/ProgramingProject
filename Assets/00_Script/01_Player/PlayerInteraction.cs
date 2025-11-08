@@ -5,7 +5,6 @@ using UnityEngine;
 public class PlayerInteraction : MonoBehaviour
 {
     private List<Interactable> interactables = new List<Interactable>();
-    private Interactable interactable;
     private PlayerInputReader playerInputReader;
 
     private void Awake()
