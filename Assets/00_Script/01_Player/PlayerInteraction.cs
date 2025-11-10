@@ -19,7 +19,7 @@ public class PlayerInteraction : MonoBehaviour
         {
             if (!interactables.Contains(interactable))
             { 
-                interactables.Add(interactable); 
+                interactables.Add(interactable);
             }
         }
     }
