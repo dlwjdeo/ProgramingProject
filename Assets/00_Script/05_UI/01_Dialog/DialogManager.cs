@@ -26,12 +26,12 @@ public class DialogManager : MonoBehaviour
 
     private void OnEnable()
     {
-        if(Player.Instance != null) Player.Instance.PlayerInputReader.Dialog += NextLine;
+        if(Player.Instance != null) Player.Instance.PlayerInputReader.Dialog += nextLine;
     }
 
     private void OnDisable()
     {
-        if(Player.Instance != null) Player.Instance.PlayerInputReader.Dialog -= NextLine;
+        if(Player.Instance != null) Player.Instance.PlayerInputReader.Dialog -= nextLine;
     }
 
     // 대화 시작
@@ -40,50 +40,51 @@ public class DialogManager : MonoBehaviour
         if (sequence == null || sequence.Lines.Count == 0) return;
 
         GameManager.Instance.SetGameState(GameState.Dialog);
+        Player.Instance.PlayerMover.SetMove(false);
         lines = sequence.Lines;
         currentIndex = 0;
-        ShowCurrentLine();
-        StartCoroutine(FadeIn());
-        Player.Instance.PlayerMover.SetMove(false);
+        showCurrentLine();
+        StartCoroutine(fadeIn());
     }
 
     // 다음 대사로 진행
-    public void NextLine()
+    private void nextLine()
     {
         if (typingCoroutine != null)
         {
             StopCoroutine(typingCoroutine);
-            dialogText.text = lines[currentIndex].text;
+            dialogText.text = lines[currentIndex].Text;
             typingCoroutine = null;
             return;
         }
 
         currentIndex++;
+
         if (currentIndex < lines.Count - 1)
         {
-            ShowCurrentLine();
+            showCurrentLine();
         }
         else
         {
             GameManager.Instance.SetGameState(GameState.Playing);
             Player.Instance.PlayerMover.SetMove(true);
-            StartCoroutine(FadeOut());
+            StartCoroutine(fadeOut());
         }
     }
 
-    private void ShowCurrentLine()
+    private void showCurrentLine()
     {
         var line = lines[currentIndex];
-        var speaker = line.speaker;
+        var speaker = line.Speaker;
 
         if (speaker != null)
         {
-            nameText.text = speaker.speakerName;
+            nameText.text = speaker.SpeakerName;
 
-            if (speaker.portrait != null)
+            if (speaker.Portrait != null)
             {
                 portraitImage.enabled = true;
-                portraitImage.sprite = speaker.portrait;
+                portraitImage.sprite = speaker.Portrait;
             }
             else portraitImage.enabled = false;
         }
@@ -94,10 +95,10 @@ public class DialogManager : MonoBehaviour
         }
 
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
-        typingCoroutine = StartCoroutine(TypeText(line.text));
+        typingCoroutine = StartCoroutine(typeText(line.Text));
     }
 
-    private IEnumerator TypeText(string text)
+    private IEnumerator typeText(string text)
     {
         dialogText.text = "";
         foreach (char c in text)
@@ -108,7 +109,7 @@ public class DialogManager : MonoBehaviour
         typingCoroutine = null;
     }
 
-    private IEnumerator FadeIn()
+    private IEnumerator fadeIn()
     {
         float time = 0;
         while (time < 1)
@@ -120,7 +121,7 @@ public class DialogManager : MonoBehaviour
         canvasGroup.interactable = true;
     }
 
-    private IEnumerator FadeOut()
+    private IEnumerator fadeOut()
     {
         canvasGroup.interactable = false;
         float time = 0;

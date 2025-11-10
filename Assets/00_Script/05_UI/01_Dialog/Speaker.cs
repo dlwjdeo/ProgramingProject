@@ -4,6 +4,6 @@ using UnityEngine;
 public class Speaker : ScriptableObject
 {
     [Header("Speaker Info")]
-    public string speakerName;
-    public Sprite portrait;
+    public string SpeakerName;
+    public Sprite Portrait;
 }
