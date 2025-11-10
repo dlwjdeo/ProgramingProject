@@ -13,17 +13,15 @@ MonoBehaviour:
   m_Name: Intro
   m_EditorClassIdentifier: 
   Lines:
-  - speaker: {fileID: 11400000, guid: 71f623175a1aec346b85ee8453c71453, type: 2}
-    text: hello
-  - speaker: {fileID: 11400000, guid: 8d651cb95e1684c4b9ceb4b044fefb7f, type: 2}
-    text: how are you
-  - speaker: {fileID: 11400000, guid: 71f623175a1aec346b85ee8453c71453, type: 2}
-    text: 'im fine. thank you
-
-      and you?'
-  - speaker: {fileID: 11400000, guid: 8d651cb95e1684c4b9ceb4b044fefb7f, type: 2}
-    text: good
-  - speaker: {fileID: 11400000, guid: 71f623175a1aec346b85ee8453c71453, type: 2}
-    text: see you
-  - speaker: {fileID: 0}
-    text: 
+  - Speaker: {fileID: 11400000, guid: 71f623175a1aec346b85ee8453c71453, type: 2}
+    Text: Hello
+  - Speaker: {fileID: 11400000, guid: 8d651cb95e1684c4b9ceb4b044fefb7f, type: 2}
+    Text: How are you
+  - Speaker: {fileID: 11400000, guid: 71f623175a1aec346b85ee8453c71453, type: 2}
+    Text: I'm fine
+  - Speaker: {fileID: 11400000, guid: 8d651cb95e1684c4b9ceb4b044fefb7f, type: 2}
+    Text: Have a nice day
+  - Speaker: {fileID: 11400000, guid: 71f623175a1aec346b85ee8453c71453, type: 2}
+    Text: See you
+  - Speaker: {fileID: 0}
+    Text: 

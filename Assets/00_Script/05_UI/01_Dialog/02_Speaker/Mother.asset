@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 656e57edcd84e514e99f7cd076aec687, type: 3}
   m_Name: Mother
   m_EditorClassIdentifier: 
-  speakerName: Mother
-  portrait: {fileID: 0}
+  SpeakerName: Mother
+  Portrait: {fileID: 0}
