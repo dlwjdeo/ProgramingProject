@@ -110,11 +110,11 @@ public class DialogManager : MonoBehaviour
 
     private IEnumerator FadeIn()
     {
-        float t = 0;
-        while (t < 1)
+        float time = 0;
+        while (time < 1)
         {
-            t += Time.deltaTime * 3f;
-            canvasGroup.alpha = Mathf.Lerp(0, 1, t);
+            time += Time.deltaTime * 3f;
+            canvasGroup.alpha = Mathf.Lerp(0, 1, time);
             yield return null;
         }
         canvasGroup.interactable = true;
@@ -123,11 +123,11 @@ public class DialogManager : MonoBehaviour
     private IEnumerator FadeOut()
     {
         canvasGroup.interactable = false;
-        float t = 0;
-        while (t < 1)
+        float time = 0;
+        while (time < 1)
         {
-            t += Time.deltaTime * 3f;
-            canvasGroup.alpha = Mathf.Lerp(1, 0, t);
+            time += Time.deltaTime * 3f;
+            canvasGroup.alpha = Mathf.Lerp(1, 0, time);
             yield return null;
         }
     }
