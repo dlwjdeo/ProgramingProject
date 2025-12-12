@@ -2,22 +2,47 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Input/Key Bindings (Defaults)", fileName = "KeyBindings_Defaults")]
-public class KeyBindings : ScriptableObject
+public static class KeyBindings
 {
-    [Serializable]
-    public struct Entry
+    private static readonly Dictionary<ActionType, KeyCode> defaults = new()
     {
-        public ActionType action;
-        public KeyCode key;
+        { ActionType.MoveLeft,  KeyCode.A },
+        { ActionType.MoveRight, KeyCode.D },
+        { ActionType.Jump,      KeyCode.Space },
+        { ActionType.Interact,  KeyCode.E },
+        { ActionType.Run,       KeyCode.LeftShift},
+        { ActionType.ItemDrop,  KeyCode.Q },
+        { ActionType.Pause,     KeyCode.Escape },
+    };
+
+    private const string Prefix = "TSUKINO_KEY_";
+
+    public static KeyCode Get(ActionType action)
+    {
+        string k = Prefix + action;
+        string saved = PlayerPrefs.GetString(k, string.Empty);
+
+        if (!string.IsNullOrEmpty(saved) && Enum.TryParse(saved, out KeyCode key))
+            return key;
+
+        return defaults.TryGetValue(action, out var def) ? def : KeyCode.None;
     }
 
-    public List<Entry> defaults = new List<Entry>
+    public static void Set(ActionType action, KeyCode key)
     {
-        new Entry { action = ActionType.MoveLeft,  key = KeyCode.A },
-        new Entry { action = ActionType.MoveRight, key = KeyCode.D },
-        new Entry { action = ActionType.Jump,      key = KeyCode.Space },
-        new Entry { action = ActionType.Interact,  key = KeyCode.E },
-        new Entry { action = ActionType.Pause,     key = KeyCode.Escape },
-    };
+        PlayerPrefs.SetString(Prefix + action, key.ToString());
+        PlayerPrefs.Save();
+    }
+
+    public static void ResetAll()
+    {
+        foreach (var a in Enum.GetValues(typeof(ActionType)))
+            PlayerPrefs.DeleteKey(Prefix + (ActionType)a);
+
+        PlayerPrefs.Save();
+    }
+
+    // 편의 함수
+    public static bool Down(ActionType action) => Input.GetKeyDown(Get(action));
+    public static bool Hold(ActionType action) => Input.GetKey(Get(action));
 }

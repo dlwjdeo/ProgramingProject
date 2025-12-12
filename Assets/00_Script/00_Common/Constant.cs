@@ -60,5 +60,7 @@ public enum ActionType
     MoveRight,
     Jump,
     Interact,
+    Run,
+    ItemDrop,
     Pause,
 }

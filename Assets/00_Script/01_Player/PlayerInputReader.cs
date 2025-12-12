@@ -33,6 +33,7 @@ public class PlayerInputReader : MonoBehaviour
     //입력값은 Update, 물리적 계산은 LateUpdate 
     private void Update()
     {
+        detectEsc();
         switch (GameManager.Instance.CurrentState)
         {
             case GameState.Playing:
@@ -65,12 +66,15 @@ public class PlayerInputReader : MonoBehaviour
 
     private void readMove()
     {
-        move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        float x = 0f;
+        if (KeyBindings.Hold(ActionType.MoveLeft)) x -= 1f;
+        if (KeyBindings.Hold(ActionType.MoveRight)) x += 1f;
+        move = new Vector2(Mathf.Clamp(x, -1f, 1f), 0f);
     }
 
     private void detectJump()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
+        if(KeyBindings.Down(ActionType.Jump))
         {
             Jump?.Invoke();
             JumpPressed = true;
@@ -83,7 +87,7 @@ public class PlayerInputReader : MonoBehaviour
 
     private void detectInteraction()
     {
-        if (Input.GetKeyDown(KeyCode.E)) 
+        if (KeyBindings.Down(ActionType.Interact)) 
         {
             Interaction?.Invoke();
             InterationPressed = true;
@@ -109,7 +113,7 @@ public class PlayerInputReader : MonoBehaviour
 
     private void detectDropItem()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (KeyBindings.Down(ActionType.ItemDrop))
         {
             DropItem?.Invoke();
             DropItemPressed = true;
@@ -136,7 +140,15 @@ public class PlayerInputReader : MonoBehaviour
 
     private void detectRun()
     {
-        RunPressed = Input.GetKey(KeyCode.LeftShift);
+        RunPressed = KeyBindings.Hold(ActionType.Run);
+    }
+
+    private void detectEsc()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SettingsUIController.Instance.Toggle();
+        }
     }
 
     //API
