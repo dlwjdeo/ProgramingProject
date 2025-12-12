@@ -53,3 +53,12 @@ public enum GameState
     Dialog,
     Paused,
 }
+
+public enum ActionType
+{
+    MoveLeft,
+    MoveRight,
+    Jump,
+    Interact,
+    Pause,
+}
