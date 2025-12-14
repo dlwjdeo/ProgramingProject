@@ -237,7 +237,7 @@ public class EnemyChaseState : EnemyState
             }
             else
             {
-                Debug.Log("게임 오버");
+                GameManager.Instance.GameOver();
             }
         }
     }

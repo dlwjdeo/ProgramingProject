@@ -4,8 +4,9 @@ using UnityEngine;
 using UnityEngine.LowLevel;
 
 //현재 플레이어가 있는 방의 위치를 조정해주는 Manager
-public class RoomManager : Singleton<RoomManager>
+public class RoomManager : MonoBehaviour
 {
+    public static RoomManager Instance;
     public event Action<RoomController> OnChangedPlayerRoom;
     public event Action<RoomController> OnChangedEnemyRoom;
 
@@ -20,7 +21,17 @@ public class RoomManager : Singleton<RoomManager>
 
     public RoomController PlayerRoom;// { get; private set; }
     public RoomController EnemyRoom;// { get; private set; }
-
+    private void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
+    }
     private void Start()
     {
         initializeRooms();
