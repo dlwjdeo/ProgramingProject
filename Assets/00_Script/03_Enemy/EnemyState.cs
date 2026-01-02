@@ -1,7 +1,8 @@
 using UnityEngine;
+
 public abstract class EnemyState : IState
 {
-    protected Enemy enemy;
+    protected readonly Enemy enemy;
 
     protected EnemyState(Enemy enemy)
     {
@@ -14,63 +15,64 @@ public abstract class EnemyState : IState
 
     public virtual void OnTriggerEnter2D(Collider2D other) { }
     public virtual void OnTriggerExit2D(Collider2D other) { }
+
+    protected Player Player => Player.Instance;
+    protected RoomController PlayerRoom => Player != null ? Player.CurrentRoom : null;
+
+    protected bool TryChaseIfPlayerVisible()
+    {
+        if (enemy.EnemyVision != null && enemy.EnemyVision.IsPlayerVisible)
+        {
+            enemy.StateMachine.ChangeState(enemy.StateMachine.Chase);
+            return true;
+        }
+        return false;
+    }
+
+    protected bool CanNavigate()
+    {
+        return enemy != null && enemy.CurrentRoom != null;
+    }
 }
 
 public class EnemyPatrolState : EnemyState
 {
-    public EnemyPatrolState(Enemy enemy) : base(enemy) { }
     private RoomController targetRoom;
-    private bool arrived;
+
+    public EnemyPatrolState(Enemy enemy) : base(enemy) { }
 
     public override void Enter()
     {
         enemy.SetStateType(EnemyStateType.Patrol);
-        targetRoom = RoomManager.Instance.GetRandomRoom();
-        arrived = false;
+        enemy.SetMoveSpeed(enemy.DefaultMoveSpeed);
+
+        targetRoom = RoomManager.Instance != null ? RoomManager.Instance.GetRandomRoom() : null;
     }
 
     public override void Update()
     {
-        if (enemy.EnemyVision.IsPlayerVisible)
-        {
-            enemy.StateMachine.ChangeState(enemy.StateMachine.Chase);
-            return;
-        }
-
+        if (TryChaseIfPlayerVisible()) return;
+        if (!CanNavigate()) return;
         if (targetRoom == null) return;
 
-        if(arrived)
+        enemy.MoveToRoom(targetRoom);
+
+        var center = targetRoom.Collider2D.bounds.center;
+        if (enemy.Mover != null && enemy.Mover.IsArrivedX(center))
         {
             enemy.StateMachine.ChangeState(enemy.StateMachine.Wait);
             return;
         }
-
-        if (targetRoom.Floor == enemy.CurrentRoom.Floor)
-        {
-            Vector3 targetPoint = targetRoom.Collider2D.bounds.center;
-            enemy.MoveTowards(targetPoint);
-
-            if (enemy.IsArrived(targetPoint))
-            {
-                arrived = true;
-            }
-        }
-        else
-        {
-            enemy.MoveToPortal(targetRoom);
-        }
     }
 
-    public override void Exit()
-    {
-
-    }
+    public override void Exit() { }
 }
 
 public class EnemyWaitState : EnemyState
 {
+    private float waitTime;
+
     public EnemyWaitState(Enemy enemy) : base(enemy) { }
-    private float waitTime = 2f;
 
     public override void Enter()
     {
@@ -80,11 +82,7 @@ public class EnemyWaitState : EnemyState
 
     public override void Update()
     {
-        if (enemy.EnemyVision.IsPlayerVisible)
-        {
-            enemy.StateMachine.ChangeState(enemy.StateMachine.Chase);
-            return;
-        }
+        if (TryChaseIfPlayerVisible()) return;
 
         waitTime -= Time.deltaTime;
         if (waitTime <= 0f)
@@ -94,17 +92,15 @@ public class EnemyWaitState : EnemyState
         }
     }
 
-    public override void Exit()
-    {
-        
-    }
+    public override void Exit() { }
 }
 
 public class EnemySuspiciousState : EnemyState
 {
     private RoomController targetRoom;
-    private float suspicionTime = 2f;
     private float timer;
+
+    private const float SuspicionTime = 2f;
     private bool arrived;
 
     public EnemySuspiciousState(Enemy enemy) : base(enemy) { }
@@ -112,88 +108,80 @@ public class EnemySuspiciousState : EnemyState
     public override void Enter()
     {
         enemy.SetStateType(EnemyStateType.Suspicious);
-        targetRoom = Player.Instance.CurrentRoom; //의심상태로 진입 시 항상 플레이어의 현재 방으로 탐색
+        enemy.SetMoveSpeed(enemy.DefaultMoveSpeed);
+
+        targetRoom = PlayerRoom;
         arrived = false;
-        timer = suspicionTime;
+        timer = SuspicionTime;
     }
 
     public override void Update()
     {
-        if (enemy.EnemyVision.IsPlayerVisible)
-        {
-            enemy.StateMachine.ChangeState(enemy.StateMachine.Chase);
-            return;
-        }
-
+        if (TryChaseIfPlayerVisible()) return;
+        if (!CanNavigate()) return;
         if (targetRoom == null) return;
 
-        if (arrived)
+        if (!arrived)
         {
-            timer -= Time.deltaTime;
-            if (timer <= 0f)
+            enemy.MoveToRoom(targetRoom);
+
+            var center = targetRoom.Collider2D.bounds.center;
+            if (enemy.Mover != null && enemy.Mover.IsArrivedX(center))
             {
-                enemy.StateMachine.ChangeState(enemy.StateMachine.Patrol);
+                arrived = true;
+                timer = SuspicionTime;
             }
             return;
         }
 
-        if (targetRoom.Floor == enemy.CurrentRoom.Floor)
+        timer -= Time.deltaTime;
+        if (timer <= 0f)
         {
-            Vector3 center = targetRoom.Collider2D.bounds.center;
-            enemy.MoveTowards(center);
-
-            if (enemy.IsArrived(center) && !arrived)
-            {
-                arrived = true;
-                timer = suspicionTime;
-            }
-        }
-        else
-        {
-            enemy.MoveToPortal(targetRoom);
+            enemy.StateMachine.ChangeState(enemy.StateMachine.Patrol);
+            return;
         }
     }
 
     public override void Exit()
     {
-        arrived = false;
         targetRoom = null;
+        arrived = false;
     }
 }
 
 public class EnemyChaseState : EnemyState
 {
-    private float lostPlayerDelay = 10f;
+    private const float ChaseSpeed = 3f;
+
+    private const float LostPlayerDelay = 10f;
     private float lostTimer;
-    private float chaseSpeed = 3f;
-    private float lastDetectTime;
+
+    private float lastSeenTime;
+
     public EnemyChaseState(Enemy enemy) : base(enemy) { }
 
     public override void Enter()
     {
         enemy.SetStateType(EnemyStateType.Chase);
-        enemy.SetMoveSpeed(chaseSpeed);
-        lostTimer = lostPlayerDelay;
+        enemy.SetMoveSpeed(ChaseSpeed);
+
+        lostTimer = LostPlayerDelay;
+        lastSeenTime = Time.time;
     }
 
     public override void Update()
     {
-        if (Player.Instance == null) {
-            return; 
-        }
-        RoomController playerRoom = Player.Instance.CurrentRoom;
+        var player = Player;
+        if (player == null) return;
+        if (!CanNavigate()) return;
 
-        if (playerRoom == null || enemy.CurrentRoom == null)
+        RoomController playerRoom = player.CurrentRoom;
+        if (playerRoom == null) return;
+
+        if (enemy.EnemyVision != null && enemy.EnemyVision.IsPlayerVisible)
         {
-            Debug.Log(playerRoom);
-            return;
-        }
-
-
-        if (enemy.EnemyVision.IsPlayerVisible)
-        {
-            lastDetectTime = Time.time;
-            lostTimer = lostPlayerDelay;
+            lastSeenTime = Time.time;
+            lostTimer = LostPlayerDelay;
         }
         else
         {
@@ -207,7 +195,7 @@ public class EnemyChaseState : EnemyState
 
         if (playerRoom.Floor == enemy.CurrentRoom.Floor)
         {
-            enemy.MoveTowards(Player.Instance.transform.position);
+            enemy.Mover?.MoveTowardsX(player.transform.position);
         }
         else
         {
@@ -217,34 +205,32 @@ public class EnemyChaseState : EnemyState
 
     public override void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag(TagName.Player))
+        if (!other.CompareTag(TagName.Player)) return;
+
+        Player player = other.GetComponent<Player>();
+        if (player == null) return;
+
+        if (player.IsHidden)
         {
-            Player player = other.GetComponent<Player>();
+            bool recentlyHidden = (Time.time - player.LastHideTime) < 1f;
 
-            if (player == null) return;
-
-            if (player.IsHidden)
+            if (recentlyHidden)
             {
-                float diff = player.LastHideTime - lastDetectTime;
-                if (diff < 1f)
-                {
-                    Debug.Log("들킴 게임오버");
-                }
-                else
-                {
-                    Debug.Log("인식 불가");
-                }
+                Debug.Log("들킴 게임오버");
             }
             else
             {
-                GameManager.Instance.GameOver();
+                Debug.Log("인식 불가");
             }
+            return;
         }
+
+        GameManager.Instance.GameOver();
     }
 
     public override void Exit()
     {
+        enemy.SetMoveSpeed(enemy.DefaultMoveSpeed);
         lostTimer = 0f;
-        enemy.SetMoveSpeed(enemy.DefultMoveSpeed);
     }
 }

@@ -3,28 +3,41 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [Header("Enemy Settings")]
-    [SerializeField] private float moveSpeed = 2f;
+    [SerializeField] private float defaultMoveSpeed = 2f;
 
-    public EnemyVision EnemyVision {  get; private set; }
-
-    public float DefultMoveSpeed { get; private set; } = 2f;
-
+    public EnemyVision EnemyVision { get; private set; }
     public EnemyStateMachine StateMachine { get; private set; }
+
     [SerializeField] private EnemyStateType state;
-
-    public bool CanMove { get; private set; }
-
-    [SerializeField] private BoxCollider2D _collider2D;
-    [SerializeField] private BoxCollider2D detectCollier;
+    public EnemyStateType State => state;
 
     public RoomController CurrentRoom { get; private set; }
 
-    public float Direction { get; private set; } = 1;
+    public EnemyMover Mover { get; private set; }
+    public float DefaultMoveSpeed => defaultMoveSpeed;
 
     private void Awake()
     {
+        Mover = GetComponent<EnemyMover>();
+        if (Mover != null) Mover.MoveSpeed = defaultMoveSpeed;
+
         StateMachine = new EnemyStateMachine(this);
         EnemyVision = GetComponentInChildren<EnemyVision>();
+    }
+
+    private void OnEnable()
+    {
+        if (RoomManager.Instance != null)
+            RoomManager.Instance.OnChangedEnemyRoom += SetCurrentRoom;
+
+        if (RoomManager.Instance.EnemyRoom != null)
+            SetCurrentRoom(RoomManager.Instance.EnemyRoom);
+    }
+
+    private void OnDisable()
+    {
+        if (RoomManager.Instance != null)
+            RoomManager.Instance.OnChangedEnemyRoom -= SetCurrentRoom;
     }
 
     private void Update()
@@ -36,28 +49,34 @@ public class Enemy : MonoBehaviour
     {
         StateMachine.CurrentState?.OnTriggerEnter2D(collision);
     }
-    private void OnEnable()
+
+    public void SetStateType(EnemyStateType type) => state = type;
+
+    public void SetMove(bool move)
     {
-        RoomManager.Instance.OnChangedEnemyRoom += SetCurrentRoom;
+        if (Mover != null) Mover.SetMoveEnabled(move);
     }
-    private void OnDisable()
+
+    public void SetMoveSpeed(float speed)
     {
-        if(RoomManager.Instance != null)
-        {
-            RoomManager.Instance.OnChangedEnemyRoom -= SetCurrentRoom;
-        }
+        if (Mover != null) Mover.MoveSpeed = speed;
     }
-    public void SetStateType(EnemyStateType type) { state = type; }
+
+    public float Direction => (Mover != null) ? Mover.Direction : 1f;
+
+    public void SetCurrentRoom(RoomController room)
+    {
+        CurrentRoom = room;
+    }
 
     public void MoveToRoom(RoomController targetRoom)
     {
-        if (targetRoom == null || CurrentRoom == null) return;
+        if (targetRoom == null || CurrentRoom == null || Mover == null) return;
 
-        // °°Àº Ãþ
         if (targetRoom.Floor == CurrentRoom.Floor)
         {
             Vector3 targetPoint = targetRoom.Collider2D.bounds.center;
-            MoveTowards(targetPoint);
+            Mover.MoveTowardsX(targetPoint);
         }
         else
         {
@@ -67,61 +86,14 @@ public class Enemy : MonoBehaviour
 
     public void MoveToPortal(RoomController targetRoom)
     {
-        Portal portal = RoomManager.Instance.FindClosestPortal(CurrentRoom.Floor, targetRoom.Floor, transform.position);
+        if (targetRoom == null || CurrentRoom == null || Mover == null) return;
 
+        Portal portal = RoomManager.Instance.FindClosestPortal(CurrentRoom.Floor, targetRoom.Floor, transform.position);
         if (portal == null) return;
 
-        MoveTowards(portal.transform.position);
+        Mover.MoveTowardsX(portal.transform.position);
 
-        if (IsArrived(portal.transform.position))
+        if (Mover.IsArrivedX(portal.transform.position))
             portal.InteractPortal(transform, false);
     }
-
-    public void MoveTowards(Vector3 target)
-    {
-        Vector3 current = transform.position;
-        Vector3 targetPos = new Vector3(target.x, current.y, current.z);
-        Vector3 dir = (targetPos - current).normalized;
-
-        transform.position = Vector3.MoveTowards(current, targetPos, moveSpeed * Time.deltaTime);
-
-        handleFlip(dir.x);
-    }
-    private void handleFlip(float dirX)
-    {
-        if (dirX > 0.05f && Direction < 0)
-        {
-            flip();
-            Direction = 1;
-        }
-        else if (dirX < -0.05f && Direction > 0)
-        {
-            flip();
-            Direction = -1;
-        }
-    }
-
-    private void flip()
-    {
-        Vector3 scale = transform.localScale;
-        scale.x *= -1;
-        transform.localScale = scale;
-    }
-    public void SetMove(bool move) => CanMove = move; 
-    public bool IsArrived(RoomController targetRoom)
-    {
-        float targetX = targetRoom.Collider2D.bounds.center.x;
-        float distanceX = Mathf.Abs(transform.position.x - targetX);
-        return distanceX <= 0.1f;
-    }
-
-    public bool IsArrived(Vector3 pos)
-    {
-        float targetX = pos.x;
-        float distanceX = Mathf.Abs(transform.position.x - targetX);
-        return distanceX <= 0.1f;
-    }
-
-    public void SetMoveSpeed(float speed) { moveSpeed = speed; }
-    public void SetCurrentRoom(RoomController room) { CurrentRoom = room; }
 }

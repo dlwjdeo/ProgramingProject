@@ -1,4 +1,5 @@
 using UnityEngine;
+
 public class EnemyStateMachine
 {
     public EnemyPatrolState Patrol { get; private set; }
@@ -7,23 +8,24 @@ public class EnemyStateMachine
     public EnemyChaseState Chase { get; private set; }
 
     public EnemyState CurrentState { get; private set; }
-    private Enemy enemy;
+    private readonly Enemy enemy;
 
     public EnemyStateMachine(Enemy enemy)
     {
         this.enemy = enemy;
 
         Patrol = new EnemyPatrolState(enemy);
+        Wait = new EnemyWaitState(enemy);
         Suspicious = new EnemySuspiciousState(enemy);
         Chase = new EnemyChaseState(enemy);
-        Wait = new EnemyWaitState(enemy);
 
-        CurrentState = Patrol; 
+        CurrentState = Patrol;
         CurrentState.Enter();
     }
 
     public void ChangeState(EnemyState newState)
     {
+        if (newState == null) return;
         if (CurrentState == newState) return;
 
         CurrentState?.Exit();
@@ -35,5 +37,4 @@ public class EnemyStateMachine
     {
         CurrentState?.Update();
     }
-
 }
