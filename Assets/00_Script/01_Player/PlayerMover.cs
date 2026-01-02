@@ -1,79 +1,79 @@
 using UnityEngine;
 
-//플레이어의 직접적인 이동만 관리하는 class
+// 플레이어의 물리 이동/점프 "실행"만 담당
+[RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMover : MonoBehaviour
 {
-    [Header("이동")]
-    private float speedMultiplier = 1f;
+    [Header("Move")]
     [SerializeField] private float baseSpeed = 5f;
-    [SerializeField] private float playerSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
+
+    [Header("Jump")]
     [SerializeField] private int maxJump = 1;
-    private int remainJump;
 
-    private bool canMove = true;
+    private Rigidbody2D _rb;
+    private GroundChecker _ground;
 
-    public Rigidbody2D Rigidbody { get; private set; }
-    public GroundChecker GroundChecker { get; private set; }
-    private PlayerInputReader playerInputReader;
+    private float _speedMultiplier = 1f;
+    private bool _canMove = true;
+    private int _remainJump;
 
-    public Vector2 Move { get; private set; }
-    public bool CanJump => GroundChecker.IsGrounded && remainJump > 0;
+    public Rigidbody2D Rigidbody => _rb;
+    public GroundChecker GroundChecker => _ground;
+
+    public Vector2 MoveInput { get; private set; }
+    public bool IsGrounded => _ground != null && _ground.IsGrounded;
+
+    public bool CanJump => _remainJump > 0;
 
     private void Awake()
     {
-        Rigidbody = GetComponent<Rigidbody2D>();
-        playerInputReader = GetComponent<PlayerInputReader>();
-        GroundChecker = GetComponentInChildren<GroundChecker>();
+        _rb = GetComponent<Rigidbody2D>();
+        _ground = GetComponentInChildren<GroundChecker>();
         ResetJump();
-    }
-
-    private void OnEnable()
-    {
-        playerInputReader.Jump += OnJumpPressed;
-    }
-
-    private void OnDisable()
-    {
-        playerInputReader.Jump -= OnJumpPressed;
     }
 
     private void Update()
     {
-        Move = playerInputReader.GetMove();
-        if (GroundChecker.IsGrounded) ResetJump();
+        if (IsGrounded) ResetJump();
     }
 
     private void FixedUpdate()
     {
-        if (canMove == false)
+        if (!_canMove)
         {
-            Rigidbody.velocity = new Vector2(0, Rigidbody.velocity.y);
+            _rb.velocity = new Vector2(0f, _rb.velocity.y);
             return;
         }
 
-        Rigidbody.velocity = new Vector2(Move.x * baseSpeed * speedMultiplier, Rigidbody.velocity.y);
+        _rb.velocity = new Vector2(MoveInput.x * baseSpeed * _speedMultiplier, _rb.velocity.y);
     }
 
-    private void OnJumpPressed()
+    private void ResetJump() => _remainJump = maxJump;
+
+    public void SetMoveInput(Vector2 input)
     {
-        if (CanJump)
-            Player.Instance.PlayerStateMachine.ChangeState(Player.Instance.PlayerStateMachine.Jump);
+        MoveInput = input;
     }
 
-    private void ResetJump() => remainJump = maxJump;
-
-    // API
-    public void DoJump()
+    public void SetMoveEnabled(bool enabled)
     {
-        Rigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-        remainJump--;
+        _canMove = enabled;
+        if (!enabled) MoveInput = Vector2.zero;
     }
-
-    public void SetMove(bool move) => canMove = move;
 
     public void SetSpeedMultiplier(float multiplier)
     {
-        speedMultiplier = multiplier;
+        _speedMultiplier = multiplier;
+    }
+
+    public void DoJump()
+    {
+        if (!CanJump) return;
+
+        _rb.velocity = new Vector2(_rb.velocity.x, 0f);
+        _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+
+        _remainJump--;
     }
 }

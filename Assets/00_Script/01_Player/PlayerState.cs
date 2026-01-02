@@ -1,12 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Windows;
-
 public abstract class PlayerState : IState
 {
-    protected Player player;
+    protected readonly Player player;
 
     protected PlayerState(Player player)
     {
@@ -16,7 +16,15 @@ public abstract class PlayerState : IState
     public abstract void Enter();
     public abstract void Update();
     public abstract void Exit();
+
+    protected void ApplyMoveInput()
+    {
+        // 입력을 여기서 읽고 mover에 넘긴다(중요!)
+        Vector2 move = player.PlayerInputReader.GetMove();
+        player.PlayerMover.SetMoveInput(move);
+    }
 }
+
 
 public class PlayerIdleState : PlayerState
 {
@@ -25,21 +33,33 @@ public class PlayerIdleState : PlayerState
     public override void Enter()
     {
         player.SetStateType(PlayerStateType.Idle);
+        player.PlayerMover.SetMoveEnabled(true);
+        player.PlayerMover.SetSpeedMultiplier(1f);
+        player.PlayerMover.SetMoveInput(Vector2.zero);
     }
 
     public override void Update()
     {
         player.PlayerStamina.Recover(Time.deltaTime);
 
-        if (Mathf.Abs(player.PlayerMover.Move.x) > 0.01f)
+        ApplyMoveInput();
+
+        if (!player.PlayerMover.IsGrounded)
         {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Walk);
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
             return;
         }
 
-        if (!player.PlayerMover.GroundChecker.IsGrounded)
+        float mx = Mathf.Abs(player.PlayerMover.MoveInput.x);
+
+        if (mx > 0.01f)
         {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
+            // 달리기 입력이면 Run, 아니면 Walk
+            if (player.PlayerInputReader.RunPressed && !player.PlayerStamina.IsEmpty)
+                player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Run);
+            else
+                player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Walk);
+
             return;
         }
     }
@@ -54,21 +74,27 @@ public class PlayerWalkState : PlayerState
     public override void Enter()
     {
         player.SetStateType(PlayerStateType.Walk);
+        player.PlayerMover.SetMoveEnabled(true);
+        player.PlayerMover.SetSpeedMultiplier(1f);
     }
 
     public override void Update()
     {
         player.PlayerStamina.Recover(Time.deltaTime);
 
-        if (Mathf.Abs(player.PlayerMover.Move.x) < 0.01f)
+        ApplyMoveInput();
+
+        if (!player.PlayerMover.IsGrounded)
         {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
             return;
         }
 
-        if (!player.PlayerMover.GroundChecker.IsGrounded)
+        float mx = Mathf.Abs(player.PlayerMover.MoveInput.x);
+
+        if (mx < 0.01f)
         {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
             return;
         }
 
@@ -82,21 +108,65 @@ public class PlayerWalkState : PlayerState
     public override void Exit() { }
 }
 
+public class PlayerRunState : PlayerState
+{
+    private const float RunMultiplier = 1.7f;
+
+    public PlayerRunState(Player player) : base(player) { }
+
+    public override void Enter()
+    {
+        player.SetStateType(PlayerStateType.Run);
+        player.PlayerMover.SetMoveEnabled(true);
+        player.PlayerMover.SetSpeedMultiplier(RunMultiplier);
+    }
+
+    public override void Update()
+    {
+        ApplyMoveInput();
+
+        if (Mathf.Abs(player.PlayerMover.MoveInput.x) < 0.01f)
+        {
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
+            return;
+        }
+
+        if (!player.PlayerInputReader.RunPressed || player.PlayerStamina.IsEmpty)
+        {
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Walk);
+            return;
+        }
+
+        if (!player.PlayerMover.IsGrounded)
+        {
+            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
+            return;
+        }
+
+        player.PlayerStamina.Decrease(Time.deltaTime);
+    }
+
+    public override void Exit()
+    {
+        player.PlayerMover.SetSpeedMultiplier(1f);
+    }
+}
 public class PlayerJumpState : PlayerState
 {
     public PlayerJumpState(Player player) : base(player) { }
 
     public override void Enter()
     {
-        player.PlayerMover.DoJump();
         player.SetStateType(PlayerStateType.Jump);
+        player.PlayerMover.DoJump();
         player.PlayerStamina.Consume(10f);
     }
 
     public override void Update()
     {
+        ApplyMoveInput();
 
-        if (player.Rigidbody2D.velocity.y < 0)
+        if (player.Rigidbody2D.velocity.y < 0f)
         {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
             return;
@@ -117,7 +187,9 @@ public class PlayerFallState : PlayerState
 
     public override void Update()
     {
-        if (player.PlayerMover.GroundChecker.IsGrounded)
+        ApplyMoveInput();
+
+        if (player.PlayerMover.IsGrounded)
         {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
             return;
@@ -126,6 +198,7 @@ public class PlayerFallState : PlayerState
 
     public override void Exit() { }
 }
+
 public class PlayerHideState : PlayerState
 {
     private float hideBuffer = 0.2f;
@@ -136,7 +209,9 @@ public class PlayerHideState : PlayerState
     public override void Enter()
     {
         player.SetStateType(PlayerStateType.Hide);
-        player.PlayerMover.SetMove(false);
+        player.PlayerMover.SetMoveEnabled(false);
+        player.PlayerMover.SetMoveInput(Vector2.zero);
+
         timer = hideBuffer;
         player.SetHidden(true);
     }
@@ -160,42 +235,8 @@ public class PlayerHideState : PlayerState
 
     public override void Exit()
     {
-        player.PlayerMover.SetMove(true);
+        player.PlayerMover.SetMoveEnabled(true);
         player.SetHidden(false);
-    }
-}
-
-public class PlayerRunState : PlayerState
-{
-    private PlayerStamina stamina;
-    private PlayerMover mover;
-
-    public PlayerRunState(Player player) : base(player)
-    {
-        player.SetStateType(PlayerStateType.Run);
-        stamina = player.PlayerStamina;
-        mover = player.PlayerMover;
-    }
-
-    public override void Enter()
-    {
-        mover.SetSpeedMultiplier(1.7f); // 기본 속도의 1.7배
-    }
-
-    public override void Update()
-    {
-        if (!player.PlayerInputReader.RunPressed || stamina.IsEmpty)
-        {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
-            return;
-        }
-
-        stamina.Decrease(Time.deltaTime);
-    }
-
-    public override void Exit()
-    {
-        mover.SetSpeedMultiplier(1f);
     }
 }
 

@@ -4,90 +4,128 @@ using UnityEngine;
 
 public class Portal : Interactable
 {
-    [Header("Æ÷Å» ÀÌµ¿ ¸ñÇ¥ÁöÁ¡")]
+    [Header("Destination")]
     [SerializeField] private Portal targetPortal;
     [SerializeField] private CameraArea targetArea;
     [SerializeField] private RoomController targetRoom;
 
+    [Header("Floor Info")]
     [SerializeField] private int fromFloor;
     [SerializeField] private int toFloor;
 
-    [Header("Àá±Ý")]
+    [Header("Lock")]
     [SerializeField] private Item keyItem;
-    [SerializeField] private bool isOpend = false;
-    public bool IsOpend => isOpend;
+    [SerializeField] private bool isOpened = false;
+    public bool IsOpened => isOpened;
     public int FromFloor => fromFloor;
     public int ToFloor => toFloor;
-    private bool isOperated = false;
+
+    private readonly HashSet<int> _operatingEnemies = new HashSet<int>();
 
     public override void Interact()
     {
-        if (!isOpend)
+        if (!isOpened)
         {
-            if (keyItem == Player.Instance.PlayerInventory.CurrentItem)
-            {
-                OpenPortal();
-                targetPortal.OpenPortal(); //½Ö¹æÇâ Æ÷Å» ¿ÀÇÂ
-                ShowSuccess();
-            }
-            else
-            {
-                ShowFail();
-            }
+            TryOpen();
+            return;
         }
-        if (player != null && targetPortal != null && isOpend)
+
+        if (player != null)
         {
-            // ÇÃ·¹ÀÌ¾î À§Ä¡ ÀÌµ¿
-            InteractPortal(player.transform, true);
+            InteractPortal(player.transform, isPlayer: true);
+        }
+    }
+
+    private void TryOpen()
+    {
+        if (Player.Instance == null || Player.Instance.PlayerInventory == null)
+        {
+            ShowFail();
+            return;
+        }
+
+        if (keyItem == Player.Instance.PlayerInventory.CurrentItem)
+        {
+            OpenPortal();
+            if (targetPortal != null) targetPortal.OpenPortal(); // ½Ö¹æÇâ ¿ÀÇÂ
+            ShowSuccess();
+        }
+        else
+        {
+            ShowFail();
         }
     }
 
     public void InteractPortal(Transform target, bool isPlayer)
     {
-        if (target == null || targetPortal == null || !isOpend) return;
+        if (target == null) return;
+        if (!isOpened) return;
+        if (targetPortal == null) return;
 
         if (isPlayer)
         {
-            Player player = target.GetComponent<Player>();
-            if (player != null)
-                player.StartCoroutine(MoveRoomForPlayer(player));
+            Player p = target.GetComponent<Player>();
+            if (p != null)
+                p.StartCoroutine(MoveRoomForPlayer(p));
         }
         else
         {
-            Enemy enemy = target.GetComponent<Enemy>();
-            if (enemy != null && isOperated == false)
-                enemy.StartCoroutine(MoveRoomForEnemy(enemy)); 
+            Enemy e = target.GetComponent<Enemy>();
+            if (e == null) return;
 
+            int id = e.GetInstanceID();
+            if (_operatingEnemies.Contains(id)) return;
+
+            e.StartCoroutine(MoveRoomForEnemy(e));
         }
     }
 
-    private IEnumerator MoveRoomForPlayer(Player player)
+    private IEnumerator MoveRoomForPlayer(Player p)
     {
-        player.PlayerMover.SetMove(false);
-        yield return UIManager.Instance.FadeOut();
+        if (p.PlayerMover != null)
+        {
+            p.PlayerMover.SetMoveEnabled(false);
+            p.PlayerMover.SetMoveInput(Vector2.zero);
+        }
 
-        player.transform.position = targetPortal.transform.position;
-        RoomManager.Instance.SetPlayerRoom(targetRoom);
-        CameraManager.Instance.SwitchCamera(targetArea);
+        if (UIManager.Instance != null)
+            yield return UIManager.Instance.FadeOut();
 
-        player.PlayerMover.SetMove(true);
-        yield return UIManager.Instance.FadeIn();
+        p.transform.position = targetPortal.transform.position;
+
+        if (RoomManager.Instance != null)
+            RoomManager.Instance.SetPlayerRoom(targetRoom);
+
+        if (CameraManager.Instance != null)
+            CameraManager.Instance.SwitchCamera(targetArea);
+
+        if (UIManager.Instance != null)
+            yield return UIManager.Instance.FadeIn();
+
+        if (p.PlayerMover != null)
+            p.PlayerMover.SetMoveEnabled(true);
     }
 
-    private IEnumerator MoveRoomForEnemy(Enemy enemy)
+    private IEnumerator MoveRoomForEnemy(Enemy e)
     {
-        isOperated = true;
-        enemy.SetMove(false);
+        int id = e.GetInstanceID();
+        _operatingEnemies.Add(id);
+
+        e.SetMove(false);
         yield return new WaitForSeconds(1f);
 
-        enemy.transform.position = targetPortal.transform.position;
-        RoomManager.Instance.SetEnemyRoom(targetRoom);
-        enemy.SetMove(true);
-        isOperated = false;
+        e.transform.position = targetPortal.transform.position;
+
+        if (RoomManager.Instance != null)
+            RoomManager.Instance.SetEnemyRoom(targetRoom);
+
+        e.SetMove(true);
+
+        _operatingEnemies.Remove(id);
     }
 
     public void OpenPortal()
     {
-        isOpend = true;
+        isOpened = true;
     }
 }
