@@ -2067,7 +2067,7 @@ MonoBehaviour:
   fromFloor: 2
   toFloor: 1
   keyItem: 0
-  isOpend: 1
+  isOpened: 0
 --- !u!212 &530363521
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3154,7 +3154,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &763698340
 Transform:
   m_ObjectHideFlags: 0
@@ -3798,7 +3798,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseSpeed: 5
-  playerSpeed: 5
   jumpForce: 5
   maxJump: 1
 --- !u!114 &855078115
@@ -4000,7 +3999,7 @@ MonoBehaviour:
   fromFloor: 1
   toFloor: 2
   keyItem: 0
-  isOpend: 1
+  isOpened: 0
 --- !u!212 &873601033
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4428,8 +4427,6 @@ MonoBehaviour:
   - {fileID: 530363520}
   playerRoomIndex: 0
   enemyRoomIndex: 5
-  PlayerRoom: {fileID: 0}
-  EnemyRoom: {fileID: 0}
 --- !u!4 &966588637
 Transform:
   m_ObjectHideFlags: 0
@@ -4474,7 +4471,7 @@ Transform:
   m_GameObject: {fileID: 973958671}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 20.4, y: 1.3, z: 0}
+  m_LocalPosition: {x: 20, y: 1.3, z: 0}
   m_LocalScale: {x: 20, y: 11.02, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4855,6 +4852,7 @@ GameObject:
   - component: {fileID: 1065559230}
   - component: {fileID: 1065559229}
   - component: {fileID: 1065559233}
+  - component: {fileID: 1065559234}
   m_Layer: 6
   m_Name: Enemy
   m_TagString: Untagged
@@ -5015,10 +5013,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90eaf11ce48049a4c9bd48c148dde847, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2
+  defaultMoveSpeed: 2
   state: 1
-  _collider2D: {fileID: 1065559230}
-  detectCollier: {fileID: 677805045}
+--- !u!114 &1065559234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1065559228}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 197e8f4401ab28440a544e54319a2bb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 2
 --- !u!1 &1070099291
 GameObject:
   m_ObjectHideFlags: 0
@@ -6102,6 +6111,7 @@ MonoBehaviour:
   nameText: {fileID: 42354559}
   dialogText: {fileID: 1582712676}
   typingSpeed: 0.03
+  fadeSpeed: 3
 --- !u!1 &1203720099
 GameObject:
   m_ObjectHideFlags: 0
@@ -8131,7 +8141,7 @@ Transform:
   m_GameObject: {fileID: 1698365741}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.01999998, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10109,7 +10119,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!212 &2020886933
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -10488,7 +10498,7 @@ MonoBehaviour:
   fromFloor: 2
   toFloor: 1
   keyItem: 0
-  isOpend: 0
+  isOpened: 0
 --- !u!212 &2049861081
 SpriteRenderer:
   m_ObjectHideFlags: 0
