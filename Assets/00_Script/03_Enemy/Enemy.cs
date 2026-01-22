@@ -17,9 +17,6 @@ public class Enemy : MonoBehaviour
     public float DefaultMoveSpeed => defaultMoveSpeed;
 
     public float Direction { get; private set; } = 1f;
-
-    public Transform Target { get; private set; }
-    public RoomController TargetRoom { get; private set; }
     public ChaseTarget CurrentChaseTarget { get; private set; }
 
     private void Awake()
@@ -86,11 +83,6 @@ public class Enemy : MonoBehaviour
         CurrentRoom = room;
     }
 
-    public void SetTarget(Transform target)
-    {
-        Target = target;
-    }
-
     public void SetDirection(float dir)
     {
         dir = Mathf.Sign(dir);
@@ -110,34 +102,6 @@ public class Enemy : MonoBehaviour
         transform.localScale = scale;
     }
 
-    public void ChaseCurrentTargetWithPortal(float arriveThreshold = 0.05f)
-    {
-        if (Mover == null || CurrentRoom == null) return;
-
-        var t = CurrentChaseTarget;
-        if (!t.IsValid) return;
-
-        // 같은 층이면 "그 대상"으로 직행
-        if (t.Room.Floor == CurrentRoom.Floor)
-        {
-            float dir = Mover.MoveTowardsX(t.Transform.position, arriveThreshold);
-            SetDirection(dir);
-            return;
-        }
-
-        // 다른 층이면 포탈을 임시 목표로
-        Portal portal = RoomManager.Instance != null
-            ? RoomManager.Instance.FindClosestPortal(CurrentRoom.Floor, t.Room.Floor, transform.position)
-            : null;
-
-        if (portal == null) return;
-
-        float pdir = Mover.MoveTowardsX(portal.transform.position, arriveThreshold);
-        SetDirection(pdir);
-
-        if (Mover.IsArrivedX(portal.transform.position))
-            portal.InteractPortal(transform, false);
-    }
 }
 
 public enum ChaseTargetType

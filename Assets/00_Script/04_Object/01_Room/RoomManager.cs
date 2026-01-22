@@ -116,7 +116,10 @@ public class RoomManager : MonoBehaviour
                 continue;
 
             if (rooms[index].IsOpened)
+            {
+                Debug.Log($"[RoomManager] GetRandomRoom: {index}");
                 return rooms[index];
+            }
         }
     }
 }

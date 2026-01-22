@@ -1792,6 +1792,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 1694244597}
   rightEntrance: {fileID: 2094356305}
+  isOpened: 0
   floor: 1
 --- !u!1 &286229379
 GameObject:
@@ -2278,6 +2279,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 1404647059}
   rightEntrance: {fileID: 37598771}
+  isOpened: 0
   floor: 1
 --- !u!1 &404876298
 GameObject:
@@ -2685,6 +2687,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 731765505}
   rightEntrance: {fileID: 929052137}
+  isOpened: 1
   floor: 1
 --- !u!1 &481647474
 GameObject:
@@ -2881,7 +2884,7 @@ MonoBehaviour:
   fromFloor: 2
   toFloor: 1
   keyItem: 0
-  isOpened: 0
+  isOpened: 1
 --- !u!212 &530363521
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4255,6 +4258,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 383884406}
   rightEntrance: {fileID: 156615373}
+  isOpened: 1
   floor: 1
 --- !u!1 &771760103
 GameObject:
@@ -4442,6 +4446,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 1390412861}
   rightEntrance: {fileID: 799399032}
+  isOpened: 1
   floor: 1
 --- !u!1 &799399031
 GameObject:
@@ -4942,7 +4947,7 @@ MonoBehaviour:
   fromFloor: 1
   toFloor: 2
   keyItem: 0
-  isOpened: 0
+  isOpened: 1
 --- !u!212 &873601033
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5266,6 +5271,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 2081454833}
   rightEntrance: {fileID: 813556385}
+  isOpened: 1
   floor: 1
 --- !u!1 &988496057
 GameObject:
@@ -5319,6 +5325,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 191457237}
   rightEntrance: {fileID: 408195054}
+  isOpened: 1
   floor: 1
 --- !u!1 &1005873100
 GameObject:
@@ -5372,6 +5379,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 600002376}
   rightEntrance: {fileID: 593890805}
+  isOpened: 0
   floor: 1
 --- !u!1 &1053981052
 GameObject:
@@ -6146,6 +6154,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 364779496}
   rightEntrance: {fileID: 231048230}
+  isOpened: 0
   floor: 1
 --- !u!1 &1175000037
 GameObject:
@@ -6332,6 +6341,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 404876299}
   rightEntrance: {fileID: 15938017}
+  isOpened: 0
   floor: 1
 --- !u!1 &1186698438
 GameObject:
@@ -9086,6 +9096,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 1721165995}
   rightEntrance: {fileID: 286229381}
+  isOpened: 1
   floor: 1
 --- !u!1 &1654450793
 GameObject:
@@ -9976,6 +9987,7 @@ MonoBehaviour:
   _collider2D: {fileID: 0}
   leftEntrance: {fileID: 1252883993}
   rightEntrance: {fileID: 2005419854}
+  isOpened: 1
   floor: 1
 --- !u!1 &1907422106
 GameObject:

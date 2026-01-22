@@ -7,6 +7,7 @@ public class RoomController : MonoBehaviour
     [SerializeField] private Collider2D _collider2D;
     [SerializeField] private RoomEntranceTrigger leftEntrance;
     [SerializeField] private RoomEntranceTrigger rightEntrance;
+    [SerializeField] private bool isOpened;
 
     [Header("¹æ Á¤º¸")]
     [SerializeField] private int floor;
@@ -14,7 +15,7 @@ public class RoomController : MonoBehaviour
 
     public Collider2D Collider2D => _collider2D;
 
-    public bool IsOpened { get; private set; }
+    public bool IsOpened => isOpened;
 
     private void Awake()
     {
@@ -37,5 +38,5 @@ public class RoomController : MonoBehaviour
          return _collider2D.bounds.center;
     }
 
-    public void SetOpen(bool isOpened) => IsOpened = isOpened;
+    public void SetOpen(bool isOpened) => this.isOpened = isOpened;
 }
