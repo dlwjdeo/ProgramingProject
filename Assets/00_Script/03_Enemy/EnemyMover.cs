@@ -1,74 +1,57 @@
 using UnityEngine;
 
-// 적의 이동/플립 "실행"만 담당
 public class EnemyMover : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 2f;
-
-    private Enemy _enemy;
+    [SerializeField] private Rigidbody2D rb;
 
     public float MoveSpeed
     {
         get => moveSpeed;
         set => moveSpeed = value;
     }
-
     public bool CanMove { get; private set; } = true;
-    public float Direction { get; private set; } = 1f; // +1 right, -1 left
 
     private void Awake()
     {
-        _enemy = GetComponent<Enemy>();
+        if (rb == null) rb = GetComponent<Rigidbody2D>();
     }
 
     public void SetMoveEnabled(bool enabled)
     {
         CanMove = enabled;
+        if (!enabled) Stop();
     }
 
-    public void MoveTowardsX(Vector3 targetWorld)
+    public void Stop()
     {
-        if (!CanMove) return;
-
-        Vector3 current = transform.position;
-        Vector3 target = new Vector3(targetWorld.x, current.y, current.z);
-
-        float dirX = Mathf.Sign(target.x - current.x);
-        if (Mathf.Abs(target.x - current.x) < 0.01f) dirX = 0f;
-
-        transform.position = Vector3.MoveTowards(current, target, moveSpeed * Time.deltaTime);
-
-        HandleFlip(dirX);
+        rb.velocity = new Vector2(0f, rb.velocity.y);
     }
 
-    private void HandleFlip(float dirX)
+    public float MoveTowardsX(Vector3 targetWorld, float arriveThreshold = 0.05f)
     {
-        if (dirX > 0.05f && Direction < 0f)
+        if (!CanMove)
         {
-            Flip();
-            Direction = 1f;
+            Stop();
+            return 0f;
         }
-        else if (dirX < -0.05f && Direction > 0f)
+
+        float currentX = rb.position.x;
+        float targetX = targetWorld.x;
+
+        float deltaX = targetX - currentX;
+
+        if (Mathf.Abs(deltaX) <= arriveThreshold)
         {
-            Flip();
-            Direction = -1f;
+            Stop();
+            return 0f;
         }
-    }
 
-    private void Flip()
-    {
-        Vector3 scale = transform.localScale;
-        scale.x *= -1f;
-        transform.localScale = scale;
-    }
-
-    public bool IsArrivedX(float targetX, float threshold = 0.1f)
-    {
-        return Mathf.Abs(transform.position.x - targetX) <= threshold;
+        float dirX = Mathf.Sign(deltaX);
+        rb.velocity = new Vector2(dirX * moveSpeed, rb.velocity.y);
+        return dirX;
     }
 
     public bool IsArrivedX(Vector3 targetWorld, float threshold = 0.1f)
-    {
-        return Mathf.Abs(transform.position.x - targetWorld.x) <= threshold;
-    }
+        => Mathf.Abs(rb.position.x - targetWorld.x) <= threshold;
 }

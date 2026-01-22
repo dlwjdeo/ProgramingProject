@@ -14,6 +14,8 @@ public class RoomController : MonoBehaviour
 
     public Collider2D Collider2D => _collider2D;
 
+    public bool IsOpened { get; private set; }
+
     private void Awake()
     {
         if (_collider2D == null) _collider2D = GetComponentInChildren<Collider2D>();
@@ -34,4 +36,6 @@ public class RoomController : MonoBehaviour
     {
          return _collider2D.bounds.center;
     }
+
+    public void SetOpen(bool isOpened) => IsOpened = isOpened;
 }

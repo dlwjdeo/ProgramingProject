@@ -3,7 +3,7 @@ using UnityEngine;
 public class EnemyStateMachine
 {
     public EnemyPatrolState Patrol { get; private set; }
-    public EnemyWaitState Wait { get; private set; }
+    public EnemyIdleState Idle { get; private set; }
     public EnemySuspiciousState Suspicious { get; private set; }
     public EnemyChaseState Chase { get; private set; }
 
@@ -15,7 +15,7 @@ public class EnemyStateMachine
         this.enemy = enemy;
 
         Patrol = new EnemyPatrolState(enemy);
-        Wait = new EnemyWaitState(enemy);
+        Idle = new EnemyIdleState(enemy);
         Suspicious = new EnemySuspiciousState(enemy);
         Chase = new EnemyChaseState(enemy);
 

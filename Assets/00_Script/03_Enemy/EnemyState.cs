@@ -31,7 +31,74 @@ public abstract class EnemyState : IState
 
     protected bool CanNavigate()
     {
-        return enemy != null && enemy.CurrentRoom != null;
+        return enemy != null && enemy.CurrentRoom != null && enemy.Mover != null;
+    }
+
+    protected bool MoveToRoomWithPortal(RoomController targetRoom, float arriveThreshold = 0.1f)
+    {
+        if (!CanNavigate()) return false;
+        if (targetRoom == null) return false;
+
+        if (targetRoom.Floor == enemy.CurrentRoom.Floor)
+        {
+            Vector3 center = targetRoom.Collider2D != null
+                ? targetRoom.Collider2D.bounds.center
+                : targetRoom.transform.position;
+
+            float dir = enemy.Mover.MoveTowardsX(center, arriveThreshold);
+            enemy.SetDirection(dir);
+
+            return enemy.Mover.IsArrivedX(center, arriveThreshold);
+        }
+
+        Portal portal = RoomManager.Instance != null
+            ? RoomManager.Instance.FindClosestPortal(enemy.CurrentRoom.Floor, targetRoom.Floor, enemy.transform.position)
+            : null;
+
+        if (portal == null) return false;
+
+        float pdir = enemy.Mover.MoveTowardsX(portal.transform.position, arriveThreshold);
+        enemy.SetDirection(pdir);
+
+        if (enemy.Mover.IsArrivedX(portal.transform.position, arriveThreshold))
+            portal.InteractPortal(enemy.transform, false);
+
+        return false;
+    }
+
+    protected void MoveToPlayerWithPortal(float arriveThreshold = 0.05f)
+    {
+        if (!CanNavigate()) return;
+
+        var player = Player;
+        if (player == null) return;
+
+        RoomController playerRoom = player.CurrentRoom;
+        if (playerRoom == null)
+        {
+            float dir = enemy.Mover.MoveTowardsX(player.transform.position, arriveThreshold);
+            enemy.SetDirection(dir);
+            return;
+        }
+
+        if (playerRoom.Floor == enemy.CurrentRoom.Floor)
+        {
+            float dir = enemy.Mover.MoveTowardsX(player.transform.position, arriveThreshold);
+            enemy.SetDirection(dir);
+            return;
+        }
+
+        Portal portal = RoomManager.Instance != null
+            ? RoomManager.Instance.FindClosestPortal(enemy.CurrentRoom.Floor, playerRoom.Floor, enemy.transform.position)
+            : null;
+
+        if (portal == null) return;
+
+        float pdir = enemy.Mover.MoveTowardsX(portal.transform.position, arriveThreshold);
+        enemy.SetDirection(pdir);
+
+        if (enemy.Mover.IsArrivedX(portal.transform.position, arriveThreshold))
+            portal.InteractPortal(enemy.transform, false);
     }
 }
 
@@ -46,7 +113,7 @@ public class EnemyPatrolState : EnemyState
         enemy.SetStateType(EnemyStateType.Patrol);
         enemy.SetMoveSpeed(enemy.DefaultMoveSpeed);
 
-        targetRoom = RoomManager.Instance != null ? RoomManager.Instance.GetRandomRoom() : null;
+        targetRoom = RoomManager.Instance != null ? RoomManager.Instance.GetRandomRoom(enemy.CurrentRoom) : null;
     }
 
     public override void Update()
@@ -55,29 +122,32 @@ public class EnemyPatrolState : EnemyState
         if (!CanNavigate()) return;
         if (targetRoom == null) return;
 
-        enemy.MoveToRoom(targetRoom);
-
-        var center = targetRoom.Collider2D.bounds.center;
-        if (enemy.Mover != null && enemy.Mover.IsArrivedX(center))
+        bool arrived = MoveToRoomWithPortal(targetRoom, 0.1f);
+        if (arrived)
         {
-            enemy.StateMachine.ChangeState(enemy.StateMachine.Wait);
+            enemy.StateMachine.ChangeState(enemy.StateMachine.Idle);
             return;
         }
     }
 
-    public override void Exit() { }
+    public override void Exit()
+    {
+        targetRoom = null;
+    }
 }
 
-public class EnemyWaitState : EnemyState
+public class EnemyIdleState : EnemyState
 {
     private float waitTime;
 
-    public EnemyWaitState(Enemy enemy) : base(enemy) { }
+    public EnemyIdleState(Enemy enemy) : base(enemy) { }
 
     public override void Enter()
     {
-        enemy.SetStateType(EnemyStateType.Wait);
+        enemy.SetStateType(EnemyStateType.Idle);
         waitTime = 2f;
+
+        enemy.Mover?.Stop();
     }
 
     public override void Update()
@@ -98,9 +168,7 @@ public class EnemyWaitState : EnemyState
 public class EnemySuspiciousState : EnemyState
 {
     private RoomController targetRoom;
-    private float timer;
 
-    private const float SuspicionTime = 2f;
     private bool arrived;
 
     public EnemySuspiciousState(Enemy enemy) : base(enemy) { }
@@ -112,7 +180,6 @@ public class EnemySuspiciousState : EnemyState
 
         targetRoom = PlayerRoom;
         arrived = false;
-        timer = SuspicionTime;
     }
 
     public override void Update()
@@ -123,21 +190,11 @@ public class EnemySuspiciousState : EnemyState
 
         if (!arrived)
         {
-            enemy.MoveToRoom(targetRoom);
-
-            var center = targetRoom.Collider2D.bounds.center;
-            if (enemy.Mover != null && enemy.Mover.IsArrivedX(center))
+            arrived = MoveToRoomWithPortal(targetRoom, 0.1f);
+            if (arrived)
             {
-                arrived = true;
-                timer = SuspicionTime;
+                enemy.StateMachine.ChangeState(enemy.StateMachine.Idle);
             }
-            return;
-        }
-
-        timer -= Time.deltaTime;
-        if (timer <= 0f)
-        {
-            enemy.StateMachine.ChangeState(enemy.StateMachine.Patrol);
             return;
         }
     }
@@ -156,8 +213,6 @@ public class EnemyChaseState : EnemyState
     private const float LostPlayerDelay = 10f;
     private float lostTimer;
 
-    private float lastSeenTime;
-
     public EnemyChaseState(Enemy enemy) : base(enemy) { }
 
     public override void Enter()
@@ -166,7 +221,6 @@ public class EnemyChaseState : EnemyState
         enemy.SetMoveSpeed(ChaseSpeed);
 
         lostTimer = LostPlayerDelay;
-        lastSeenTime = Time.time;
     }
 
     public override void Update()
@@ -175,12 +229,9 @@ public class EnemyChaseState : EnemyState
         if (player == null) return;
         if (!CanNavigate()) return;
 
-        RoomController playerRoom = player.CurrentRoom;
-        if (playerRoom == null) return;
-
+        // 시야 유지/상실 처리
         if (enemy.EnemyVision != null && enemy.EnemyVision.IsPlayerVisible)
         {
-            lastSeenTime = Time.time;
             lostTimer = LostPlayerDelay;
         }
         else
@@ -193,14 +244,7 @@ public class EnemyChaseState : EnemyState
             }
         }
 
-        if (playerRoom.Floor == enemy.CurrentRoom.Floor)
-        {
-            enemy.Mover?.MoveTowardsX(player.transform.position);
-        }
-        else
-        {
-            enemy.MoveToPortal(playerRoom);
-        }
+        MoveToPlayerWithPortal(0.05f);
     }
 
     public override void OnTriggerEnter2D(Collider2D other)

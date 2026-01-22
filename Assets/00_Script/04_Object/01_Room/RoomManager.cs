@@ -106,10 +106,17 @@ public class RoomManager : MonoBehaviour
         return closest;
     }
 
-    public RoomController GetRandomRoom()
+    public RoomController GetRandomRoom(RoomController currentRoom)
     {
         if (rooms == null || rooms.Count == 0) return null;
-        int index = UnityEngine.Random.Range(0, rooms.Count);
-        return rooms[index];
+        while(true)
+        {
+            int index = UnityEngine.Random.Range(0, rooms.Count);
+            if(rooms[index] == currentRoom) // 현재 방이면 다시 선택
+                continue;
+
+            if (rooms[index].IsOpened)
+                return rooms[index];
+        }
     }
 }

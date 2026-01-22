@@ -16,6 +16,12 @@ public class Enemy : MonoBehaviour
     public EnemyMover Mover { get; private set; }
     public float DefaultMoveSpeed => defaultMoveSpeed;
 
+    public float Direction { get; private set; } = 1f;
+
+    public Transform Target { get; private set; }
+    public RoomController TargetRoom { get; private set; }
+    public ChaseTarget CurrentChaseTarget { get; private set; }
+
     private void Awake()
     {
         Mover = GetComponent<EnemyMover>();
@@ -30,7 +36,7 @@ public class Enemy : MonoBehaviour
         if (RoomManager.Instance != null)
             RoomManager.Instance.OnChangedEnemyRoom += SetCurrentRoom;
 
-        if (RoomManager.Instance.EnemyRoom != null)
+        if (RoomManager.Instance != null && RoomManager.Instance.EnemyRoom != null)
             SetCurrentRoom(RoomManager.Instance.EnemyRoom);
     }
 
@@ -49,7 +55,20 @@ public class Enemy : MonoBehaviour
     {
         StateMachine.CurrentState?.OnTriggerEnter2D(collision);
     }
+    public void SetChaseTargetPlayer(Transform playerTf, RoomController playerRoom)
+    {
+        CurrentChaseTarget = ChaseTarget.FromPlayer(playerTf, playerRoom);
+    }
 
+    public void SetChaseTargetRoom(RoomController room)
+    {
+        CurrentChaseTarget = ChaseTarget.FromRoom(room);
+    }
+
+    public void ClearChaseTarget()
+    {
+        CurrentChaseTarget = default;
+    }
     public void SetStateType(EnemyStateType type) => state = type;
 
     public void SetMove(bool move)
@@ -62,38 +81,83 @@ public class Enemy : MonoBehaviour
         if (Mover != null) Mover.MoveSpeed = speed;
     }
 
-    public float Direction => (Mover != null) ? Mover.Direction : 1f;
-
     public void SetCurrentRoom(RoomController room)
     {
         CurrentRoom = room;
     }
 
-    public void MoveToRoom(RoomController targetRoom)
+    public void SetTarget(Transform target)
     {
-        if (targetRoom == null || CurrentRoom == null || Mover == null) return;
+        Target = target;
+    }
 
-        if (targetRoom.Floor == CurrentRoom.Floor)
+    public void SetDirection(float dir)
+    {
+        dir = Mathf.Sign(dir);
+        if (dir == 0f) return;
+
+        if (Direction != dir)
         {
-            Vector3 targetPoint = targetRoom.Collider2D.bounds.center;
-            Mover.MoveTowardsX(targetPoint);
-        }
-        else
-        {
-            MoveToPortal(targetRoom);
+            Direction = dir;
+            Flip();
         }
     }
 
-    public void MoveToPortal(RoomController targetRoom)
+    private void Flip()
     {
-        if (targetRoom == null || CurrentRoom == null || Mover == null) return;
+        Vector3 scale = transform.localScale;
+        scale.x *= -1f;
+        transform.localScale = scale;
+    }
 
-        Portal portal = RoomManager.Instance.FindClosestPortal(CurrentRoom.Floor, targetRoom.Floor, transform.position);
+    public void ChaseCurrentTargetWithPortal(float arriveThreshold = 0.05f)
+    {
+        if (Mover == null || CurrentRoom == null) return;
+
+        var t = CurrentChaseTarget;
+        if (!t.IsValid) return;
+
+        // 같은 층이면 "그 대상"으로 직행
+        if (t.Room.Floor == CurrentRoom.Floor)
+        {
+            float dir = Mover.MoveTowardsX(t.Transform.position, arriveThreshold);
+            SetDirection(dir);
+            return;
+        }
+
+        // 다른 층이면 포탈을 임시 목표로
+        Portal portal = RoomManager.Instance != null
+            ? RoomManager.Instance.FindClosestPortal(CurrentRoom.Floor, t.Room.Floor, transform.position)
+            : null;
+
         if (portal == null) return;
 
-        Mover.MoveTowardsX(portal.transform.position);
+        float pdir = Mover.MoveTowardsX(portal.transform.position, arriveThreshold);
+        SetDirection(pdir);
 
         if (Mover.IsArrivedX(portal.transform.position))
             portal.InteractPortal(transform, false);
     }
+}
+
+public enum ChaseTargetType
+{
+    None,
+    Player,
+    Room,
+}
+
+public struct ChaseTarget
+{
+    public ChaseTargetType Type;
+    public Transform Transform;      // Player면 player.transform, Room이면 room.transform(또는 center anchor)
+    public RoomController Room;      // Player면 player.CurrentRoom, Room이면 자기 자신
+
+    public bool IsValid => Type != ChaseTargetType.None && Transform != null && Room != null;
+
+    public static ChaseTarget FromPlayer(Transform playerTf, RoomController playerRoom)
+        => new ChaseTarget { Type = ChaseTargetType.Player, Transform = playerTf, Room = playerRoom };
+
+    public static ChaseTarget FromRoom(RoomController room)
+        => new ChaseTarget { Type = ChaseTargetType.Room, Transform = room.transform, Room = room };
 }

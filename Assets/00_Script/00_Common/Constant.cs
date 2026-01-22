@@ -44,7 +44,7 @@ public enum EnemyStateType
     Suspicious,
     Patrol,
     Chase,
-    Wait
+    Idle,
 }
 
 public enum GameState
