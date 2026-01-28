@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 1ded7311b8c39d543b2970a77e728a04
+guid: f1ebee11947285f47a42457fd569b503
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -123,7 +123,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: idle-blink-sprite_0
+      name: walk-blink-sprite_0
       rect:
         serializedVersion: 2
         x: 0
@@ -137,14 +137,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 62fa2d588444c9c439d7c4a80c5d49b0
-      internalID: -1174924647
+      spriteID: 5fc949a6e63cc2343b17e95c53c067ac
+      internalID: -189940587
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle-blink-sprite_1
+      name: walk-blink-sprite_1
       rect:
         serializedVersion: 2
         x: 1080
@@ -158,14 +158,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 99df26ac00315d94db6a42f21a14ab7c
-      internalID: 877114413
+      spriteID: 5bceb588b8259cf40966933fc28f9e7d
+      internalID: 277306582
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle-blink-sprite_2
+      name: walk-blink-sprite_2
       rect:
         serializedVersion: 2
         x: 2160
@@ -179,14 +179,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fd48cb1534c491140b8d1b84e161b767
-      internalID: -545969794
+      spriteID: 08a7054ba6938d04ba25527da8c5853a
+      internalID: -398209345
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle-blink-sprite_3
+      name: walk-blink-sprite_3
       rect:
         serializedVersion: 2
         x: 3240
@@ -200,14 +200,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b1d9f30e43125184c8e48eb6395883f8
-      internalID: -1595958124
+      spriteID: 95bf17a00a94db241b96b4fb590fdcd5
+      internalID: -367891835
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle-blink-sprite_4
+      name: walk-blink-sprite_4
       rect:
         serializedVersion: 2
         x: 4320
@@ -221,14 +221,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9d7a8941e999a1e4ca16c683a666ba76
-      internalID: -850601411
+      spriteID: d421d4801bb253743b91fed59b1a132c
+      internalID: -1716729610
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle-blink-sprite_5
+      name: walk-blink-sprite_5
       rect:
         serializedVersion: 2
         x: 5400
@@ -242,8 +242,50 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 94bdbb457cc50d84cb724bf206e804cc
-      internalID: -2103972066
+      spriteID: f37fe7eef2839314e83403a4fe93a7a3
+      internalID: -416240619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: walk-blink-sprite_6
+      rect:
+        serializedVersion: 2
+        x: 6480
+        y: 0
+        width: 1080
+        height: 1080
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5cbcbe7f21f34ed4fb4f8e239aec873b
+      internalID: -356931839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: walk-blink-sprite_7
+      rect:
+        serializedVersion: 2
+        x: 7560
+        y: 0
+        width: 1080
+        height: 1080
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c2020a899adfea8409d6230a4736870f
+      internalID: -590580103
       vertices: []
       indices: 
       edges: []
@@ -259,12 +301,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      idle-blink-sprite_0: -1174924647
-      idle-blink-sprite_1: 877114413
-      idle-blink-sprite_2: -545969794
-      idle-blink-sprite_3: -1595958124
-      idle-blink-sprite_4: -850601411
-      idle-blink-sprite_5: -2103972066
+      walk-blink-sprite_0: -189940587
+      walk-blink-sprite_1: 277306582
+      walk-blink-sprite_2: -398209345
+      walk-blink-sprite_3: -367891835
+      walk-blink-sprite_4: -1716729610
+      walk-blink-sprite_5: -416240619
+      walk-blink-sprite_6: -356931839
+      walk-blink-sprite_7: -590580103
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

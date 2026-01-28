@@ -13,12 +13,12 @@ public static class TagName
 public enum Item
 {
     RustKey,
-    Knife,
-    Doll,
-    SeveredFinger,
-
-
-
+    Match,
+    Onigiri,
+    HalfBrokenMirror,
+    Talisman,
+    Orb,
+    Hokora,
     Null,
 }
 

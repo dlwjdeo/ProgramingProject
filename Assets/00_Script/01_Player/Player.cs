@@ -5,6 +5,8 @@ public class Player : Singleton<Player>
     [SerializeField] private PlayerStateType state;
     public PlayerStateType State => state;
 
+    public int Facing { get; private set; } = 1;
+
     public PlayerInputReader PlayerInputReader { get; private set; }
     public PlayerMover PlayerMover { get; private set; }
     public PlayerInteraction PlayerInteraction { get; private set; }
@@ -76,6 +78,12 @@ public class Player : Singleton<Player>
 
         if (hidden)
             LastHideTime = Time.time;
+    }
+
+    public void SetFacing(int dir)
+    {
+        if (dir == 0) return;
+        Facing = dir;
     }
 
     public void SetCurrentRoom(RoomController room) => CurrentRoom = room;

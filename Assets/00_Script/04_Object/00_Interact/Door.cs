@@ -5,23 +5,38 @@ using UnityEngine;
 public class Door : Interactable
 {
     [SerializeField] private bool isLocked = true;
+    [SerializeField] private bool isOpen = false;
     [SerializeField] private Item keyItem;
 
     [SerializeField] private Collider2D doorCollider;
+    [SerializeField] private SpriteRenderer spriteRenderer;
 
+    [SerializeField] private bool canInteractWhenUnlocked = true;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
     public override void Interact()
     {
         if (isLocked)
         {
             if (Player.Instance.PlayerInventory.HasItem(keyItem))
             {
-                unlock();
+                Unlock();
                 ShowSuccess();
             }
             else
             {
                 ShowFail();
             }
+            return;
+        }
+        if( !canInteractWhenUnlocked ) return;
+        if (isOpen)
+        {
+            Close();
         }
         else
         {
@@ -29,14 +44,25 @@ public class Door : Interactable
         }
     }
 
-    private void unlock()
+    public void Unlock()
     {
         isLocked = false;
-        doorCollider.isTrigger = true;
     }
 
-    private void Open()
+    public void Open()
     {
-        // 포탈로 이동 or 애니메이션 등
+        isOpen = true;
+
+        doorCollider.isTrigger = true;
+        spriteRenderer.color = Color.green;
+    }
+
+    public void Close()
+    {
+        isOpen = false;
+
+        doorCollider.isTrigger = false;
+        spriteRenderer.color = Color.white;
+        Debug.Log("Door Closed");
     }
 }

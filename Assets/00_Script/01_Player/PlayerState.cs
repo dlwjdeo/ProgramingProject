@@ -19,9 +19,13 @@ public abstract class PlayerState : IState
 
     protected void ApplyMoveInput()
     {
-        // 입력을 여기서 읽고 mover에 넘긴다(중요!)
         Vector2 move = player.PlayerInputReader.GetMove();
         player.PlayerMover.SetMoveInput(move);
+
+        if (Mathf.Abs(move.x) > 0.01f)
+        {
+            player.SetFacing(move.x > 0 ? 1 : -1);
+        }
     }
 }
 

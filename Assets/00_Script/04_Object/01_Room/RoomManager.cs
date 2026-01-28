@@ -18,8 +18,8 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private int playerRoomIndex = 0;
     [SerializeField] private int enemyRoomIndex = 3;
 
-    public RoomController PlayerRoom { get; private set; }
-    public RoomController EnemyRoom { get; private set; }
+    public RoomController PlayerRoom;// { get; private set; }
+    public RoomController EnemyRoom;// { get; private set; }
 
     private void Awake()
     {
