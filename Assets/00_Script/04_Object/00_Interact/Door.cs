@@ -11,6 +11,9 @@ public class Door : Interactable
     [SerializeField] private Collider2D doorCollider;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
+    public bool IsLocked => isLocked;
+    public bool IsOpen => isOpen;
+
     [SerializeField] private bool canInteractWhenUnlocked = true;
 
     protected override void Awake()
@@ -33,7 +36,9 @@ public class Door : Interactable
             }
             return;
         }
+
         if( !canInteractWhenUnlocked ) return;
+
         if (isOpen)
         {
             Close();
@@ -53,7 +58,7 @@ public class Door : Interactable
     {
         isOpen = true;
 
-        doorCollider.isTrigger = true;
+        doorCollider.enabled = false;
         spriteRenderer.color = Color.green;
     }
 
@@ -61,8 +66,8 @@ public class Door : Interactable
     {
         isOpen = false;
 
-        doorCollider.isTrigger = false;
-        spriteRenderer.color = Color.white;
-        Debug.Log("Door Closed");
+        doorCollider.enabled = true;
+        Debug.Log(doorCollider.isTrigger);
+        spriteRenderer.color = Color.red;
     }
 }

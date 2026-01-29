@@ -15,6 +15,7 @@ public class Player : Singleton<Player>
     public PlayerStamina PlayerStamina { get; private set; }
     public Rigidbody2D Rigidbody2D { get; private set; }
     public BoxCollider2D _Collider2D { get; private set; }
+    public PlayerAnimator PlayerAnimator { get; private set; }
 
     public float LastHideTime { get; private set; }
     public bool IsHidden { get; private set; }
@@ -33,6 +34,7 @@ public class Player : Singleton<Player>
         Rigidbody2D = GetComponent<Rigidbody2D>();
         _Collider2D = GetComponent<BoxCollider2D>();
         PlayerInventory = GetComponent<PlayerInventory>();
+        PlayerAnimator = GetComponent<PlayerAnimator>();
 
         PlayerStateMachine = new PlayerStateMachine(this);
     }
@@ -78,6 +80,8 @@ public class Player : Singleton<Player>
 
         if (hidden)
             LastHideTime = Time.time;
+
+        PlayerAnimator?.SetHide(hidden);
     }
 
     public void SetFacing(int dir)

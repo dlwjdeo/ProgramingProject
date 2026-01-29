@@ -8,9 +8,10 @@ public sealed class PlayerAnimator : MonoBehaviour
 
     [Header("Params")]
     [SerializeField] private string locomotionParam = "Locomotion";
-
+    [SerializeField] private string hideParam = "IsHide";
     private Player _player;
     private int _locomotionHash;
+    private int _hideHash;
 
     private void Awake()
     {
@@ -20,6 +21,7 @@ public sealed class PlayerAnimator : MonoBehaviour
         if (visualRoot == null) visualRoot = transform;
 
         _locomotionHash = Animator.StringToHash(locomotionParam);
+        _hideHash = Animator.StringToHash(hideParam);
     }
 
     private void Update()
@@ -43,5 +45,11 @@ public sealed class PlayerAnimator : MonoBehaviour
             s.x = Mathf.Abs(s.x) * (mx > 0f ? 1f : -1f);
             visualRoot.localScale = s;
         }
+    }
+
+    public void SetHide(bool isHide)
+    {
+        if (animator == null) return;
+        animator.SetBool(_hideHash, isHide);
     }
 }
