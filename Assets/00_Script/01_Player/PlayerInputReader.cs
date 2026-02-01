@@ -1,19 +1,17 @@
 using System;
 using UnityEngine;
 
-// 인게임 플레이어 관련 입력만 받는 class
+// ????? ?÷???? ???? ??¸? ??? class
 public class PlayerInputReader : MonoBehaviour
 {
     private Vector2 move;
 
-    // 단순 행동 이벤트
-    public event Action Jump;
+    // ??? ?? ????
     public event Action Interaction;
     public event Action Lamp;
     public event Action DropItem;
     public event Action Dialog;
 
-    public bool JumpPressed { get; private set; }
     public bool InterationPressed { get; private set; }
     public bool LampPressed { get; private set; }
     public bool DropItemPressed { get; private set; }
@@ -22,7 +20,6 @@ public class PlayerInputReader : MonoBehaviour
 
     private void Awake()
     {
-        JumpPressed = false;
         InterationPressed = false;
         LampPressed = false;
         DropItemPressed = false;
@@ -45,7 +42,7 @@ public class PlayerInputReader : MonoBehaviour
                 break;
 
             case GameState.Paused:
-                // 입력 무시
+                // ??? ????
                 move = Vector2.zero;
                 RunPressed = false;
                 break;
@@ -55,7 +52,6 @@ public class PlayerInputReader : MonoBehaviour
     private void HandlePlayInput()
     {
         readMove();
-        detectJump();
         detectInteraction();
         detectLamp();
         detectDropItem();
@@ -64,7 +60,7 @@ public class PlayerInputReader : MonoBehaviour
 
     private void HandleDialogInput()
     {
-        // 대사 중 이동 입력 차단
+        // ??? ?? ??? ??? ????
         move = Vector2.zero;
         RunPressed = false;
 
@@ -77,16 +73,6 @@ public class PlayerInputReader : MonoBehaviour
         if (KeyBindings.Hold(ActionType.MoveLeft)) x -= 1f;
         if (KeyBindings.Hold(ActionType.MoveRight)) x += 1f;
         move = new Vector2(Mathf.Clamp(x, -1f, 1f), 0f);
-    }
-
-    private void detectJump()
-    {
-        if (KeyBindings.Down(ActionType.Jump))
-        {
-            Jump?.Invoke();
-            JumpPressed = true;
-        }
-        else JumpPressed = false;
     }
 
     private void detectInteraction()

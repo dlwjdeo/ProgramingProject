@@ -48,17 +48,11 @@ public class PlayerIdleState : PlayerState
 
         ApplyMoveInput();
 
-        if (!player.PlayerMover.IsGrounded)
-        {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
-            return;
-        }
-
         float mx = Mathf.Abs(player.PlayerMover.MoveInput.x);
 
         if (mx > 0.01f)
         {
-            // ´Þ¸®±â ÀÔ·ÂÀÌ¸é Run, ¾Æ´Ï¸é Walk
+            // ï¿½Þ¸ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ï¿½Ì¸ï¿½ Run, ï¿½Æ´Ï¸ï¿½ Walk
             if (player.PlayerInputReader.RunPressed && !player.PlayerStamina.IsEmpty)
                 player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Run);
             else
@@ -87,12 +81,6 @@ public class PlayerWalkState : PlayerState
         player.PlayerStamina.Recover(Time.deltaTime);
 
         ApplyMoveInput();
-
-        if (!player.PlayerMover.IsGrounded)
-        {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
-            return;
-        }
 
         float mx = Mathf.Abs(player.PlayerMover.MoveInput.x);
 
@@ -141,12 +129,6 @@ public class PlayerRunState : PlayerState
             return;
         }
 
-        if (!player.PlayerMover.IsGrounded)
-        {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
-            return;
-        }
-
         player.PlayerStamina.Decrease(Time.deltaTime);
     }
 
@@ -154,53 +136,6 @@ public class PlayerRunState : PlayerState
     {
         player.PlayerMover.SetSpeedMultiplier(1f);
     }
-}
-public class PlayerJumpState : PlayerState
-{
-    public PlayerJumpState(Player player) : base(player) { }
-
-    public override void Enter()
-    {
-        player.SetStateType(PlayerStateType.Jump);
-        player.PlayerMover.DoJump();
-        player.PlayerStamina.Consume(10f);
-    }
-
-    public override void Update()
-    {
-        ApplyMoveInput();
-
-        if (player.Rigidbody2D.velocity.y < 0f)
-        {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Fall);
-            return;
-        }
-    }
-
-    public override void Exit() { }
-}
-
-public class PlayerFallState : PlayerState
-{
-    public PlayerFallState(Player player) : base(player) { }
-
-    public override void Enter()
-    {
-        player.SetStateType(PlayerStateType.Fall);
-    }
-
-    public override void Update()
-    {
-        ApplyMoveInput();
-
-        if (player.PlayerMover.IsGrounded)
-        {
-            player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
-            return;
-        }
-    }
-
-    public override void Exit() { }
 }
 
 public class PlayerHideState : PlayerState

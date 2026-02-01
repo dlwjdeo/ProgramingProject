@@ -41,22 +41,12 @@ public class Player : Singleton<Player>
 
     private void OnEnable()
     {
-        if (PlayerInputReader != null)
-        {
-            PlayerInputReader.Jump += OnJumpPressed;
-        }
-
         if (RoomManager.Instance != null)
             RoomManager.Instance.OnChangedPlayerRoom += SetCurrentRoom;
     }
 
     private void OnDisable()
     {
-        if (PlayerInputReader != null)
-        {
-            PlayerInputReader.Jump -= OnJumpPressed;
-        }
-
         if (RoomManager.Instance != null)
             RoomManager.Instance.OnChangedPlayerRoom -= SetCurrentRoom;
     }
@@ -64,11 +54,6 @@ public class Player : Singleton<Player>
     private void Update()
     {
         PlayerStateMachine.Update();
-    }
-
-    private void OnJumpPressed()
-    {
-        PlayerStateMachine.RequestJump();
     }
 
     public void SetStateType(PlayerStateType type) => state = type;

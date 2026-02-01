@@ -8,7 +8,6 @@ public static class KeyBindings
     {
         { ActionType.MoveLeft,  KeyCode.A },
         { ActionType.MoveRight, KeyCode.D },
-        { ActionType.Jump,      KeyCode.Space },
         { ActionType.Interact,  KeyCode.E },
         { ActionType.Run,       KeyCode.LeftShift},
         { ActionType.ItemDrop,  KeyCode.Q },
@@ -42,7 +41,7 @@ public static class KeyBindings
         PlayerPrefs.Save();
     }
 
-    // ÆíÀÇ ÇÔ¼ö
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
     public static bool Down(ActionType action) => Input.GetKeyDown(Get(action));
     public static bool Hold(ActionType action) => Input.GetKey(Get(action));
 }

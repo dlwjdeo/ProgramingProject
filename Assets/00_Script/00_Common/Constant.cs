@@ -33,8 +33,6 @@ public enum PlayerStateType
     Idle,
     Hide,
     Run,
-    Jump,
-    Fall,
     Walk,
 
 }
@@ -58,7 +56,6 @@ public enum ActionType
 {
     MoveLeft,
     MoveRight,
-    Jump,
     Interact,
     Run,
     ItemDrop,

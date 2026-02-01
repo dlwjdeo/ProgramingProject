@@ -4,8 +4,6 @@ public class PlayerStateMachine
 {
     public PlayerIdleState Idle { get; private set; }
     public PlayerWalkState Walk { get; private set; }
-    public PlayerJumpState Jump { get; private set; }
-    public PlayerFallState Fall { get; private set; }
     public PlayerHideState Hide { get; private set; }
     public PlayerRunState Run { get; private set; }
 
@@ -18,8 +16,6 @@ public class PlayerStateMachine
 
         Idle = new PlayerIdleState(player);
         Walk = new PlayerWalkState(player);
-        Jump = new PlayerJumpState(player);
-        Fall = new PlayerFallState(player);
         Hide = new PlayerHideState(player);
         Run = new PlayerRunState(player);
 
@@ -39,13 +35,5 @@ public class PlayerStateMachine
     public void Update()
     {
         currentState?.Update();
-    }
-
-    public void RequestJump()
-    {
-        if (!player.PlayerMover.CanJump) return;
-        if (player.PlayerStamina.IsEmpty) return;
-
-        ChangeState(Jump);
     }
 }
