@@ -6,7 +6,7 @@ public class PlayerStamina : MonoBehaviour
     [SerializeField] private float maxStamina = 100f;
     [SerializeField] private float recoverRate = 10f;
     [SerializeField] private float decreaseRate = 15f;
-    [SerializeField] private float minStaminaToRun = 0.1f;  // 달리기 가능한 최소 스테미나
+    [SerializeField] private float minStaminaToRun = 5f;  // 달리기 가능한 최소 스테미나
 
     public float Current { get; private set; }
     public bool IsEmpty => Current <= 0f;

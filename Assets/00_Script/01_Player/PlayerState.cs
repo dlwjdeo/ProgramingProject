@@ -78,6 +78,12 @@ public class PlayerWalkState : PlayerState
 
     public override void Update()
     {
+        // 버튼을 뗐을 때 플래그 초기화
+        if (!player.PlayerInputReader.RunPressed)
+        {
+            player.SetStaminaDepleted(false);
+        }
+
         player.PlayerStamina.Recover(Time.deltaTime);
 
         ApplyMoveInput();
@@ -88,12 +94,6 @@ public class PlayerWalkState : PlayerState
         {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
             return;
-        }
-
-        // 버튼을 뗐을 때 플래그 초기화
-        if (!player.PlayerInputReader.RunPressed)
-        {
-            player.SetStaminaDepleted(false);
         }
 
         // 홀드 중 스테미나 부족으로 인한 재진입 방지
@@ -147,6 +147,11 @@ public class PlayerRunState : PlayerState
     public override void Exit()
     {
         player.PlayerMover.SetSpeedMultiplier(1f);
+        // 입력으로 빠져나간 경우 플래그 초기화
+        if (!player.PlayerInputReader.RunPressed)
+        {
+            player.SetStaminaDepleted(false);
+        }
     }
 }
 
