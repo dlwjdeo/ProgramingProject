@@ -19,6 +19,7 @@ public class Player : Singleton<Player>
 
     public float LastHideTime { get; private set; }
     public bool IsHidden { get; private set; }
+    public bool IsStaminaDepleted { get; private set; } = false;  // 스테미나 부족으로 달리기 중단됨
 
     public RoomController CurrentRoom { get; private set; }
     public PlayerInventory PlayerInventory { get; private set; }
@@ -76,4 +77,6 @@ public class Player : Singleton<Player>
     }
 
     public void SetCurrentRoom(RoomController room) => CurrentRoom = room;
+
+    public void SetStaminaDepleted(bool depleted) => IsStaminaDepleted = depleted;
 }

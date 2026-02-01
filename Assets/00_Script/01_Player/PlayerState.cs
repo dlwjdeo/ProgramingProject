@@ -90,7 +90,14 @@ public class PlayerWalkState : PlayerState
             return;
         }
 
-        if (player.PlayerInputReader.RunPressed && !player.PlayerStamina.IsEmpty)
+        // 버튼을 뗐을 때 플래그 초기화
+        if (!player.PlayerInputReader.RunPressed)
+        {
+            player.SetStaminaDepleted(false);
+        }
+
+        // 홀드 중 스테미나 부족으로 인한 재진입 방지
+        if (player.PlayerInputReader.RunPressed && player.PlayerStamina.CanRun && !player.IsStaminaDepleted)
         {
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Run);
             return;
@@ -123,8 +130,13 @@ public class PlayerRunState : PlayerState
             return;
         }
 
-        if (!player.PlayerInputReader.RunPressed || player.PlayerStamina.IsEmpty)
+        if (!player.PlayerInputReader.RunPressed || !player.PlayerStamina.CanRun)
         {
+            // 스테미나 부족으로 인해 Walk로 전환되면 플래그 설정 (홀드 중 재진입 방지)
+            if (!player.PlayerStamina.CanRun)
+            {
+                player.SetStaminaDepleted(true);
+            }
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Walk);
             return;
         }
