@@ -25,7 +25,8 @@ public enum Item
 public enum CameraArea
 {
     Floor1,
-    Floor2
+    Floor2,
+    Floor3
 }
 
 public enum PlayerStateType
