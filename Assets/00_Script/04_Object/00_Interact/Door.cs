@@ -10,6 +10,7 @@ public class Door : Interactable
 
     [SerializeField] private Collider2D doorCollider;
     [SerializeField] private SpriteRenderer spriteRenderer;
+    private Coroutine openCoroutine;
 
     public bool IsLocked => isLocked;
     public bool IsOpen => isOpen;
@@ -45,7 +46,7 @@ public class Door : Interactable
         }
         else
         {
-            Open();
+            Open(0f);
         }
     }
 
@@ -54,12 +55,26 @@ public class Door : Interactable
         isLocked = false;
     }
 
-    public void Open()
+    public void Open(float delay = 0f)
     {
-        isOpen = true;
+        if (isOpen) return;
+        if (openCoroutine != null) return;
 
-        doorCollider.enabled = false;
-        spriteRenderer.color = Color.green;
+        openCoroutine = StartCoroutine(OpenCoroutine(delay));
+    }
+
+    private IEnumerator OpenCoroutine(float delay)
+    {
+        if (delay > 0f)
+            yield return new WaitForSeconds(delay);
+
+        isOpen = true;
+        if (doorCollider != null)
+            doorCollider.enabled = false;
+        if (spriteRenderer != null)
+            spriteRenderer.color = Color.green;
+
+        openCoroutine = null;
     }
 
     public void Close()

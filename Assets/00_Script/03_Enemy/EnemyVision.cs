@@ -6,6 +6,7 @@ public class EnemyVision : MonoBehaviour
     [Header("Vision")]
     [SerializeField] private Transform rayPoint;
     [SerializeField] private float viewDistance = 5f;
+    [SerializeField] private float doorOpenDistance = 1.5f;
     [SerializeField] private float detectInterval = 0.1f;
 
     [SerializeField] private LayerMask obstacleMask;
@@ -43,12 +44,12 @@ public class EnemyVision : MonoBehaviour
 
         while (true)
         {
-            DetectPlayer();
+            DetectTargets();
             yield return wait;
         }
     }
 
-    private void DetectPlayer()
+    private void DetectTargets()
     {
         IsPlayerVisible = false;
 
@@ -59,9 +60,6 @@ public class EnemyVision : MonoBehaviour
         Vector2 origin = rayPoint.position;
         Vector2 dir = new Vector2(enemy.Direction, 0f);
 
-        float distToPlayer = Mathf.Abs(player.transform.position.x - origin.x);
-        if (distToPlayer > viewDistance) return;
-
         RaycastHit2D hit = Physics2D.Raycast(origin, dir, viewDistance, combinedMask);
         if (hit.collider == null) return;
 
@@ -69,6 +67,15 @@ public class EnemyVision : MonoBehaviour
         {
             if (hit.collider.CompareTag(TagName.Player))
                 IsPlayerVisible = true;
+        }
+        else
+        {
+            var door = hit.collider.GetComponentInParent<Door>();
+            if (door != null)
+            {
+                if (hit.distance <= doorOpenDistance)
+                    door.Open(1f);
+            }
         }
 
         Debug.DrawRay(origin, dir * viewDistance, IsPlayerVisible ? Color.red : Color.green);
