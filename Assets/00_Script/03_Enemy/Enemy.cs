@@ -3,7 +3,8 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [Header("Enemy Settings")]
-    [SerializeField] private float defaultMoveSpeed = 2f;
+    [SerializeField] private float walkMoveSpeed = 2f;
+    [SerializeField] private float runMoveSpeed = 3f;
 
     public EnemyVision EnemyVision { get; private set; }
     public EnemyStateMachine StateMachine { get; private set; }
@@ -14,7 +15,10 @@ public class Enemy : MonoBehaviour
     public RoomController CurrentRoom { get; private set; }
 
     public EnemyMover Mover { get; private set; }
-    public float DefaultMoveSpeed => defaultMoveSpeed;
+    public float DefaultMoveSpeed => walkMoveSpeed;
+    public float WalkMoveSpeed => walkMoveSpeed;
+    public float RunMoveSpeed => runMoveSpeed;
+    public EnemyMoveMode MoveMode { get; private set; } = EnemyMoveMode.Walk;
 
     public float Direction { get; private set; } = 1f;
     public ChaseTarget CurrentChaseTarget { get; private set; }
@@ -22,7 +26,7 @@ public class Enemy : MonoBehaviour
     private void Awake()
     {
         Mover = GetComponent<EnemyMover>();
-        if (Mover != null) Mover.MoveSpeed = defaultMoveSpeed;
+        SetMoveMode(EnemyMoveMode.Walk);
 
         StateMachine = new EnemyStateMachine(this);
         EnemyVision = GetComponentInChildren<EnemyVision>();
@@ -78,6 +82,14 @@ public class Enemy : MonoBehaviour
         if (Mover != null) Mover.MoveSpeed = speed;
     }
 
+    public void SetMoveMode(EnemyMoveMode mode)
+    {
+        MoveMode = mode;
+
+        float targetSpeed = mode == EnemyMoveMode.Run ? runMoveSpeed : walkMoveSpeed;
+        if (Mover != null) Mover.MoveSpeed = targetSpeed;
+    }
+
     public void SetCurrentRoom(RoomController room)
     {
         CurrentRoom = room;
@@ -104,6 +116,12 @@ public class Enemy : MonoBehaviour
 
 }
 
+public enum EnemyMoveMode
+{
+    Walk,
+    Run,
+}
+
 public enum ChaseTargetType
 {
     None,
@@ -114,8 +132,8 @@ public enum ChaseTargetType
 public struct ChaseTarget
 {
     public ChaseTargetType Type;
-    public Transform Transform;      // Player¸é player.transform, RoomÀÌ¸é room.transform(¶Ç´Â center anchor)
-    public RoomController Room;      // Player¸é player.CurrentRoom, RoomÀÌ¸é ÀÚ±â ÀÚ½Å
+    public Transform Transform;      // Playerï¿½ï¿½ player.transform, Roomï¿½Ì¸ï¿½ room.transform(ï¿½Ç´ï¿½ center anchor)
+    public RoomController Room;      // Playerï¿½ï¿½ player.CurrentRoom, Roomï¿½Ì¸ï¿½ ï¿½Ú±ï¿½ ï¿½Ú½ï¿½
 
     public bool IsValid => Type != ChaseTargetType.None && Transform != null && Room != null;
 

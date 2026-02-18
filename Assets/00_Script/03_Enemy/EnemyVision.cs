@@ -14,6 +14,7 @@ public class EnemyVision : MonoBehaviour
     [SerializeField] private LayerMask playerMask;
 
     public bool IsPlayerVisible { get; private set; }
+    public Door PendingDoorToOpen { get; private set; }
 
     private Enemy enemy;
     private Coroutine detectRoutine;
@@ -52,6 +53,7 @@ public class EnemyVision : MonoBehaviour
     private void DetectTargets()
     {
         IsPlayerVisible = false;
+        PendingDoorToOpen = null;
 
         var player = Player.Instance;
         if (player == null || player.IsHidden) return;
@@ -73,11 +75,17 @@ public class EnemyVision : MonoBehaviour
             var door = hit.collider.GetComponentInParent<Door>();
             if (door != null)
             {
-                if (hit.distance <= doorOpenDistance)
-                    door.Open(1f);
+                if (hit.distance <= doorOpenDistance && !door.IsOpen && !door.IsLocked)
+                    PendingDoorToOpen = door;
             }
         }
 
         Debug.DrawRay(origin, dir * viewDistance, IsPlayerVisible ? Color.red : Color.green);
+    }
+
+    public bool TryGetDoorToOpen(out Door door)
+    {
+        door = PendingDoorToOpen;
+        return door != null && !door.IsOpen && !door.IsLocked;
     }
 }

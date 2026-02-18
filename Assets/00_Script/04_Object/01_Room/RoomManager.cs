@@ -8,15 +8,18 @@ public class RoomManager : MonoBehaviour
     public event Action<RoomController> OnChangedPlayerRoom;
     public event Action<RoomController> OnChangedEnemyRoom;
 
-    [Header("방 정보")]
+    [Header("Room List")]
     [SerializeField] private List<RoomController> rooms = new List<RoomController>();
     public IReadOnlyList<RoomController> Rooms => rooms;
 
     [SerializeField] private List<Portal> portals = new List<Portal>();
 
-    [Header("초기 할당 인덱스")]
+    [Header("Room Info")]
     [SerializeField] private int playerRoomIndex = 0;
     [SerializeField] private int enemyRoomIndex = 3;
+
+    [Header("Debug")]
+    [SerializeField] private bool showAllRoomsForTest = true;
 
     public RoomController PlayerRoom;// { get; private set; }
     public RoomController EnemyRoom;// { get; private set; }
@@ -59,10 +62,18 @@ public class RoomManager : MonoBehaviour
         var prev = PlayerRoom;
         PlayerRoom = room;
 
-        if (prev != null)
-            prev.Deactivate();
+        if (showAllRoomsForTest)
+        {
+            ActivateAllRooms();
+        }
+        else
+        {
+            if (prev != null)
+                prev.Deactivate();
 
-        PlayerRoom.Activate();
+            PlayerRoom.Activate();
+        }
+
         OnChangedPlayerRoom?.Invoke(PlayerRoom);
     }
 
@@ -112,7 +123,7 @@ public class RoomManager : MonoBehaviour
         while(true)
         {
             int index = UnityEngine.Random.Range(0, rooms.Count);
-            if(rooms[index] == currentRoom) // 현재 방이면 다시 선택
+            if(rooms[index] == currentRoom) // 현재 방과 동일하면 다시 선택
                 continue;
 
             if (rooms[index].IsOpened)
@@ -120,6 +131,18 @@ public class RoomManager : MonoBehaviour
                 Debug.Log($"[RoomManager] GetRandomRoom: {index}");
                 return rooms[index];
             }
+        }
+    }
+
+    private void ActivateAllRooms()
+    {
+        if (rooms == null) return;
+
+        for (int i = 0; i < rooms.Count; i++)
+        {
+            RoomController room = rooms[i];
+            if (room == null) continue;
+            room.Activate();
         }
     }
 }

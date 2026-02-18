@@ -29,6 +29,15 @@ public abstract class EnemyState : IState
         return false;
     }
 
+    protected bool TryOpenDoorIfNeeded()
+    {
+        if (enemy?.EnemyVision == null) return false;
+        if (!enemy.EnemyVision.TryGetDoorToOpen(out Door door)) return false;
+
+        door.Open(0.1f);
+        return true;
+    }
+
     protected bool CanNavigate()
     {
         return enemy != null && enemy.CurrentRoom != null && enemy.Mover != null;
@@ -111,7 +120,7 @@ public class EnemyPatrolState : EnemyState
     public override void Enter()
     {
         enemy.SetStateType(EnemyStateType.Patrol);
-        enemy.SetMoveSpeed(enemy.DefaultMoveSpeed);
+        enemy.SetMoveMode(EnemyMoveMode.Walk);
 
         targetRoom = RoomManager.Instance != null ? RoomManager.Instance.GetRandomRoom(enemy.CurrentRoom) : null;
     }
@@ -119,6 +128,7 @@ public class EnemyPatrolState : EnemyState
     public override void Update()
     {
         if (TryChaseIfPlayerVisible()) return;
+        if (TryOpenDoorIfNeeded()) return;
         if (!CanNavigate()) return;
         if (targetRoom == null) return;
 
@@ -176,7 +186,7 @@ public class EnemySuspiciousState : EnemyState
     public override void Enter()
     {
         enemy.SetStateType(EnemyStateType.Suspicious);
-        enemy.SetMoveSpeed(enemy.DefaultMoveSpeed);
+        enemy.SetMoveMode(EnemyMoveMode.Walk);
 
         targetRoom = PlayerRoom;
         arrived = false;
@@ -185,6 +195,7 @@ public class EnemySuspiciousState : EnemyState
     public override void Update()
     {
         if (TryChaseIfPlayerVisible()) return;
+        if (TryOpenDoorIfNeeded()) return;
         if (!CanNavigate()) return;
         if (targetRoom == null) return;
 
@@ -208,8 +219,6 @@ public class EnemySuspiciousState : EnemyState
 
 public class EnemyChaseState : EnemyState
 {
-    private const float ChaseSpeed = 3f;
-
     private const float LostPlayerDelay = 10f;
     private float lostTimer;
 
@@ -218,7 +227,7 @@ public class EnemyChaseState : EnemyState
     public override void Enter()
     {
         enemy.SetStateType(EnemyStateType.Chase);
-        enemy.SetMoveSpeed(ChaseSpeed);
+        enemy.SetMoveMode(EnemyMoveMode.Run);
 
         lostTimer = LostPlayerDelay;
     }
@@ -229,7 +238,6 @@ public class EnemyChaseState : EnemyState
         if (player == null) return;
         if (!CanNavigate()) return;
 
-        // ½Ã¾ß À¯Áö/»ó½Ç Ã³¸®
         if (enemy.EnemyVision != null && enemy.EnemyVision.IsPlayerVisible)
         {
             lostTimer = LostPlayerDelay;
@@ -243,6 +251,8 @@ public class EnemyChaseState : EnemyState
                 return;
             }
         }
+
+        if (TryOpenDoorIfNeeded()) return;
 
         MoveToPlayerWithPortal(0.05f);
     }
@@ -260,21 +270,22 @@ public class EnemyChaseState : EnemyState
 
             if (recentlyHidden)
             {
-                Debug.Log("µéÅ´ °ÔÀÓ¿À¹ö");
+                Debug.Log("ï¿½ï¿½Å´ ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½ï¿½");
             }
             else
             {
-                Debug.Log("ÀÎ½Ä ºÒ°¡");
+                Debug.Log("ï¿½Î½ï¿½ ï¿½Ò°ï¿½");
             }
             return;
         }
 
         GameManager.Instance.GameOver();
+        Debug.Log("Game Over: Caught by Enemy");
     }
 
     public override void Exit()
     {
-        enemy.SetMoveSpeed(enemy.DefaultMoveSpeed);
+        enemy.SetMoveMode(EnemyMoveMode.Walk);
         lostTimer = 0f;
     }
 }

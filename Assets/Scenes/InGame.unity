@@ -2714,7 +2714,7 @@ MonoBehaviour:
   failMessage: It's locked
   priority: 0
   isLocked: 0
-  isOpen: 1
+  isOpen: 0
   keyItem: 7
   doorCollider: {fileID: 1877839672}
   spriteRenderer: {fileID: 0}
@@ -4152,7 +4152,7 @@ GameObject:
   - component: {fileID: 600356818}
   m_Layer: 7
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6573,6 +6573,7 @@ MonoBehaviour:
   - {fileID: 530363520}
   playerRoomIndex: 0
   enemyRoomIndex: 6
+  showAllRoomsForTest: 1
   PlayerRoom: {fileID: 0}
   EnemyRoom: {fileID: 0}
 --- !u!4 &966588637
@@ -6801,6 +6802,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rayPoint: {fileID: 1053981053}
   viewDistance: 6
+  doorOpenDistance: 1.5
   detectInterval: 0.1
   obstacleMask:
     serializedVersion: 2
@@ -6982,7 +6984,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90eaf11ce48049a4c9bd48c148dde847, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultMoveSpeed: 2
+  walkMoveSpeed: 2
+  runMoveSpeed: 3
   state: 1
 --- !u!114 &1065559234
 MonoBehaviour:
@@ -8561,7 +8564,7 @@ MonoBehaviour:
   priority: 0
   isLocked: 0
   isOpen: 0
-  keyItem: 0
+  keyItem: 7
   doorCollider: {fileID: 886315745}
   spriteRenderer: {fileID: 0}
   canInteractWhenUnlocked: 1
@@ -8722,6 +8725,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1381841008}
   - component: {fileID: 1381841007}
+  - component: {fileID: 1381841009}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -8756,6 +8760,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1381841009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1381841006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0102ef25c9d23a44ea8e83bc67a70db4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1385292521
 GameObject:
   m_ObjectHideFlags: 0
