@@ -10,6 +10,9 @@ public class EnemyMover : MonoBehaviour
         get => moveSpeed;
         set => moveSpeed = value;
     }
+    public float CurrentSpeedX => rb != null ? Mathf.Abs(rb.velocity.x) : 0f;
+    public bool IsMovingX { get; private set; }
+
     public bool CanMove { get; private set; } = true;
 
     private void Awake()
@@ -25,6 +28,7 @@ public class EnemyMover : MonoBehaviour
 
     public void Stop()
     {
+        IsMovingX = false;
         rb.velocity = new Vector2(0f, rb.velocity.y);
     }
 
@@ -48,6 +52,7 @@ public class EnemyMover : MonoBehaviour
         }
 
         float dirX = Mathf.Sign(deltaX);
+        IsMovingX = true;
         rb.velocity = new Vector2(dirX * moveSpeed, rb.velocity.y);
         return dirX;
     }
