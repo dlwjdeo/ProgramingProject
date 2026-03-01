@@ -6,6 +6,8 @@ public class HalfMirror : Interactable
 {
     [SerializeField] private Item keyItem;
     [SerializeField] private Door door;
+    [SerializeField] private Sprite usedSprite;
+    [SerializeField] private Sprite unusedSprite;
 
     private bool isUsed = false;
 
@@ -19,6 +21,7 @@ public class HalfMirror : Interactable
             door.Unlock();
             door.Open();
             isUsed = true;
+            GetComponent<SpriteRenderer>().sprite = usedSprite;
             ShowSuccess();
         }
         else

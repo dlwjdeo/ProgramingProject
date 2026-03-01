@@ -7,6 +7,8 @@ public class Chest : Interactable
     [SerializeField] private Item dropItem;
     [SerializeField] private GameObject dropPrefab;
     [SerializeField] private Transform dropPoint;
+    [SerializeField] private Sprite openedSprite;
+    [SerializeField] private Sprite closedSprite;
 
     private bool isOpened = false;
     public override void Interact()
@@ -29,6 +31,7 @@ public class Chest : Interactable
         isOpened = true;
         SetPriority(0);
         ShowSuccess();
+        GetComponent<SpriteRenderer>().sprite = openedSprite;
 
         if (dropPrefab != null && dropPoint != null)
         {
