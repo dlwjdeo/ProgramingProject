@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Door : Interactable
 {
-    [SerializeField] private bool isLocked = true;
-    [SerializeField] private bool isOpen = false;
+    [SerializeField] private bool isLocked;
+    [SerializeField] private bool isOpen;
     [SerializeField] private Item keyItem;
 
     [SerializeField] private Collider2D doorCollider;
@@ -24,6 +24,7 @@ public class Door : Interactable
     }
     public override void Interact()
     {
+        Debug.Log("문 상호작용");
         if (isLocked)
         {
             if (Player.Instance.PlayerInventory.HasItem(keyItem))
@@ -75,6 +76,7 @@ public class Door : Interactable
             spriteRenderer.color = Color.green;
 
         openCoroutine = null;
+        Debug.Log("문 열림");
     }
 
     public void Close()

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-//³»ºÎ¿¡ ÀÖ´Â overlay¸¸ Ä×´Ù°¡ Áö¿öÁÖ´Â class
+//ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½Ö´ï¿½ overlayï¿½ï¿½ ï¿½×´Ù°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ class
 public class RoomController : MonoBehaviour
 {
     [SerializeField] private GameObject overlay;
@@ -9,7 +9,7 @@ public class RoomController : MonoBehaviour
     [SerializeField] private RoomEntranceTrigger rightEntrance;
     [SerializeField] private bool isOpened;
 
-    [Header("¹æ Á¤º¸")]
+    [Header("ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     [SerializeField] private int floor;
     public int Floor => floor;
 

@@ -6,6 +6,8 @@ using UnityEngine;
 public class PickupItem : Interactable
 {
     [SerializeField] private Item item;
+    public Item ItemData => item;
+
     public override void Interact()
     {
         if (player == null) return;
