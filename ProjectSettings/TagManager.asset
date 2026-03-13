@@ -18,8 +18,8 @@ TagManager:
   - PlayerHidden
   - Obstacle
   - PlayerInteract
-  - 
-  - 
+  - Ground
+  - Item
   - 
   - 
   - 
