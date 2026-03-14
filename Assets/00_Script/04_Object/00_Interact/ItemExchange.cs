@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Kitsune : Interactable
+public class ItemExchange : Interactable
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Sprite normalSprite;
@@ -14,7 +14,7 @@ public class Kitsune : Interactable
     public override void Interact()
     {
         if(isInteracted) return;
-        Debug.Log("키츠네 상호작용");
+        Debug.Log("아이템 교환 상호작용");
         if( player.PlayerInventory.CurrentItem == keyItem)
         {
             isInteracted = true;

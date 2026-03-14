@@ -56,4 +56,11 @@ public class PlayerInventory : MonoBehaviour
     }
 
     public bool HasItem(Item item) { return currentItem == item; }
+    
+    public void ClearItem()
+    {
+        currentItem = Item.Null;
+        itemObject = null;
+        OnItemChanged?.Invoke(Item.Null);
+    }
 }

@@ -21,6 +21,7 @@ public class HalfMirror : Interactable
             door.Unlock();
             door.Open();
             isUsed = true;
+            player.PlayerInventory.ClearItem();
             GetComponent<SpriteRenderer>().sprite = usedSprite;
             ShowSuccess();
         }
