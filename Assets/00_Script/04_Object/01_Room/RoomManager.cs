@@ -117,21 +117,61 @@ public class RoomManager : MonoBehaviour
         return closest;
     }
 
+    public Portal FindClosestPortalByTargetX(int fromFloor, int toFloor, float targetX)
+    {
+        if (portals == null || portals.Count == 0) return null;
+
+        if (fromFloor < toFloor) toFloor = fromFloor + 1;
+        else if (fromFloor > toFloor) toFloor = fromFloor - 1;
+        else return null;
+
+        Portal closest = null;
+        float minXDist = float.MaxValue;
+
+        for (int i = 0; i < portals.Count; i++)
+        {
+            Portal p = portals[i];
+            if (p == null) continue;
+
+            if (!p.IsOpened) continue;
+            if (p.FromFloor != fromFloor) continue;
+            if (p.ToFloor != toFloor) continue;
+
+            float xDist = Mathf.Abs(p.transform.position.x - targetX);
+            if (xDist < minXDist)
+            {
+                minXDist = xDist;
+                closest = p;
+            }
+        }
+
+        return closest;
+    }
+
     public RoomController GetRandomRoom(RoomController currentRoom)
     {
         if (rooms == null || rooms.Count == 0) return null;
-        while(true)
-        {
-            int index = UnityEngine.Random.Range(0, rooms.Count);
-            if(rooms[index] == currentRoom) // 현재 방과 동일하면 다시 선택
-                continue;
 
-            if (rooms[index].IsOpened)
-            {
-                Debug.Log($"[RoomManager] GetRandomRoom: {index}");
-                return rooms[index];
-            }
+        List<RoomController> candidates = new List<RoomController>();
+        for (int i = 0; i < rooms.Count; i++)
+        {
+            RoomController room = rooms[i];
+            if (room == null) continue;
+            if (room == currentRoom) continue;
+            if (!room.IsOpened) continue;
+
+            candidates.Add(room);
         }
+
+        if (candidates.Count == 0)
+        {
+            return currentRoom;
+        }
+
+        int randomIndex = UnityEngine.Random.Range(0, candidates.Count);
+        RoomController selected = candidates[randomIndex];
+        Debug.Log($"[RoomManager] GetRandomRoom: {selected.name}");
+        return selected;
     }
 
     private void ActivateAllRooms()

@@ -14,6 +14,7 @@ public class Door : Interactable
 
     public bool IsLocked => isLocked;
     public bool IsOpen => isOpen;
+    public bool IsOpening => openCoroutine != null;
 
     [SerializeField] private bool canInteractWhenUnlocked = true;
 
@@ -56,12 +57,13 @@ public class Door : Interactable
         isLocked = false;
     }
 
-    public void Open(float delay = 0f)
+    public bool Open(float delay = 0f)
     {
-        if (isOpen) return;
-        if (openCoroutine != null) return;
+        if (isOpen) return false;
+        if (openCoroutine != null) return false;
 
         openCoroutine = StartCoroutine(OpenCoroutine(delay));
+        return true;
     }
 
     private IEnumerator OpenCoroutine(float delay)

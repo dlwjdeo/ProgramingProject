@@ -14,6 +14,7 @@ public abstract class EnemyState : IState
     public abstract void Exit();
 
     public virtual void OnTriggerEnter2D(Collider2D other) { }
+    public virtual void OnTriggerStay2D(Collider2D other) { }
     public virtual void OnTriggerExit2D(Collider2D other) { }
 
     protected Player Player => Player.Instance;
@@ -31,16 +32,41 @@ public abstract class EnemyState : IState
 
     protected bool TryOpenDoorIfNeeded()
     {
+        if (enemy != null && enemy.IsDoorPauseActive)
+        {
+            enemy.Mover?.Stop();
+            return true;
+        }
+
         if (enemy?.EnemyVision == null) return false;
         if (!enemy.EnemyVision.TryGetDoorToOpen(out Door door)) return false;
 
-        door.Open(0.1f);
-        return true;
+        if (door.Open(enemy.DoorOpenDelay))
+        {
+            enemy.StartDoorPause(enemy.DoorOpenDelay);
+            return true;
+        }
+
+        return false;
     }
 
     protected bool CanNavigate()
     {
-        return enemy != null && enemy.CurrentRoom != null && enemy.Mover != null;
+        return enemy != null && GetEnemyRoom() != null && enemy.Mover != null;
+    }
+
+    protected RoomController GetEnemyRoom()
+    {
+        if (enemy == null) return null;
+        if (enemy.CurrentRoom != null) return enemy.CurrentRoom;
+
+        if (RoomManager.Instance != null && RoomManager.Instance.EnemyRoom != null)
+        {
+            enemy.SetCurrentRoom(RoomManager.Instance.EnemyRoom);
+            return enemy.CurrentRoom;
+        }
+
+        return null;
     }
 
     protected bool MoveToRoomWithPortal(RoomController targetRoom, float arriveThreshold = 0.1f)
@@ -48,7 +74,10 @@ public abstract class EnemyState : IState
         if (!CanNavigate()) return false;
         if (targetRoom == null) return false;
 
-        if (targetRoom.Floor == enemy.CurrentRoom.Floor)
+        RoomController enemyRoom = GetEnemyRoom();
+        if (enemyRoom == null) return false;
+
+        if (targetRoom.Floor == enemyRoom.Floor)
         {
             Vector3 center = targetRoom.Collider2D != null
                 ? targetRoom.Collider2D.bounds.center
@@ -61,7 +90,7 @@ public abstract class EnemyState : IState
         }
 
         Portal portal = RoomManager.Instance != null
-            ? RoomManager.Instance.FindClosestPortal(enemy.CurrentRoom.Floor, targetRoom.Floor, enemy.transform.position)
+            ? RoomManager.Instance.FindClosestPortal(enemyRoom.Floor, targetRoom.Floor, enemy.transform.position)
             : null;
 
         if (portal == null) return false;
@@ -79,26 +108,42 @@ public abstract class EnemyState : IState
     {
         if (!CanNavigate()) return;
 
-        var player = Player;
-        if (player == null) return;
+        RoomController enemyRoom = GetEnemyRoom();
+        if (enemyRoom == null) return;
 
-        RoomController playerRoom = player.CurrentRoom;
+        Transform playerTf = null;
+        RoomController playerRoom = null;
+
+        if (enemy.CurrentChaseTarget.Type == ChaseTargetType.Player && enemy.CurrentChaseTarget.Transform != null)
+        {
+            playerTf = enemy.CurrentChaseTarget.Transform;
+            playerRoom = enemy.CurrentChaseTarget.Room;
+        }
+        else
+        {
+            var player = Player;
+            if (player == null) return;
+
+            playerTf = player.transform;
+            playerRoom = player.CurrentRoom;
+        }
+
         if (playerRoom == null)
         {
-            float dir = enemy.Mover.MoveTowardsX(player.transform.position, arriveThreshold);
+            float dir = enemy.Mover.MoveTowardsX(playerTf.position, arriveThreshold);
             enemy.SetDirection(dir);
             return;
         }
 
-        if (playerRoom.Floor == enemy.CurrentRoom.Floor)
+        if (playerRoom.Floor == enemyRoom.Floor)
         {
-            float dir = enemy.Mover.MoveTowardsX(player.transform.position, arriveThreshold);
+            float dir = enemy.Mover.MoveTowardsX(playerTf.position, arriveThreshold);
             enemy.SetDirection(dir);
             return;
         }
 
         Portal portal = RoomManager.Instance != null
-            ? RoomManager.Instance.FindClosestPortal(enemy.CurrentRoom.Floor, playerRoom.Floor, enemy.transform.position)
+            ? RoomManager.Instance.FindClosestPortalByTargetX(enemyRoom.Floor, playerRoom.Floor, playerTf.position.x)
             : null;
 
         if (portal == null) return;
@@ -130,7 +175,11 @@ public class EnemyPatrolState : EnemyState
         if (TryChaseIfPlayerVisible()) return;
         if (TryOpenDoorIfNeeded()) return;
         if (!CanNavigate()) return;
-        if (targetRoom == null) return;
+        if (targetRoom == null)
+        {
+            targetRoom = RoomManager.Instance != null ? RoomManager.Instance.GetRandomRoom(GetEnemyRoom()) : null;
+            if (targetRoom == null) return;
+        }
 
         bool arrived = MoveToRoomWithPortal(targetRoom, 0.1f);
         if (arrived)
@@ -197,7 +246,20 @@ public class EnemySuspiciousState : EnemyState
         if (TryChaseIfPlayerVisible()) return;
         if (TryOpenDoorIfNeeded()) return;
         if (!CanNavigate()) return;
-        if (targetRoom == null) return;
+        if (targetRoom == null)
+        {
+            targetRoom = PlayerRoom;
+            if (targetRoom == null && RoomManager.Instance != null)
+            {
+                targetRoom = RoomManager.Instance.PlayerRoom;
+            }
+
+            if (targetRoom == null)
+            {
+                enemy.StateMachine.ChangeState(enemy.StateMachine.Patrol);
+                return;
+            }
+        }
 
         if (!arrived)
         {
@@ -230,12 +292,25 @@ public class EnemyChaseState : EnemyState
         enemy.SetMoveMode(EnemyMoveMode.Run);
 
         lostTimer = LostPlayerDelay;
+        enemy.ClearChaseTarget();
     }
 
     public override void Update()
     {
         var player = Player;
-        if (player == null) return;
+        if (player == null)
+        {
+            enemy.StateMachine.ChangeState(enemy.StateMachine.Suspicious);
+            return;
+        }
+
+        RoomController latestPlayerRoom = player.CurrentRoom;
+        if (latestPlayerRoom == null && RoomManager.Instance != null)
+        {
+            latestPlayerRoom = RoomManager.Instance.PlayerRoom;
+        }
+        enemy.SetChaseTargetPlayer(player.transform, latestPlayerRoom);
+
         if (!CanNavigate()) return;
 
         if (enemy.EnemyVision != null && enemy.EnemyVision.IsPlayerVisible)
@@ -259,6 +334,16 @@ public class EnemyChaseState : EnemyState
 
     public override void OnTriggerEnter2D(Collider2D other)
     {
+        HandlePlayerContact(other);
+    }
+
+    public override void OnTriggerStay2D(Collider2D other)
+    {
+        HandlePlayerContact(other);
+    }
+
+    private void HandlePlayerContact(Collider2D other)
+    {
         if (!other.CompareTag(TagName.Player)) return;
 
         Player player = other.GetComponent<Player>();
@@ -266,20 +351,27 @@ public class EnemyChaseState : EnemyState
 
         if (player.IsHidden)
         {
-            bool recentlyHidden = (Time.time - player.LastHideTime) < 1f;
+            bool recentlyHidden = (Time.time - player.LastHideTime) < 2f;
 
             if (recentlyHidden)
             {
-                Debug.Log("��Ŵ ���ӿ���");
+                if (GameManager.Instance != null)
+                {
+                    GameManager.Instance.GameOver();
+                }
+                Debug.Log("은신 직후 접촉: 플레이어 사망 처리");
             }
             else
             {
-                Debug.Log("�ν� �Ұ�");
+                Debug.Log("은신 상태: 플레이어를 감지할 수 없습니다.");
             }
             return;
         }
 
-        GameManager.Instance.GameOver();
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.GameOver();
+        }
         Debug.Log("Game Over: Caught by Enemy");
     }
 
@@ -287,5 +379,6 @@ public class EnemyChaseState : EnemyState
     {
         enemy.SetMoveMode(EnemyMoveMode.Walk);
         lostTimer = 0f;
+        enemy.ClearChaseTarget();
     }
 }

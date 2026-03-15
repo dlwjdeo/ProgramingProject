@@ -5,6 +5,7 @@ public class Enemy : MonoBehaviour
     [Header("Enemy Settings")]
     [SerializeField] private float walkMoveSpeed = 2f;
     [SerializeField] private float runMoveSpeed = 3f;
+    [SerializeField] private float doorOpenDelay = 0.5f;
 
     public EnemyVision EnemyVision { get; private set; }
     public EnemyStateMachine StateMachine { get; private set; }
@@ -18,10 +19,14 @@ public class Enemy : MonoBehaviour
     public float DefaultMoveSpeed => walkMoveSpeed;
     public float WalkMoveSpeed => walkMoveSpeed;
     public float RunMoveSpeed => runMoveSpeed;
+    public float DoorOpenDelay => doorOpenDelay;
     public EnemyMoveMode MoveMode { get; private set; } = EnemyMoveMode.Walk;
 
     public float Direction { get; private set; } = 1f;
     public ChaseTarget CurrentChaseTarget { get; private set; }
+    public bool IsDoorPauseActive { get; private set; }
+
+    private Coroutine doorPauseCoroutine;
 
     private void Awake()
     {
@@ -45,6 +50,13 @@ public class Enemy : MonoBehaviour
     {
         if (RoomManager.Instance != null)
             RoomManager.Instance.OnChangedEnemyRoom -= SetCurrentRoom;
+
+        IsDoorPauseActive = false;
+        if (doorPauseCoroutine != null)
+        {
+            StopCoroutine(doorPauseCoroutine);
+            doorPauseCoroutine = null;
+        }
     }
 
     private void Update()
@@ -56,6 +68,12 @@ public class Enemy : MonoBehaviour
     {
         StateMachine.CurrentState?.OnTriggerEnter2D(collision);
     }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        StateMachine.CurrentState?.OnTriggerStay2D(collision);
+    }
+
     public void SetChaseTargetPlayer(Transform playerTf, RoomController playerRoom)
     {
         CurrentChaseTarget = ChaseTarget.FromPlayer(playerTf, playerRoom);
@@ -93,6 +111,29 @@ public class Enemy : MonoBehaviour
     public void SetCurrentRoom(RoomController room)
     {
         CurrentRoom = room;
+    }
+
+    public void StartDoorPause(float duration)
+    {
+        if (duration <= 0f) return;
+
+        if (doorPauseCoroutine != null)
+        {
+            StopCoroutine(doorPauseCoroutine);
+        }
+
+        doorPauseCoroutine = StartCoroutine(DoorPauseRoutine(duration));
+    }
+
+    private System.Collections.IEnumerator DoorPauseRoutine(float duration)
+    {
+        IsDoorPauseActive = true;
+        Mover?.Stop();
+
+        yield return new WaitForSeconds(duration);
+
+        IsDoorPauseActive = false;
+        doorPauseCoroutine = null;
     }
 
     public void SetDirection(float dir)
