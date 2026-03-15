@@ -15,7 +15,7 @@ public enum Item
     RustKey,
     Match,  //성냥    
     Onigiri,
-    HalfBrokenMirror,
+    BrokenMirror,
     Talisman,
     Orb,
     Hokora,

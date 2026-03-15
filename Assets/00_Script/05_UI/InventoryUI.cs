@@ -23,7 +23,7 @@ public class InventoryUI : MonoBehaviour
     }
     private void OnDisable()
     {
-        //¿À·ù ·Î±× ¹æÁö
+        //ï¿½ï¿½ï¿½ï¿½ ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (playerInventory != null)
         {
             playerInventory.OnItemChanged -= ChangeText;
@@ -31,6 +31,11 @@ public class InventoryUI : MonoBehaviour
     }
     public void ChangeText(Item item)
     {
+        if (item == Item.Null)
+        {
+            inventoryText.text = "No Item";
+            return;
+        }
         inventoryText.text = item.ToString();
     }
 }

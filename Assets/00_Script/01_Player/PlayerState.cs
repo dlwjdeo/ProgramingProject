@@ -109,7 +109,7 @@ public class PlayerWalkState : PlayerState
 
 public class PlayerRunState : PlayerState
 {
-    private const float RunMultiplier = 1.7f;
+    private const float RunMultiplier = 2f;
 
     public PlayerRunState(Player player) : base(player) { }
 

@@ -102,7 +102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   successMessage: 
   failMessage: 
-  priority: 0
+  priority: 10
   item: 3
 --- !u!58 &3710925373679234932
 CircleCollider2D:
