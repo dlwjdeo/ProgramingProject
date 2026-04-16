@@ -20,6 +20,7 @@ public enum Item
     Orb,
     Hokora,
     OfferingBowl,
+    Salt,
     Null,
 }
 

@@ -7,6 +7,7 @@ public class CameraManager : Singleton<CameraManager>
 {
     [SerializeField] private CinemachineVirtualCamera floor1VC;
     [SerializeField] private CinemachineVirtualCamera floor2VC;
+    [SerializeField] private CinemachineVirtualCamera floor3VC;
 
     private CinemachineVirtualCamera currentVC;
 
@@ -30,6 +31,10 @@ public class CameraManager : Singleton<CameraManager>
             case CameraArea.Floor2:
                 targetVC = floor2VC;
                 break;
+            case CameraArea.Floor3:
+                targetVC = floor3VC;
+                break;
+
             default:
                 targetVC = null;
                 break;
