@@ -75,7 +75,7 @@ public class Door : Interactable
         if (doorCollider != null)
             doorCollider.enabled = false;
         if (spriteRenderer != null)
-            spriteRenderer.color = Color.green;
+            //spriteRenderer.color = Color.green;
 
         openCoroutine = null;
         Debug.Log("문 열림");
@@ -87,6 +87,6 @@ public class Door : Interactable
 
         doorCollider.enabled = true;
         Debug.Log(doorCollider.isTrigger);
-        spriteRenderer.color = Color.red;
+        //spriteRenderer.color = Color.red;
     }
 }

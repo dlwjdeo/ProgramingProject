@@ -30,7 +30,7 @@ public class PlayerInputReader : MonoBehaviour
     private void Update()
     {
         detectEsc();
-
+        if (GameManager.Instance == null) return;
         switch (GameManager.Instance.CurrentState)
         {
             case GameState.Playing:
