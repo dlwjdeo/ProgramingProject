@@ -11,6 +11,8 @@ public class Door : Interactable
     [SerializeField] private Collider2D doorCollider;
     [SerializeField] private SpriteRenderer spriteRenderer;
     private Coroutine openCoroutine;
+    
+    private AudioSource audioSource;
 
     public bool IsLocked => isLocked;
     public bool IsOpen => isOpen;
@@ -22,6 +24,22 @@ public class Door : Interactable
     {
         base.Awake();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        audioSource = GetComponent<AudioSource>();
+        
+        // AudioSource가 없으면 추가
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+        
+        // 3D 오디오 자동 설정
+        audioSource.spatialBlend = 1f;  // 3D 오디오
+        audioSource.spread = 0f;
+        audioSource.dopplerLevel = 0f;
+        audioSource.panStereo = 0f;
+        audioSource.minDistance = 1f;
+        audioSource.maxDistance = 20f;
+        audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
+        audioSource.loop = false;
+        audioSource.playOnAwake = false;
     }
     public override void Interact()
     {
@@ -54,6 +72,10 @@ public class Door : Interactable
 
     public void Unlock()
     {
+        // 열쇠 사용 소리
+        if (audioSource != null && SoundManager.Instance != null)
+            SoundManager.Instance.PlaySFX3D(audioSource, SoundManager.Instance.GetKeyUseSfx());
+            
         isLocked = false;
     }
 
@@ -76,6 +98,10 @@ public class Door : Interactable
             doorCollider.enabled = false;
         if (spriteRenderer != null)
             //spriteRenderer.color = Color.green;
+
+        // 문 열리는 소리
+        if (audioSource != null && SoundManager.Instance != null)
+            SoundManager.Instance.PlaySFX3D(audioSource, SoundManager.Instance.GetDoorOpenSfx());
 
         openCoroutine = null;
         Debug.Log("문 열림");

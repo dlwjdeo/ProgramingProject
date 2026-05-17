@@ -96,6 +96,16 @@ public class PlayerWalkState : PlayerState
             return;
         }
 
+        // 발걸음 소리 (클립이 끝나면 재생)
+        if (SoundManager.Instance != null && player.FootstepAudioSource != null)
+        {
+            // 현재 재생 중이 아니면 새로 재생
+            if (!player.FootstepAudioSource.isPlaying)
+            {
+                player.FootstepAudioSource.PlayOneShot(SoundManager.Instance.GetPlayerWalkSfx());
+            }
+        }
+
         // 홀드 중 스테미나 부족으로 인한 재진입 방지
         if (player.PlayerInputReader.RunPressed && player.PlayerStamina.CanRun && !player.IsStaminaDepleted)
         {
@@ -104,7 +114,12 @@ public class PlayerWalkState : PlayerState
         }
     }
 
-    public override void Exit() { }
+    public override void Exit()
+    {
+        // 상태 전환시 발걸음 소리 즉시 중단
+        if (player.FootstepAudioSource != null)
+            player.FootstepAudioSource.Stop();
+    }
 }
 
 public class PlayerRunState : PlayerState
@@ -130,6 +145,16 @@ public class PlayerRunState : PlayerState
             return;
         }
 
+        // 달리기 발걸음 소리 (클립이 끝나면 재생)
+        if (SoundManager.Instance != null && player.FootstepAudioSource != null)
+        {
+            // 현재 재생 중이 아니면 새로 재생
+            if (!player.FootstepAudioSource.isPlaying)
+            {
+                player.FootstepAudioSource.PlayOneShot(SoundManager.Instance.GetPlayerRunSfx());
+            }
+        }
+
         if (!player.PlayerInputReader.RunPressed || !player.PlayerStamina.CanRun)
         {
             // 스테미나 부족으로 인해 Walk로 전환되면 플래그 설정 (홀드 중 재진입 방지)
@@ -147,6 +172,11 @@ public class PlayerRunState : PlayerState
     public override void Exit()
     {
         player.PlayerMover.SetSpeedMultiplier(1f);
+        
+        // 상태 전환시 발걸음 소리 즉시 중단
+        if (player.FootstepAudioSource != null)
+            player.FootstepAudioSource.Stop();
+        
         // 입력으로 빠져나간 경우 플래그 초기화
         if (!player.PlayerInputReader.RunPressed)
         {
@@ -160,6 +190,9 @@ public class PlayerHideState : PlayerState
     private float hideBuffer = 0.2f;
     private float timer;
 
+    public Action OnEnterHideState;
+    public Action OnExitHideState;
+
     public PlayerHideState(Player player) : base(player) { }
 
     public override void Enter()
@@ -170,6 +203,7 @@ public class PlayerHideState : PlayerState
 
         timer = hideBuffer;
         player.SetHidden(true);
+        OnEnterHideState?.Invoke();
     }
 
     public override void Update()
@@ -193,6 +227,7 @@ public class PlayerHideState : PlayerState
     {
         player.PlayerMover.SetMoveEnabled(true);
         player.SetHidden(false);
+        OnExitHideState?.Invoke();
     }
 }
 

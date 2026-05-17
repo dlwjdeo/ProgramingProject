@@ -6,11 +6,19 @@ using UnityEngine;
 public class InventoryUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI inventoryText;
-    private PlayerInventory playerInventory;
+    [SerializeField]private PlayerInventory playerInventory;
 
     private void Awake()
     {
-        playerInventory = Player.Instance.PlayerInventory;
+        if (playerInventory == null && Player.Instance != null)
+        {
+            playerInventory = Player.Instance.PlayerInventory;
+        }
+
+        if(playerInventory == null)
+        {
+            playerInventory = FindObjectOfType<PlayerInventory>();
+        }
     }
     private void Start()
     {

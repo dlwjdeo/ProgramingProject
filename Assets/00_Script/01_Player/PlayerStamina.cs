@@ -14,9 +14,12 @@ public class PlayerStamina : MonoBehaviour
 
     public event Action<float> OnStaminaChanged;
 
+    private bool exhaustedSoundPlayed = false;
+
     private void Awake()
     {
         Current = maxStamina;
+        exhaustedSoundPlayed = false;
     }
 
     private void Start()
@@ -37,6 +40,10 @@ public class PlayerStamina : MonoBehaviour
     public void Recover(float deltaTime)
     {
         setStamina(Current + recoverRate * deltaTime);
+        
+        // 회복시작하면 exhausted 플래그 리셋
+        if (Current > 0f)
+            exhaustedSoundPlayed = false;
     }
 
     private void setStamina(float value)
@@ -45,6 +52,16 @@ public class PlayerStamina : MonoBehaviour
         Current = Mathf.Clamp(value, 0, maxStamina);
 
         if (!Mathf.Approximately(prev, Current))
+        {
             OnStaminaChanged?.Invoke(Current / maxStamina);
+
+            // 스테미나 0되었을 때 한 번만 exhausted 소리
+            if (IsEmpty && !exhaustedSoundPlayed)
+            {
+                if (SoundManager.Instance != null)
+                    SoundManager.Instance.PlaySFX(SoundManager.Instance.GetPlayerExhaustedSfx());
+                exhaustedSoundPlayed = true;
+            }
+        }
     }
 }

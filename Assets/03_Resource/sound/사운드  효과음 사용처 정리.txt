@@ -1,0 +1,17 @@
+사운드 / 효과음 사용처 정리
+
+game start sfx : 게임시작하고 인게임들가면서 나오는 이펙트음
+heart beating : 근처에 후타쿠치온나 있으면 나오는 이펙트음
+hutakuchionna - breath : 후타쿠치온나 숨소리
+hutakuchionna - chase bgm : 후타쿠치온나가 츠키노 발견하고 추격상태일 때 브금
+hutakuchionna - detection : 후타쿠치온나가 츠키노 발견할 때 나오는 이펙트음
+item drop : 아이템 떨어트릴때
+item pick up : 아이템 주울 때
+key use : 열쇠아이템 사용시
+main menu click : 메뉴 클릭할 때 효과음
+main menu hover : 메뉴 호버링 효과음
+hole enter : 소금 방 들어갈 때 효과음
+tsukino - exhausted : 스테미나 다 쓸 때 힘들어하는 숨소리
+tsukino - run : 뛸 때 소리 ( 발걸음 타이밍 어케 맞춰야할지 몰라서 임의로 맞춤)
+tsukino - walk : 걸을 때 소리 ( 발걸음 타이밍 어케 맞춰야할지 몰라서 임의로 맞춤)
+door open (wood) : 나무 문 열 때 소리, (횡문 열 때도 이 소리로)

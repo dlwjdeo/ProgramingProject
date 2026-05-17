@@ -283,6 +283,7 @@ public class EnemyChaseState : EnemyState
 {
     private const float LostPlayerDelay = 10f;
     private float lostTimer;
+    private bool chaseBGMPlayed = false;
 
     public EnemyChaseState(Enemy enemy) : base(enemy) { }
 
@@ -293,6 +294,12 @@ public class EnemyChaseState : EnemyState
 
         lostTimer = LostPlayerDelay;
         enemy.ClearChaseTarget();
+        chaseBGMPlayed = false;
+        
+        // 추격 BGM 재생 (한 번만)
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayBGM(SoundManager.Instance.GetHutakuchionna_ChaseBGM());
+        chaseBGMPlayed = true;
     }
 
     public override void Update()
@@ -380,5 +387,9 @@ public class EnemyChaseState : EnemyState
         enemy.SetMoveMode(EnemyMoveMode.Walk);
         lostTimer = 0f;
         enemy.ClearChaseTarget();
+        
+        // 추격 BGM 중지
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.StopBGM();
     }
 }

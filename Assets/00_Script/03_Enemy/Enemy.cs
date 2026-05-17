@@ -7,6 +7,14 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float runMoveSpeed = 3f;
     [SerializeField] private float doorOpenDelay = 0.5f;
 
+    private AudioSource audioSource;
+    public AudioClip breathClip;
+
+    [Header("Audio Debug")]
+    [SerializeField] private float currentAudioVolume = 0f;
+
+    private bool detectionSoundPlayed = false;
+
     public EnemyVision EnemyVision { get; private set; }
     public EnemyStateMachine StateMachine { get; private set; }
 
@@ -37,6 +45,17 @@ public class Enemy : MonoBehaviour
         EnemyVision = GetComponentInChildren<EnemyVision>();
     }
 
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource != null && breathClip != null)
+        {
+            audioSource.clip = breathClip;
+            audioSource.loop = true;
+            audioSource.Play();
+        }
+    }
+
     private void OnEnable()
     {
         if (RoomManager.Instance != null)
@@ -62,6 +81,72 @@ public class Enemy : MonoBehaviour
     private void Update()
     {
         StateMachine.Update();
+        UpdateAudioVolume();
+        UpdateDetectionSounds();
+    }
+
+    private void UpdateDetectionSounds()
+    {
+        if (EnemyVision == null || Player.Instance == null) return;
+
+        // 플레이어 감지 시 detection 소리 (한 번만)
+        if (EnemyVision.IsPlayerVisible && !detectionSoundPlayed && State != EnemyStateType.Chase)
+        {
+            if (SoundManager.Instance != null)
+                SoundManager.Instance.PlaySFX(SoundManager.Instance.GetHutakuchionna_Detection());
+            detectionSoundPlayed = true;
+        }
+
+        // 플레이어가 보이지 않으면 다시 감지 가능
+        if (!EnemyVision.IsPlayerVisible)
+            detectionSoundPlayed = false;
+
+        // 플레이어와의 거리
+        float xDistance = Mathf.Abs(transform.position.x - Player.Instance.transform.position.x);
+        
+        // 근처에 적이 있으면 하트비트 재생을 요청하고, 클립이 끝난 뒤에만 다시 재생됨
+        if (xDistance < 10f)
+        {
+            if (SoundManager.Instance != null)
+                SoundManager.Instance.RequestHeartbeat();
+        }
+    }
+
+    private void UpdateAudioVolume()
+    {
+        if (audioSource == null || Player.Instance == null) return;
+
+        // 플레이어와의 상대 위치
+        Vector2 playerPos = Player.Instance.transform.position;
+
+        // x축만 기준으로 거리 계산
+        float xDistance = Mathf.Abs(transform.position.x - playerPos.x);
+
+        // y축 거리
+        float yDistance = Mathf.Abs(transform.position.y - playerPos.y);
+
+        // x축 거리에 따른 기본 볼륨
+        float maxXDistance = 20f;
+        float minXDistance = 1f;
+
+        float baseVolume;
+        if (xDistance <= minXDistance)
+            baseVolume = 1f;
+        else if (xDistance >= maxXDistance)
+            baseVolume = 0f;
+        else
+            baseVolume = Mathf.Lerp(1f, 0f, (xDistance - minXDistance) / (maxXDistance - minXDistance));
+
+        // y축 거리에 따른 보정
+        float finalVolume = baseVolume;
+
+        if (yDistance >= 20f)
+            finalVolume = 0f;  // y축 20 이상: 안 들림
+        else if (yDistance >= 10f)
+            finalVolume *= 0.5f;  // y축 10 이상: 절반
+
+        audioSource.volume = finalVolume;
+        currentAudioVolume = finalVolume;  // Inspector에서 표시
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

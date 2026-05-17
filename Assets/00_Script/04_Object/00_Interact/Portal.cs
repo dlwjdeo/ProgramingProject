@@ -21,6 +21,28 @@ public class Portal : Interactable
     public int ToFloor => toFloor;
 
     private readonly HashSet<int> _operatingEnemies = new HashSet<int>();
+    private AudioSource audioSource;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        audioSource = GetComponent<AudioSource>();
+        
+        // AudioSource? ??? ??
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+        
+        // 3D ??? ?? ??
+        audioSource.spatialBlend = 1f;  // 3D ???
+        audioSource.spread = 0f;
+        audioSource.dopplerLevel = 0f;
+        audioSource.panStereo = 0f;
+        audioSource.minDistance = 1f;
+        audioSource.maxDistance = 20f;
+        audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
+        audioSource.loop = false;
+        audioSource.playOnAwake = false;
+    }
 
     public override void Interact()
     {
@@ -88,6 +110,10 @@ public class Portal : Interactable
             p.PlayerMover.SetMoveInput(Vector2.zero);
         }
 
+        // ?? ?? ? ? ??? ??
+        if (audioSource != null && SoundManager.Instance != null)
+            SoundManager.Instance.PlaySFX3D(audioSource, SoundManager.Instance.GetDoorOpenSfx());
+
         if (UIManager.Instance != null)
             yield return UIManager.Instance.FadeOut();
 
@@ -114,6 +140,10 @@ public class Portal : Interactable
         e.SetMove(false);
         yield return new WaitForSeconds(1f);
 
+        // ?? ?? ? ? ??? ??
+        if (audioSource != null && SoundManager.Instance != null)
+            SoundManager.Instance.PlaySFX3D(audioSource, SoundManager.Instance.GetDoorOpenSfx());
+
         e.transform.position = targetPortal.transform.position;
 
         if (RoomManager.Instance != null)
@@ -127,5 +157,9 @@ public class Portal : Interactable
     public void OpenPortal()
     {
         isOpened = true;
+        
+        // ?? ??? ?? (?? ?? ??)
+        if (audioSource != null && SoundManager.Instance != null)
+            SoundManager.Instance.PlaySFX3D(audioSource, SoundManager.Instance.GetKeyUseSfx());
     }
 }

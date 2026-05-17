@@ -9,6 +9,13 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private ScreenFader screenFader;
     [SerializeField] private DialogManager dialogManager;
     [SerializeField] private GameOverUI gameOverUI;
+    [SerializeField] private GameObject deadPanel;
+
+    private void Start()
+    {
+        if (screenFader != null)
+            StartCoroutine(screenFader.FadeIn());
+    }
     public IEnumerator FadeIn()
     {
         yield return screenFader.FadeIn();
@@ -23,4 +30,6 @@ public class UIManager : Singleton<UIManager>
     public void StartDialog(DialogSequence sequence) => dialogManager.StartDialog(sequence);
 
     public void ShowGameOver() => gameOverUI.Show();
+
+    public void ShowDeadPanel() => deadPanel.SetActive(true);
 }

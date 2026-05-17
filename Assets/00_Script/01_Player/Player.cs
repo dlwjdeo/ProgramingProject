@@ -23,6 +23,7 @@ public class Player : Singleton<Player>
 
     public RoomController CurrentRoom { get; private set; }
     public PlayerInventory PlayerInventory { get; private set; }
+    public AudioSource FootstepAudioSource { get; private set; }
 
     protected override void Awake()
     {
@@ -36,6 +37,11 @@ public class Player : Singleton<Player>
         _Collider2D = GetComponent<BoxCollider2D>();
         PlayerInventory = GetComponent<PlayerInventory>();
         PlayerAnimator = GetComponent<PlayerAnimator>();
+        FootstepAudioSource = GetComponent<AudioSource>();
+        
+        // AudioSource가 없으면 추가
+        if (FootstepAudioSource == null)
+            FootstepAudioSource = gameObject.AddComponent<AudioSource>();
 
         PlayerStateMachine = new PlayerStateMachine(this);
     }

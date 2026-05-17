@@ -13,6 +13,8 @@ public class SceneLoader : Singleton<SceneLoader>
         }
 
         SceneManager.LoadScene(sceneName);
+        
+        SoundManager.Instance?.PlayGameStartSfx();
     }
 
 
