@@ -166,6 +166,7 @@ public class EnemyPatrolState : EnemyState
     {
         enemy.SetStateType(EnemyStateType.Patrol);
         enemy.SetMoveMode(EnemyMoveMode.Walk);
+        enemy.EnemyAnimator.CrossFade("Walk", 0.1f);
 
         targetRoom = RoomManager.Instance != null ? RoomManager.Instance.GetRandomRoom(enemy.CurrentRoom) : null;
     }
@@ -207,6 +208,7 @@ public class EnemyIdleState : EnemyState
         waitTime = 2f;
 
         enemy.Mover?.Stop();
+        enemy.EnemyAnimator.CrossFade("Idle", 0.1f);
     }
 
     public override void Update()
@@ -236,6 +238,7 @@ public class EnemySuspiciousState : EnemyState
     {
         enemy.SetStateType(EnemyStateType.Suspicious);
         enemy.SetMoveMode(EnemyMoveMode.Walk);
+        enemy.EnemyAnimator.CrossFade("Walk", 0.1f);
 
         targetRoom = PlayerRoom;
         arrived = false;
@@ -295,6 +298,7 @@ public class EnemyChaseState : EnemyState
         lostTimer = LostPlayerDelay;
         enemy.ClearChaseTarget();
         chaseBGMPlayed = false;
+        enemy.EnemyAnimator.CrossFade("Run", 0.1f);
         
         // 추격 BGM 재생 (한 번만)
         if (SoundManager.Instance != null)
@@ -353,7 +357,7 @@ public class EnemyChaseState : EnemyState
     {
         if (!other.CompareTag(TagName.Player)) return;
 
-        Player player = other.GetComponent<Player>();
+        Player player = other.GetComponentInParent<Player>();
         if (player == null) return;
 
         if (player.IsHidden)
@@ -392,4 +396,21 @@ public class EnemyChaseState : EnemyState
         if (SoundManager.Instance != null)
             SoundManager.Instance.StopBGM();
     }
+}
+
+public class EnemyDieState : EnemyState
+{
+    public EnemyDieState(Enemy enemy) : base(enemy) { }
+
+    public override void Enter()
+    {
+        //enemy.SetMoveMode(EnemyMoveMode.Die);
+        //enemy.Mover?.Stop();
+        enemy.EnemyAnimator.CrossFade("Die", 0.1f);
+        enemy.SetDirection(0f);
+    }
+
+    public override void Update() { }
+
+    public override void Exit() { }
 }

@@ -40,6 +40,7 @@ public class PlayerIdleState : PlayerState
         player.PlayerMover.SetMoveEnabled(true);
         player.PlayerMover.SetSpeedMultiplier(1f);
         player.PlayerMover.SetMoveInput(Vector2.zero);
+        player.PlayerAnimator.CrossFade("Idle", 0.1f);
     }
 
     public override void Update()
@@ -74,6 +75,7 @@ public class PlayerWalkState : PlayerState
         player.SetStateType(PlayerStateType.Walk);
         player.PlayerMover.SetMoveEnabled(true);
         player.PlayerMover.SetSpeedMultiplier(1f);
+        player.PlayerAnimator.CrossFade("Walk", 0.1f);
     }
 
     public override void Update()
@@ -133,6 +135,7 @@ public class PlayerRunState : PlayerState
         player.SetStateType(PlayerStateType.Run);
         player.PlayerMover.SetMoveEnabled(true);
         player.PlayerMover.SetSpeedMultiplier(RunMultiplier);
+        player.PlayerAnimator.CrossFade("Run", 0.1f);
     }
 
     public override void Update()
@@ -203,6 +206,8 @@ public class PlayerHideState : PlayerState
 
         timer = hideBuffer;
         player.SetHidden(true);
+        player.PlayerAnimator.CrossFade("Sit", 0.1f);
+        player.PlayerRenderer.material.color = player.HideColor;
         OnEnterHideState?.Invoke();
     }
 
@@ -227,6 +232,7 @@ public class PlayerHideState : PlayerState
     {
         player.PlayerMover.SetMoveEnabled(true);
         player.SetHidden(false);
+        player.PlayerRenderer.material.color = Color.white;
         OnExitHideState?.Invoke();
     }
 }

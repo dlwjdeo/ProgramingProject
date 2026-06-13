@@ -6,6 +6,7 @@ public class EnemyStateMachine
     public EnemyIdleState Idle { get; private set; }
     public EnemySuspiciousState Suspicious { get; private set; }
     public EnemyChaseState Chase { get; private set; }
+    public EnemyDieState Die { get; private set; }
 
     public EnemyState CurrentState { get; private set; }
     private readonly Enemy enemy;
@@ -18,7 +19,7 @@ public class EnemyStateMachine
         Idle = new EnemyIdleState(enemy);
         Suspicious = new EnemySuspiciousState(enemy);
         Chase = new EnemyChaseState(enemy);
-
+        Die = new EnemyDieState(enemy);
         CurrentState = Patrol;
         CurrentState.Enter();
     }

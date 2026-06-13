@@ -17,6 +17,7 @@ public class Enemy : MonoBehaviour
 
     public EnemyVision EnemyVision { get; private set; }
     public EnemyStateMachine StateMachine { get; private set; }
+    public Animator EnemyAnimator { get; private set; }
 
     [SerializeField] private EnemyStateType state;
     public EnemyStateType State => state;
@@ -36,13 +37,16 @@ public class Enemy : MonoBehaviour
 
     private Coroutine doorPauseCoroutine;
 
+
     private void Awake()
     {
         Mover = GetComponent<EnemyMover>();
         SetMoveMode(EnemyMoveMode.Walk);
 
-        StateMachine = new EnemyStateMachine(this);
         EnemyVision = GetComponentInChildren<EnemyVision>();
+        EnemyAnimator = GetComponent<Animator>();
+        
+        StateMachine = new EnemyStateMachine(this);
     }
 
     void Start()
@@ -268,4 +272,5 @@ public struct ChaseTarget
 
     public static ChaseTarget FromRoom(RoomController room)
         => new ChaseTarget { Type = ChaseTargetType.Room, Transform = room.transform, Room = room };
+
 }

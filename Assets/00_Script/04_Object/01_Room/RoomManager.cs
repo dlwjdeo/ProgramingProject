@@ -14,12 +14,15 @@ public class RoomManager : MonoBehaviour
 
     [SerializeField] private List<Portal> portals = new List<Portal>();
 
-    [Header("Room Info")]
-    [SerializeField] private int playerRoomIndex = 0;
-    [SerializeField] private int enemyRoomIndex = 3;
-
     [Header("Debug")]
     [SerializeField] private bool showAllRoomsForTest = true;
+
+    [Header("Tracked Actors")]
+    [SerializeField] private Player player;
+    [SerializeField] private Enemy enemy;
+
+    private Collider2D playerCollider;
+    private Collider2D enemyCollider;
 
     public RoomController PlayerRoom;// { get; private set; }
     public RoomController EnemyRoom;// { get; private set; }
@@ -36,22 +39,54 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
-        InitializeRoomsSafe();
+        CacheTrackedActors();
     }
 
-    private void InitializeRoomsSafe()
+    private void Update()
     {
-        if (rooms == null || rooms.Count == 0)
+        UpdateTrackedActorRooms();
+    }
+
+    private void CacheTrackedActors()
+    {
+        if (player == null)
+            player = Player.Instance;
+
+        if (enemy == null)
+            enemy = FindObjectOfType<Enemy>();
+
+        if (player != null && (playerCollider == null || playerCollider.gameObject != player.gameObject))
         {
-            Debug.LogError("[RoomManager] rooms list is empty.");
-            return;
+            playerCollider = player._Collider2D != null
+                ? player._Collider2D
+                : player.GetComponent<Collider2D>();
         }
 
-        playerRoomIndex = Mathf.Clamp(playerRoomIndex, 0, rooms.Count - 1);
-        enemyRoomIndex = Mathf.Clamp(enemyRoomIndex, 0, rooms.Count - 1);
+        if (enemy != null && (enemyCollider == null || enemyCollider.gameObject != enemy.gameObject))
+            enemyCollider = enemy.GetComponent<Collider2D>();
+    }
 
-        SetPlayerRoom(rooms[playerRoomIndex]);
-        SetEnemyRoom(rooms[enemyRoomIndex]);
+    private void UpdateTrackedActorRooms()
+    {
+        CacheTrackedActors();
+
+        if (player != null)
+        {
+            Vector2 playerCenter = playerCollider != null
+                ? playerCollider.bounds.center
+                : (Vector2)player.transform.position;
+
+            TryUpdatePlayerRoomByWorldPoint(playerCenter);
+        }
+
+        if (enemy != null)
+        {
+            Vector2 enemyCenter = enemyCollider != null
+                ? enemyCollider.bounds.center
+                : (Vector2)enemy.transform.position;
+
+            TryUpdateEnemyRoomByWorldPoint(enemyCenter);
+        }
     }
 
     public void SetPlayerRoom(RoomController room)
@@ -84,6 +119,43 @@ public class RoomManager : MonoBehaviour
 
         EnemyRoom = room;
         OnChangedEnemyRoom?.Invoke(EnemyRoom);
+    }
+
+    public RoomController FindRoomByWorldPoint(Vector2 worldPoint, RoomController preferredRoom = null)
+    {
+        if (rooms == null || rooms.Count == 0) return null;
+
+        if (preferredRoom != null && preferredRoom.Collider2D != null && preferredRoom.Collider2D.OverlapPoint(worldPoint))
+            return preferredRoom;
+
+        for (int i = 0; i < rooms.Count; i++)
+        {
+            RoomController room = rooms[i];
+            if (room == null || room.Collider2D == null) continue;
+
+            if (room.Collider2D.OverlapPoint(worldPoint))
+                return room;
+        }
+
+        return null;
+    }
+
+    public bool TryUpdatePlayerRoomByWorldPoint(Vector2 worldPoint)
+    {
+        RoomController nextRoom = FindRoomByWorldPoint(worldPoint, PlayerRoom);
+        if (nextRoom == null) return false;
+
+        SetPlayerRoom(nextRoom);
+        return true;
+    }
+
+    public bool TryUpdateEnemyRoomByWorldPoint(Vector2 worldPoint)
+    {
+        RoomController nextRoom = FindRoomByWorldPoint(worldPoint, EnemyRoom);
+        if (nextRoom == null) return false;
+
+        SetEnemyRoom(nextRoom);
+        return true;
     }
 
     public Portal FindClosestPortal(int fromFloor, int toFloor, Vector3 enemyPos)

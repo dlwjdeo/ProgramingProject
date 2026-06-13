@@ -122,9 +122,6 @@ public class Portal : Interactable
         if (RoomManager.Instance != null)
             RoomManager.Instance.SetPlayerRoom(targetRoom);
 
-        if (CameraManager.Instance != null)
-            CameraManager.Instance.SwitchCamera(targetArea);
-
         if (UIManager.Instance != null)
             yield return UIManager.Instance.FadeIn();
 

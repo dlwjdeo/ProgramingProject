@@ -15,7 +15,6 @@ public class Player : Singleton<Player>
     public PlayerStamina PlayerStamina { get; private set; }
     public Rigidbody2D Rigidbody2D { get; private set; }
     public BoxCollider2D _Collider2D { get; private set; }
-    public PlayerAnimator PlayerAnimator { get; private set; }
 
     public float LastHideTime { get; private set; }
     public bool IsHidden { get; private set; }
@@ -24,6 +23,8 @@ public class Player : Singleton<Player>
     public RoomController CurrentRoom { get; private set; }
     public PlayerInventory PlayerInventory { get; private set; }
     public AudioSource FootstepAudioSource { get; private set; }
+    public Animator PlayerAnimator { get; private set; }
+    public SpriteRenderer PlayerRenderer { get; private set; }
 
     public Color HideColor;
 
@@ -38,9 +39,10 @@ public class Player : Singleton<Player>
         Rigidbody2D = GetComponent<Rigidbody2D>();
         _Collider2D = GetComponent<BoxCollider2D>();
         PlayerInventory = GetComponent<PlayerInventory>();
-        PlayerAnimator = GetComponent<PlayerAnimator>();
         FootstepAudioSource = GetComponent<AudioSource>();
-        
+        PlayerAnimator = GetComponentInChildren<Animator>();
+        PlayerRenderer = GetComponentInChildren<SpriteRenderer>();
+
         // AudioSource가 없으면 추가
         if (FootstepAudioSource == null)
             FootstepAudioSource = gameObject.AddComponent<AudioSource>();
@@ -51,7 +53,12 @@ public class Player : Singleton<Player>
     private void OnEnable()
     {
         if (RoomManager.Instance != null)
+        {
             RoomManager.Instance.OnChangedPlayerRoom += SetCurrentRoom;
+
+            if (RoomManager.Instance.PlayerRoom != null)
+                SetCurrentRoom(RoomManager.Instance.PlayerRoom);
+        }
     }
 
     private void OnDisable()
@@ -74,17 +81,17 @@ public class Player : Singleton<Player>
 
         if (hidden)
             LastHideTime = Time.time;
-
-        PlayerAnimator?.SetHide(hidden);
     }
 
     public void SetFacing(int dir)
     {
         if (dir == 0) return;
         Facing = dir;
+        PlayerRenderer.flipX = Facing < 0;
     }
 
     public void SetCurrentRoom(RoomController room) => CurrentRoom = room;
 
     public void SetStaminaDepleted(bool depleted) => IsStaminaDepleted = depleted;
+
 }
