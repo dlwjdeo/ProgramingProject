@@ -25,6 +25,8 @@ public class Player : Singleton<Player>
     public PlayerInventory PlayerInventory { get; private set; }
     public AudioSource FootstepAudioSource { get; private set; }
 
+    public Color HideColor;
+
     protected override void Awake()
     {
         base.Awake();

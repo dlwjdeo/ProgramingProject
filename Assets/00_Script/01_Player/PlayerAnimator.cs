@@ -13,6 +13,8 @@ public sealed class PlayerAnimator : MonoBehaviour
     private int _locomotionHash;
     private int _hideHash;
 
+    public bool IsCinematicMode;
+
     private void Awake()
     {
         _player = GetComponent<Player>();
@@ -26,7 +28,7 @@ public sealed class PlayerAnimator : MonoBehaviour
 
     private void Update()
     {
-        if (_player == null || animator == null) return;
+        if (IsCinematicMode || _player == null || animator == null) return;
 
         int loco = _player.State switch
         {

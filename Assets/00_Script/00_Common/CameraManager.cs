@@ -10,6 +10,7 @@ public class CameraManager : Singleton<CameraManager>
     [SerializeField] private CinemachineVirtualCamera floor3VC;
 
     private CinemachineVirtualCamera currentVC;
+    private bool isTimelineCameraControlEnabled;
 
     private const int DefaultPriority = 5;
     private const int ActivePriority = 10;
@@ -19,8 +20,23 @@ public class CameraManager : Singleton<CameraManager>
         base.Awake();
          currentVC = floor1VC;
     }
+
+    public void SetTimelineCameraControl(bool enabled)
+    {
+        isTimelineCameraControlEnabled = enabled;
+
+        // Let timeline-driven virtual cameras win immediately.
+        if (enabled && currentVC != null)
+            currentVC.Priority = DefaultPriority;
+        else if (!enabled && currentVC != null)
+            currentVC.Priority = ActivePriority;
+    }
+
     public void SwitchCamera(CameraArea area)
     {
+        //if (isTimelineCameraControlEnabled)
+            //return;
+
         CinemachineVirtualCamera targetVC;
 
         switch (area)

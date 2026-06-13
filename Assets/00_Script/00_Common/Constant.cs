@@ -21,6 +21,7 @@ public enum Item
     Hokora,
     OfferingBowl,
     Salt,
+    Hair,
     Null,
 }
 

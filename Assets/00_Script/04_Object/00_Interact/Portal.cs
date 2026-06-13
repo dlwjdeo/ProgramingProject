@@ -112,7 +112,7 @@ public class Portal : Interactable
 
         // ?? ?? ? ? ??? ??
         if (audioSource != null && SoundManager.Instance != null)
-            SoundManager.Instance.PlaySFX3D(audioSource, SoundManager.Instance.GetDoorOpenSfx());
+            SoundManager.Instance.PlaySFX(SoundManager.Instance.GetDoorOpenSfx());
 
         if (UIManager.Instance != null)
             yield return UIManager.Instance.FadeOut();
