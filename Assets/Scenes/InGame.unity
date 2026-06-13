@@ -3441,7 +3441,7 @@ Transform:
   m_GameObject: {fileID: 416732195}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -44, y: 28.030348, z: -1}
+  m_LocalPosition: {x: -38.77, y: -0.82965136, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4459,7 +4459,7 @@ Transform:
   m_GameObject: {fileID: 598503072}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -44, y: 28.030348, z: -1}
+  m_LocalPosition: {x: -38.77, y: -0.82965136, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4591,7 +4591,7 @@ Transform:
   m_GameObject: {fileID: 600356807}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -44, y: 25.8, z: 0}
+  m_LocalPosition: {x: -38.77, y: -3.06, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4715,6 +4715,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   state: 0
+  HideColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!50 &600356816
 Rigidbody2D:
   serializedVersion: 4
@@ -8517,7 +8518,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_Sprite: {fileID: -1542677132, guid: d341081bad4628f4ab5b8aff584db4ea, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 1
+  m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1, y: 1}
@@ -8535,7 +8536,7 @@ Transform:
   m_GameObject: {fileID: 1065559228}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -31.5, y: 27.6, z: 0}
+  m_LocalPosition: {x: 5.79, y: 13.43, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -8895,7 +8896,7 @@ PlayableDirector:
   m_Enabled: 1
   serializedVersion: 3
   m_PlayableAsset: {fileID: 11400000, guid: 964566f9f5fdea247885658de94c3da2, type: 2}
-  m_InitialState: 1
+  m_InitialState: 0
   m_WrapMode: 2
   m_DirectorUpdateMode: 1
   m_InitialTime: 0
@@ -8949,7 +8950,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playableDirector: {fileID: 1100199172}
-  playOnStart: 1
+  playOnStart: 0
   lockCameraManager: 1
   lockPlayerMovement: 1
   lockPlayerAnimator: 1
@@ -11235,7 +11236,7 @@ Transform:
   m_GameObject: {fileID: 1433539494}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -44, y: 28.030348, z: -1}
+  m_LocalPosition: {x: -38.77, y: -0.82965136, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -13252,7 +13253,7 @@ Transform:
   m_GameObject: {fileID: 1645160877}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -44, y: 28.030348, z: -1}
+  m_LocalPosition: {x: -38.77, y: -0.82965136, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
