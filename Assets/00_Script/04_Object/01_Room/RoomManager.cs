@@ -24,6 +24,8 @@ public class RoomManager : MonoBehaviour
     private Collider2D playerCollider;
     private Collider2D enemyCollider;
 
+    private bool hasInitializedRooms = false;
+
     public RoomController PlayerRoom;// { get; private set; }
     public RoomController EnemyRoom;// { get; private set; }
 
@@ -44,6 +46,12 @@ public class RoomManager : MonoBehaviour
 
     private void Update()
     {
+        // 첫 초기화 시도 (적이 준비될 때까지 재시도)
+        if (!hasInitializedRooms)
+        {
+            InitializePlayerAndEnemyRooms();
+        }
+
         UpdateTrackedActorRooms();
     }
 
@@ -64,6 +72,53 @@ public class RoomManager : MonoBehaviour
 
         if (enemy != null && (enemyCollider == null || enemyCollider.gameObject != enemy.gameObject))
             enemyCollider = enemy.GetComponent<Collider2D>();
+    }
+
+    private void InitializePlayerAndEnemyRooms()
+    {
+        // 플레이어의 초기 방 설정 (콜라이더 기반)
+        if (player != null)
+        {
+            RoomController playerRoom = FindRoomByCollider(playerCollider);
+            if (playerRoom != null)
+            {
+                SetPlayerRoom(playerRoom);
+                Debug.Log($"[RoomManager] Initialized Player Room: {playerRoom.name}");
+            }
+            else
+            {
+                Debug.LogWarning($"[RoomManager] Player collider is not in any room!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[RoomManager] Player not found!");
+            return;
+        }
+
+        // 적의 초기 방 설정 (콜라이더 기반)
+        if (enemy != null)
+        {
+            RoomController enemyRoom = FindRoomByCollider(enemyCollider);
+            if (enemyRoom != null)
+            {
+                SetEnemyRoom(enemyRoom);
+                Debug.Log($"[RoomManager] Initialized Enemy Room: {enemyRoom.name}");
+            }
+            else
+            {
+                Debug.LogWarning($"[RoomManager] Enemy collider is not in any room!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[RoomManager] Enemy not found yet! (Will retry next frame)");
+            return;
+        }
+
+        // 모두 성공했으면 초기화 완료
+        hasInitializedRooms = true;
+        Debug.Log("[RoomManager] Room initialization completed!");
     }
 
     private void UpdateTrackedActorRooms()
@@ -134,6 +189,22 @@ public class RoomManager : MonoBehaviour
             if (room == null || room.Collider2D == null) continue;
 
             if (room.Collider2D.OverlapPoint(worldPoint))
+                return room;
+        }
+
+        return null;
+    }
+
+    public RoomController FindRoomByCollider(Collider2D collider)
+    {
+        if (collider == null || rooms == null || rooms.Count == 0) return null;
+
+        for (int i = 0; i < rooms.Count; i++)
+        {
+            RoomController room = rooms[i];
+            if (room == null || room.Collider2D == null) continue;
+
+            if (room.IsColliderInRoom(collider))
                 return room;
         }
 

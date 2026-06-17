@@ -91,19 +91,43 @@ public class Enemy : MonoBehaviour
 
     private void UpdateDetectionSounds()
     {
-        if (EnemyVision == null || Player.Instance == null) return;
-
-        // 플레이어 감지 시 detection 소리 (한 번만)
-        if (EnemyVision.IsPlayerVisible && !detectionSoundPlayed && State != EnemyStateType.Chase)
+        // 단계별 디버그
+        if (EnemyVision == null)
         {
-            if (SoundManager.Instance != null)
-                SoundManager.Instance.PlaySFX(SoundManager.Instance.GetHutakuchionna_Detection());
-            detectionSoundPlayed = true;
+            Debug.LogWarning("[Enemy] EnemyVision is NULL!");
+            return;
         }
 
-        // 플레이어가 보이지 않으면 다시 감지 가능
-        if (!EnemyVision.IsPlayerVisible)
+        if (Player.Instance == null)
+        {
+            Debug.LogWarning("[Enemy] Player.Instance is NULL!");
+            return;
+        }
+
+        Debug.Log($"[Enemy] UpdateDetectionSounds Running - IsPlayerVisible: {EnemyVision.IsPlayerVisible}, State: {State}, detectionSoundPlayed: {detectionSoundPlayed}");
+
+        // 플레이어 감지 시 detection 소리 (한 번만)
+        if (EnemyVision.IsPlayerVisible && !detectionSoundPlayed)
+        {
+            Debug.Log($"[Enemy] Detection Sound Triggered! State: {State}, PlayerVisible: {EnemyVision.IsPlayerVisible}");
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySFX(SoundManager.Instance.GetHutakuchionna_Detection());
+                Debug.Log("[Enemy] Detection SFX Played");
+            }
+            else
+            {
+                Debug.LogWarning("[Enemy] SoundManager.Instance is null!");
+            }
+            detectionSoundPlayed = true;
+        }
+        else if (!EnemyVision.IsPlayerVisible)
+        {
+            // 플레이어가 보이지 않으면 다시 감지 가능
+            if (detectionSoundPlayed)
+                Debug.Log("[Enemy] Player no longer visible, resetting detection sound flag");
             detectionSoundPlayed = false;
+        }
 
         // 플레이어와의 거리
         float xDistance = Mathf.Abs(transform.position.x - Player.Instance.transform.position.x);

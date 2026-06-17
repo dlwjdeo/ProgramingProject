@@ -208,7 +208,7 @@ public class EnemyIdleState : EnemyState
         waitTime = 2f;
 
         enemy.Mover?.Stop();
-        enemy.EnemyAnimator.CrossFade("Idle", 0.1f);
+        enemy.EnemyAnimator.CrossFade("Idle2", 0.1f);
     }
 
     public override void Update()
@@ -298,7 +298,16 @@ public class EnemyChaseState : EnemyState
         lostTimer = LostPlayerDelay;
         enemy.ClearChaseTarget();
         chaseBGMPlayed = false;
-        enemy.EnemyAnimator.CrossFade("Run", 0.1f);
+        if(GameManager.Instance.IsEnding == false)
+        {
+            enemy.EnemyAnimator.CrossFade("Run", 0.1f);
+            Debug.Log("추격 시작: 플레이어를 쫓기 시작합니다.");
+        }
+        else
+        {
+            enemy.EnemyAnimator.CrossFade("EndRun", 0.1f);
+            Debug.Log("엔딩 추격 시작: 플레이어를 쫓기 시작합니다.");
+        }
         
         // 추격 BGM 재생 (한 번만)
         if (SoundManager.Instance != null)
