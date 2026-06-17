@@ -414,12 +414,18 @@ public class EnemyDieState : EnemyState
     public override void Enter()
     {
         //enemy.SetMoveMode(EnemyMoveMode.Die);
-        //enemy.Mover?.Stop();
-        enemy.EnemyAnimator.CrossFade("Die", 0.1f);
+        enemy.Mover?.Stop();
         enemy.SetDirection(0f);
+        enemy.StartCoroutine(DieCoroutine());
     }
 
     public override void Update() { }
 
     public override void Exit() { }
+
+    private System.Collections.IEnumerator DieCoroutine()
+    {
+        yield return new WaitForSeconds(1f);
+        enemy.EnemyAnimator.CrossFade("Die", 0.1f);
+    }
 }
