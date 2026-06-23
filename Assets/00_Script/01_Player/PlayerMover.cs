@@ -8,6 +8,7 @@ public class PlayerMover : MonoBehaviour
     [SerializeField] private float baseSpeed = 5f;
     [SerializeField] private float runSpeedMultiplier = 2f;
 
+    public float RunSpeedMultiplier => runSpeedMultiplier;
     private Rigidbody2D _rb;
     private GroundChecker _ground;
 

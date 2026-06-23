@@ -12,7 +12,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private List<RoomController> rooms = new List<RoomController>();
     public IReadOnlyList<RoomController> Rooms => rooms;
 
-    [SerializeField] private List<Portal> portals = new List<Portal>();
+    [SerializeField] private List<Portal> portals;
 
     [Header("Debug")]
     [SerializeField] private bool showAllRoomsForTest = true;
@@ -21,8 +21,9 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private Player player;
     [SerializeField] private Enemy enemy;
 
-    private Collider2D playerCollider;
-    private Collider2D enemyCollider;
+    public Player Player => player;
+    public Enemy Enemy => enemy;
+
 
     private bool hasInitializedRooms = false;
 
@@ -41,108 +42,15 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
-        CacheTrackedActors();
+        rooms = new List<RoomController>(GetComponentsInChildren<RoomController>());
+        portals = new List<Portal>(FindObjectsOfType<Portal>());
     }
 
     private void Update()
     {
-        // 첫 초기화 시도 (적이 준비될 때까지 재시도)
-        if (!hasInitializedRooms)
-        {
-            InitializePlayerAndEnemyRooms();
-        }
-
-        UpdateTrackedActorRooms();
+        
     }
 
-    private void CacheTrackedActors()
-    {
-        if (player == null)
-            player = Player.Instance;
-
-        if (enemy == null)
-            enemy = FindObjectOfType<Enemy>();
-
-        if (player != null && (playerCollider == null || playerCollider.gameObject != player.gameObject))
-        {
-            playerCollider = player._Collider2D != null
-                ? player._Collider2D
-                : player.GetComponent<Collider2D>();
-        }
-
-        if (enemy != null && (enemyCollider == null || enemyCollider.gameObject != enemy.gameObject))
-            enemyCollider = enemy.GetComponent<Collider2D>();
-    }
-
-    private void InitializePlayerAndEnemyRooms()
-    {
-        // 플레이어의 초기 방 설정 (콜라이더 기반)
-        if (player != null)
-        {
-            RoomController playerRoom = FindRoomByCollider(playerCollider);
-            if (playerRoom != null)
-            {
-                SetPlayerRoom(playerRoom);
-                Debug.Log($"[RoomManager] Initialized Player Room: {playerRoom.name}");
-            }
-            else
-            {
-                Debug.LogWarning($"[RoomManager] Player collider is not in any room!");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("[RoomManager] Player not found!");
-            return;
-        }
-
-        // 적의 초기 방 설정 (콜라이더 기반)
-        if (enemy != null)
-        {
-            RoomController enemyRoom = FindRoomByCollider(enemyCollider);
-            if (enemyRoom != null)
-            {
-                SetEnemyRoom(enemyRoom);
-                Debug.Log($"[RoomManager] Initialized Enemy Room: {enemyRoom.name}");
-            }
-            else
-            {
-                Debug.LogWarning($"[RoomManager] Enemy collider is not in any room!");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("[RoomManager] Enemy not found yet! (Will retry next frame)");
-            return;
-        }
-
-        // 모두 성공했으면 초기화 완료
-        hasInitializedRooms = true;
-        Debug.Log("[RoomManager] Room initialization completed!");
-    }
-
-    private void UpdateTrackedActorRooms()
-    {
-        CacheTrackedActors();
-
-        if (player != null)
-        {
-            Vector2 playerCenter = playerCollider != null
-                ? playerCollider.bounds.center
-                : (Vector2)player.transform.position;
-
-            TryUpdatePlayerRoomByWorldPoint(playerCenter);
-        }
-
-        if (enemy != null)
-        {
-            Vector2 enemyCenter = enemyCollider != null
-                ? enemyCollider.bounds.center
-                : (Vector2)enemy.transform.position;
-
-            TryUpdateEnemyRoomByWorldPoint(enemyCenter);
-        }
-    }
 
     public void SetPlayerRoom(RoomController room)
     {
@@ -176,58 +84,6 @@ public class RoomManager : MonoBehaviour
         OnChangedEnemyRoom?.Invoke(EnemyRoom);
     }
 
-    public RoomController FindRoomByWorldPoint(Vector2 worldPoint, RoomController preferredRoom = null)
-    {
-        if (rooms == null || rooms.Count == 0) return null;
-
-        if (preferredRoom != null && preferredRoom.Collider2D != null && preferredRoom.Collider2D.OverlapPoint(worldPoint))
-            return preferredRoom;
-
-        for (int i = 0; i < rooms.Count; i++)
-        {
-            RoomController room = rooms[i];
-            if (room == null || room.Collider2D == null) continue;
-
-            if (room.Collider2D.OverlapPoint(worldPoint))
-                return room;
-        }
-
-        return null;
-    }
-
-    public RoomController FindRoomByCollider(Collider2D collider)
-    {
-        if (collider == null || rooms == null || rooms.Count == 0) return null;
-
-        for (int i = 0; i < rooms.Count; i++)
-        {
-            RoomController room = rooms[i];
-            if (room == null || room.Collider2D == null) continue;
-
-            if (room.IsColliderInRoom(collider))
-                return room;
-        }
-
-        return null;
-    }
-
-    public bool TryUpdatePlayerRoomByWorldPoint(Vector2 worldPoint)
-    {
-        RoomController nextRoom = FindRoomByWorldPoint(worldPoint, PlayerRoom);
-        if (nextRoom == null) return false;
-
-        SetPlayerRoom(nextRoom);
-        return true;
-    }
-
-    public bool TryUpdateEnemyRoomByWorldPoint(Vector2 worldPoint)
-    {
-        RoomController nextRoom = FindRoomByWorldPoint(worldPoint, EnemyRoom);
-        if (nextRoom == null) return false;
-
-        SetEnemyRoom(nextRoom);
-        return true;
-    }
 
     public Portal FindClosestPortal(int fromFloor, int toFloor, Vector3 enemyPos)
     {

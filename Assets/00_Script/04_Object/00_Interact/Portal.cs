@@ -69,7 +69,7 @@ public class Portal : Interactable
         if (keyItem == Player.Instance.PlayerInventory.CurrentItem)
         {
             OpenPortal();
-            if (targetPortal != null) targetPortal.OpenPortal(); // ½Ö¹æÇâ ¿ÀÇÂ
+            if (targetPortal != null) targetPortal.OpenPortal(); // ????? ????
             ShowSuccess();
         }
         else

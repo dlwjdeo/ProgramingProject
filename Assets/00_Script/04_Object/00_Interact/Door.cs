@@ -115,4 +115,9 @@ public class Door : Interactable
         Debug.Log(doorCollider.isTrigger);
         //spriteRenderer.color = Color.red;
     }
+
+    public override void SetInteractable()
+    {
+        Debug.Log("문임");
+    }
 }

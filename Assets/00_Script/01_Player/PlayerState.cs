@@ -126,15 +126,13 @@ public class PlayerWalkState : PlayerState
 
 public class PlayerRunState : PlayerState
 {
-    private const float RunMultiplier = 2f;
-
     public PlayerRunState(Player player) : base(player) { }
 
     public override void Enter()
     {
         player.SetStateType(PlayerStateType.Run);
         player.PlayerMover.SetMoveEnabled(true);
-        player.PlayerMover.SetSpeedMultiplier(RunMultiplier);
+        player.PlayerMover.SetSpeedMultiplier(player.PlayerMover.RunSpeedMultiplier);
         player.PlayerAnimator.CrossFade("Run", 0.1f);
     }
 
