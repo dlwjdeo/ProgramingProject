@@ -13,8 +13,6 @@ public class Enemy : MonoBehaviour
     [Header("Audio Debug")]
     [SerializeField] private float currentAudioVolume = 0f;
 
-    private bool detectionSoundPlayed = false;
-
     public EnemyVision EnemyVision { get; private set; }
     public EnemyStateMachine StateMachine { get; private set; }
     public Animator EnemyAnimator { get; private set; }
@@ -91,22 +89,9 @@ public class Enemy : MonoBehaviour
 
     private void UpdateDetectionSounds()
     {
-        if (EnemyVision == null && Player.Instance == null)
+        if (EnemyVision == null || Player.Instance == null)
         {
             return;
-        }
-
-        if (EnemyVision.IsPlayerVisible && !detectionSoundPlayed)
-        {
-            if (SoundManager.Instance != null)
-            {
-                SoundManager.Instance.PlaySFX(SoundManager.Instance.GetHutakuchionna_Detection());
-            }
-            detectionSoundPlayed = true;
-        }
-        else if (!EnemyVision.IsPlayerVisible)
-        {
-            detectionSoundPlayed = false;
         }
 
         float xDistance = Mathf.Abs(transform.position.x - Player.Instance.transform.position.x);
@@ -121,6 +106,13 @@ public class Enemy : MonoBehaviour
     private void UpdateAudioVolume()
     {
         if (audioSource == null || Player.Instance == null) return;
+
+        if (state == EnemyStateType.Chase)
+        {
+            audioSource.volume = 0f;
+            currentAudioVolume = 0f;
+            return;
+        }
 
         // 플레이어와의 상대 위치
         Vector2 playerPos = Player.Instance.transform.position;

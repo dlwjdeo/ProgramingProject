@@ -16,6 +16,12 @@ public class UIManager : Singleton<UIManager>
         if (screenFader != null)
             StartCoroutine(screenFader.FadeIn());
     }
+
+    private void HandleVideoFinished()
+    {
+        StartCoroutine(screenFader.FadeOut());
+    }
+
     public IEnumerator FadeIn()
     {
         yield return screenFader.FadeIn();

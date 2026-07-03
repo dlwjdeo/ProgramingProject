@@ -24,6 +24,7 @@ public enum Item
     Salt,
     Hair,
     Null,
+    BloodstainKey
 }
 
 public enum CameraArea
@@ -52,7 +53,8 @@ public enum EnemyStateType
 
 public enum GameState
 {
-    Playing,
+    Default,
+    Ending,
     Dialog,
     Paused,
 }

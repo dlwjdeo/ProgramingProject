@@ -345,9 +345,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a668bc19957097d46ab19109235d53a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsDontDestroyOnLoad: 0
   bgmSource: {fileID: 3353722}
   sfxSource: {fileID: 3353721}
   heartbeatSource: {fileID: 0}
+  initial3DPoolSize: 8
+  default3DMinDistance: 1
+  default3DMaxDistance: 20
+  enemyDoorMinDistance: 2
+  enemyDoorMaxDistance: 40
+  walkFootstepInterval: 0.45
+  runFootstepInterval: 0.3
+  footstepMinDistance: 1
+  footstepMaxDistance: 12
   bgmVolume: 1
   sfxVolume: 1
   gameStartSfx: {fileID: 8300000, guid: 7cba1cb2f674c0a45b213101897ce105, type: 3}
@@ -766,6 +776,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0102ef25c9d23a44ea8e83bc67a70db4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsDontDestroyOnLoad: 1
 --- !u!4 &82114178
 Transform:
   m_ObjectHideFlags: 0
@@ -1130,6 +1141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75c54beb056287b468d3433592ca1780, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsDontDestroyOnLoad: 0
 --- !u!224 &163301918
 RectTransform:
   m_ObjectHideFlags: 0

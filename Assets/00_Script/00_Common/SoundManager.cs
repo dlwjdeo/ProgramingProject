@@ -2,14 +2,42 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundManager : MonoBehaviour
+public class SoundManager : Singleton<SoundManager>
 {
-    public static SoundManager Instance { get; private set; }
-
+    public enum SfxId
+    {
+        GameStart,
+        ItemPickUp,
+        ItemDrop,
+        KeyUse,
+        DoorOpen,
+        HoleEnter,
+        PlayerWalk,
+        PlayerRun,
+        PlayerExhausted,
+        HutakuchionnaBreath,
+        HutakuchionnaDetection,
+        Heartbeat,
+    }
     [Header("Audio Sources")]
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
     [SerializeField] private AudioSource heartbeatSource;
+
+    [Header("3D SFX Pool")]
+    [SerializeField, Min(1)] private int initial3DPoolSize = 8;
+    [SerializeField] private float default3DMinDistance = 1f;
+    [SerializeField] private float default3DMaxDistance = 20f;
+
+    [Header("World SFX Ranges")]
+    [SerializeField] private float enemyDoorMinDistance = 2f;
+    [SerializeField] private float enemyDoorMaxDistance = 40f;
+
+    [Header("Footstep")]
+    [SerializeField] private float walkFootstepInterval = 0.45f;
+    [SerializeField] private float runFootstepInterval = 0.30f;
+    [SerializeField] private float footstepMinDistance = 1f;
+    [SerializeField] private float footstepMaxDistance = 12f;
 
     [Header("Volume")]
     [Range(0f, 1f)] public float bgmVolume = 1f;
@@ -35,31 +63,58 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioClip heartbeatSfx;
 
     private bool heartbeatRequested;
+    private Transform pooled3DRoot;
+    private readonly Queue<AudioSource> available3DSources = new Queue<AudioSource>();
+    private readonly HashSet<AudioSource> active3DSources = new HashSet<AudioSource>();
+    private readonly Dictionary<int, float> footstepNextPlayTimeByTargetId = new Dictionary<int, float>();
+    private readonly Dictionary<int, HashSet<AudioSource>> activeFootstepSourcesByTargetId = new Dictionary<int, HashSet<AudioSource>>();
+    private readonly Dictionary<AudioSource, int> footstepOwnerBySource = new Dictionary<AudioSource, int>();
 
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+        IsDontDestroyOnLoad = true;
+        base.Awake();
 
-            if (heartbeatSource == null)
-            {
-                heartbeatSource = gameObject.AddComponent<AudioSource>();
-                heartbeatSource.playOnAwake = false;
-                heartbeatSource.loop = false;
-                heartbeatSource.spatialBlend = 0f;
-            }
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (Instance != this)
+            return;
+
+        if (bgmSource == null)
+            bgmSource = gameObject.AddComponent<AudioSource>();
+
+        if (sfxSource == null)
+            sfxSource = gameObject.AddComponent<AudioSource>();
+
+        if (heartbeatSource == null)
+            heartbeatSource = gameObject.AddComponent<AudioSource>();
+
+        ConfigureBgmSource(bgmSource);
+        ConfigureSfxSource(sfxSource);
+        ConfigureSfxSource(heartbeatSource);
+
+        Initialize3DPool();
     }
 
     public void PlayGameStartSfx()
     {
-        PlaySFX(gameStartSfx);
+        PlayUISFX(SfxId.GameStart);
+    }
+
+    private void ConfigureBgmSource(AudioSource source)
+    {
+        if (source == null) return;
+
+        source.playOnAwake = false;
+        source.loop = true;
+        source.spatialBlend = 0f;
+    }
+
+    private void ConfigureSfxSource(AudioSource source)
+    {
+        if (source == null) return;
+
+        source.playOnAwake = false;
+        source.loop = false;
+        source.spatialBlend = 0f;
     }
 
     private void LateUpdate()
@@ -75,6 +130,7 @@ public class SoundManager : MonoBehaviour
     // BGM 재생
     public void PlayBGM(AudioClip clip)
     {
+        if (bgmSource == null || clip == null) return;
         if (bgmSource.clip == clip && bgmSource.isPlaying) return;
 
         bgmSource.clip = clip;
@@ -86,20 +142,198 @@ public class SoundManager : MonoBehaviour
     // BGM 정지
     public void StopBGM()
     {
+        if (bgmSource == null) return;
         bgmSource.Stop();
     }
 
-    // 효과음 재생
+    // 2D 효과음 재생 (UI/피드백용)
     public void PlaySFX(AudioClip clip)
     {
+        if (clip == null || sfxSource == null) return;
         sfxSource.PlayOneShot(clip, sfxVolume);
     }
 
-    // 3D 위치에서 효과음 재생
+    // 기존 호환: 전달된 AudioSource로 3D 효과음 재생
     public void PlaySFX3D(AudioSource audioSource, AudioClip clip)
     {
-        if (audioSource != null && clip != null)
-            audioSource.PlayOneShot(clip, sfxVolume);
+        if (audioSource == null || clip == null) return;
+
+        audioSource.spatialBlend = 1f;
+        audioSource.spread = 0f;
+        audioSource.dopplerLevel = 0f;
+        audioSource.panStereo = 0f;
+        if (audioSource.minDistance <= 0f) audioSource.minDistance = default3DMinDistance;
+        if (audioSource.maxDistance <= audioSource.minDistance) audioSource.maxDistance = default3DMaxDistance;
+        audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
+        audioSource.loop = false;
+        audioSource.playOnAwake = false;
+        audioSource.PlayOneShot(clip, sfxVolume);
+    }
+
+    // SfxId 기반 2D 재생
+    public void PlayUISFX(SfxId id)
+    {
+        PlaySFX(GetSfx(id));
+    }
+
+    public void PlayEnemyChaseBGM()
+    {
+        PlayBGM(hutakuchionna_chaseBGM);
+    }
+
+    public void PlayEnemyDetectionCue()
+    {
+        PlayUISFX(SfxId.HutakuchionnaDetection);
+    }
+
+    public void PlayItemPickUpCue()
+    {
+        PlayUISFX(SfxId.ItemPickUp);
+    }
+
+    public void PlayItemDropCue()
+    {
+        PlayUISFX(SfxId.ItemDrop);
+    }
+
+    public void PlayKeyUseCue()
+    {
+        PlayUISFX(SfxId.KeyUse);
+    }
+
+    public void PlayDoorOpenAt(Vector3 worldPosition, bool openedByEnemy = false)
+    {
+        if (openedByEnemy)
+        {
+            PlayWorldSFXAt(SfxId.DoorOpen, worldPosition, enemyDoorMinDistance, enemyDoorMaxDistance);
+            return;
+        }
+
+        PlayWorldSFXAt(SfxId.DoorOpen, worldPosition);
+    }
+
+    public void PlayPlayerExhausted()
+    {
+        PlayUISFX(SfxId.PlayerExhausted);
+    }
+
+    public void RequestPlayerFootstep(Transform target, bool isRun)
+    {
+        if (target == null) return;
+
+        SfxId footstepId = isRun ? SfxId.PlayerRun : SfxId.PlayerWalk;
+        AudioClip clip = GetSfx(footstepId);
+        if (clip == null) return;
+
+        int key = target.GetInstanceID();
+        float interval = isRun ? runFootstepInterval : walkFootstepInterval;
+        if (interval <= 0f) interval = 0.1f;
+
+        float minIntervalByClip = Mathf.Max(0.05f, clip.length * 0.95f);
+        float resolvedInterval = Mathf.Max(interval, minIntervalByClip);
+
+        if (footstepNextPlayTimeByTargetId.TryGetValue(key, out float nextTime) && Time.time < nextTime)
+            return;
+
+        AudioSource source = Rent3DSource();
+        Configure3DSource(source, footstepMinDistance, footstepMaxDistance);
+        source.transform.position = target.position;
+
+        FollowTarget follow = source.GetComponent<FollowTarget>();
+        if (follow != null)
+        {
+            follow.Target = null;
+            follow.enabled = false;
+        }
+
+        source.PlayOneShot(clip, sfxVolume);
+        RegisterFootstepSource(key, source);
+        StartCoroutine(Return3DSourceRoutine(source, clip.length));
+
+        footstepNextPlayTimeByTargetId[key] = Time.time + resolvedInterval;
+    }
+
+    public void ClearPlayerFootstep(Transform target)
+    {
+        if (target == null) return;
+
+        int key = target.GetInstanceID();
+        footstepNextPlayTimeByTargetId.Remove(key);
+
+        if (!activeFootstepSourcesByTargetId.TryGetValue(key, out HashSet<AudioSource> sources) || sources == null)
+            return;
+
+        AudioSource[] sourceArray = new AudioSource[sources.Count];
+        sources.CopyTo(sourceArray);
+        for (int i = 0; i < sourceArray.Length; i++)
+        {
+            Return3DSource(sourceArray[i]);
+        }
+
+        activeFootstepSourcesByTargetId.Remove(key);
+    }
+
+    // SfxId 기반 3D 재생 (고정 위치)
+    public void PlayWorldSFXAt(SfxId id, Vector3 worldPosition, float minDistance = -1f, float maxDistance = -1f)
+    {
+        AudioClip clip = GetSfx(id);
+        if (clip == null) return;
+
+        AudioSource source = Rent3DSource();
+        Configure3DSource(source, minDistance, maxDistance);
+        source.transform.position = worldPosition;
+
+        FollowTarget follow = source.GetComponent<FollowTarget>();
+        if (follow != null)
+        {
+            follow.Target = null;
+            follow.enabled = false;
+        }
+
+        source.PlayOneShot(clip, sfxVolume);
+        StartCoroutine(Return3DSourceRoutine(source, clip.length));
+    }
+
+    // SfxId 기반 3D 재생 (이동 대상 추적)
+    public void PlayWorldSFXFollow(SfxId id, Transform target, float minDistance = -1f, float maxDistance = -1f)
+    {
+        if (target == null) return;
+
+        AudioClip clip = GetSfx(id);
+        if (clip == null) return;
+
+        AudioSource source = Rent3DSource();
+        Configure3DSource(source, minDistance, maxDistance);
+        source.transform.position = target.position;
+
+        FollowTarget follow = source.GetComponent<FollowTarget>();
+        if (follow == null)
+            follow = source.gameObject.AddComponent<FollowTarget>();
+        follow.Target = target;
+        follow.enabled = true;
+
+        source.PlayOneShot(clip, sfxVolume);
+        StartCoroutine(Return3DSourceRoutine(source, clip.length));
+    }
+
+    public AudioClip GetSfx(SfxId id)
+    {
+        switch (id)
+        {
+            case SfxId.GameStart: return gameStartSfx;
+            case SfxId.ItemPickUp: return itemPickUpSfx;
+            case SfxId.ItemDrop: return itemDropSfx;
+            case SfxId.KeyUse: return keyUseSfx;
+            case SfxId.DoorOpen: return doorOpenSfx;
+            case SfxId.HoleEnter: return holeEnterSfx;
+            case SfxId.PlayerWalk: return playerWalkSfx;
+            case SfxId.PlayerRun: return playerRunSfx;
+            case SfxId.PlayerExhausted: return playerExhaustedSfx;
+            case SfxId.HutakuchionnaBreath: return hutakuchionna_breath;
+            case SfxId.HutakuchionnaDetection: return hutakuchionna_detection;
+            case SfxId.Heartbeat: return heartbeatSfx;
+            default: return null;
+        }
     }
 
     public void RequestHeartbeat()
@@ -128,6 +362,144 @@ public class SoundManager : MonoBehaviour
     public void SetSFXVolume(float volume)
     {
         sfxVolume = Mathf.Clamp01(volume);
+    }
+
+    private void Initialize3DPool()
+    {
+        GameObject rootObject = new GameObject("Pooled3D_SFX");
+        rootObject.transform.SetParent(transform, false);
+        pooled3DRoot = rootObject.transform;
+
+        for (int i = 0; i < initial3DPoolSize; i++)
+        {
+            AudioSource source = CreatePooled3DSource(i);
+            available3DSources.Enqueue(source);
+        }
+    }
+
+    private AudioSource CreatePooled3DSource(int index)
+    {
+        GameObject sourceObject = new GameObject($"SFX3D_{index}");
+        sourceObject.transform.SetParent(pooled3DRoot, false);
+
+        AudioSource source = sourceObject.AddComponent<AudioSource>();
+        source.playOnAwake = false;
+        source.loop = false;
+        source.spatialBlend = 1f;
+        source.rolloffMode = AudioRolloffMode.Logarithmic;
+        source.spread = 0f;
+        source.dopplerLevel = 0f;
+        source.panStereo = 0f;
+        source.minDistance = default3DMinDistance;
+        source.maxDistance = default3DMaxDistance;
+
+        FollowTarget follow = sourceObject.AddComponent<FollowTarget>();
+        follow.enabled = false;
+
+        return source;
+    }
+
+    private AudioSource Rent3DSource()
+    {
+        AudioSource source;
+
+        if (available3DSources.Count > 0)
+        {
+            source = available3DSources.Dequeue();
+        }
+        else
+        {
+            source = CreatePooled3DSource(active3DSources.Count + available3DSources.Count);
+        }
+
+        active3DSources.Add(source);
+        return source;
+    }
+
+    private void Configure3DSource(AudioSource source, float minDistance, float maxDistance)
+    {
+        if (source == null) return;
+
+        float resolvedMin = minDistance > 0f ? minDistance : default3DMinDistance;
+        float resolvedMax = maxDistance > 0f ? maxDistance : default3DMaxDistance;
+        if (resolvedMax <= resolvedMin)
+            resolvedMax = resolvedMin + 0.1f;
+
+        source.spatialBlend = 1f;
+        source.rolloffMode = AudioRolloffMode.Logarithmic;
+        source.minDistance = resolvedMin;
+        source.maxDistance = resolvedMax;
+        source.loop = false;
+        source.playOnAwake = false;
+    }
+
+    private IEnumerator Return3DSourceRoutine(AudioSource source, float clipLength)
+    {
+        yield return new WaitForSeconds(clipLength + 0.05f);
+        Return3DSource(source);
+    }
+
+    private void Return3DSource(AudioSource source)
+    {
+        if (source == null) return;
+        if (!active3DSources.Contains(source)) return;
+
+        UnregisterFootstepSource(source);
+
+        source.Stop();
+
+        FollowTarget follow = source.GetComponent<FollowTarget>();
+        if (follow != null)
+        {
+            follow.Target = null;
+            follow.enabled = false;
+        }
+
+        source.transform.SetParent(pooled3DRoot, false);
+        source.transform.localPosition = Vector3.zero;
+
+        active3DSources.Remove(source);
+        available3DSources.Enqueue(source);
+    }
+
+    private void RegisterFootstepSource(int ownerTargetId, AudioSource source)
+    {
+        if (source == null) return;
+
+        if (!activeFootstepSourcesByTargetId.TryGetValue(ownerTargetId, out HashSet<AudioSource> sources) || sources == null)
+        {
+            sources = new HashSet<AudioSource>();
+            activeFootstepSourcesByTargetId[ownerTargetId] = sources;
+        }
+
+        sources.Add(source);
+        footstepOwnerBySource[source] = ownerTargetId;
+    }
+
+    private void UnregisterFootstepSource(AudioSource source)
+    {
+        if (source == null) return;
+        if (!footstepOwnerBySource.TryGetValue(source, out int ownerTargetId)) return;
+
+        if (activeFootstepSourcesByTargetId.TryGetValue(ownerTargetId, out HashSet<AudioSource> sources) && sources != null)
+        {
+            sources.Remove(source);
+            if (sources.Count == 0)
+                activeFootstepSourcesByTargetId.Remove(ownerTargetId);
+        }
+
+        footstepOwnerBySource.Remove(source);
+    }
+
+    private sealed class FollowTarget : MonoBehaviour
+    {
+        public Transform Target;
+
+        private void LateUpdate()
+        {
+            if (Target == null) return;
+            transform.position = Target.position;
+        }
     }
 
     // Getter 메서드들

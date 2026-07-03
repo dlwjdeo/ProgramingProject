@@ -33,10 +33,12 @@ public class PlayerInputReader : MonoBehaviour
         if (GameManager.Instance == null) return;
         switch (GameManager.Instance.CurrentState)
         {
-            case GameState.Playing:
+            case GameState.Default:
                 HandlePlayInput();
                 break;
-
+            case GameState.Ending:
+                HandlePlayInput();
+                break;
             case GameState.Dialog:
                 HandleDialogInput();
                 break;

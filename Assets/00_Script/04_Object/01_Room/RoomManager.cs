@@ -11,6 +11,7 @@ public class RoomManager : MonoBehaviour
     [Header("Room List")]
     [SerializeField] private List<RoomController> rooms = new List<RoomController>();
     public IReadOnlyList<RoomController> Rooms => rooms;
+    private Dictionary<RoomController, bool> openedRoomDict = new Dictionary<RoomController, bool>();
 
     [SerializeField] private List<Portal> portals;
 
@@ -23,9 +24,6 @@ public class RoomManager : MonoBehaviour
 
     public Player Player => player;
     public Enemy Enemy => enemy;
-
-
-    private bool hasInitializedRooms = false;
 
     public RoomController PlayerRoom;// { get; private set; }
     public RoomController EnemyRoom;// { get; private set; }
@@ -44,6 +42,7 @@ public class RoomManager : MonoBehaviour
     {
         rooms = new List<RoomController>(GetComponentsInChildren<RoomController>());
         portals = new List<Portal>(FindObjectsOfType<Portal>());
+        InitializeRooms();
     }
 
     private void Update()
@@ -51,7 +50,21 @@ public class RoomManager : MonoBehaviour
         
     }
 
+    private void InitializeRooms()
+    {
+        foreach (var room in rooms)
+        {
+            if (room == null) continue;
+            openedRoomDict[room] = false;
+        }
 
+        openedRoomDict[rooms[1]] = true;
+        openedRoomDict[rooms[2]] = true;
+        openedRoomDict[rooms[3]] = true;
+        openedRoomDict[rooms[4]] = true;
+        openedRoomDict[rooms[5]] = true;
+        openedRoomDict[rooms[6]] = true;
+    }
     public void SetPlayerRoom(RoomController room)
     {
         if (room == null) return;
@@ -84,6 +97,16 @@ public class RoomManager : MonoBehaviour
         OnChangedEnemyRoom?.Invoke(EnemyRoom);
     }
 
+    public void OpenRoom(int[] opendRoomIndices)
+    {
+        if (opendRoomIndices == null || opendRoomIndices.Length == 0) return;
+
+        foreach (var index in opendRoomIndices)
+        {
+            if (index < 0 || index >= rooms.Count) continue;
+            openedRoomDict[rooms[index]] = true;
+        }
+    }
 
     public Portal FindClosestPortal(int fromFloor, int toFloor, Vector3 enemyPos)
     {
@@ -154,6 +177,8 @@ public class RoomManager : MonoBehaviour
         List<RoomController> candidates = new List<RoomController>();
         for (int i = 0; i < rooms.Count; i++)
         {
+            openedRoomDict.TryGetValue(rooms[i], out bool isOpened);
+            if (!isOpened) continue;
             RoomController room = rooms[i];
             if (room == null) continue;
             if (room == currentRoom) continue;

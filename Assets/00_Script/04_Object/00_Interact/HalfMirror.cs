@@ -8,6 +8,7 @@ public class HalfMirror : Interactable
     [SerializeField] private Door door;
     [SerializeField] private Sprite usedSprite;
     [SerializeField] private Sprite unusedSprite;
+    [SerializeField] private int[] openRoomIndices;
 
     private bool isUsed = false;
 
@@ -19,6 +20,7 @@ public class HalfMirror : Interactable
         if(player.PlayerInventory.HasItem(keyItem))
         {
             door.Unlock();
+            RoomManager.Instance.OpenRoom(openRoomIndices);
             door.Open();
             isUsed = true;
             player.PlayerInventory.ClearItem();

@@ -22,11 +22,17 @@ public class Player : Singleton<Player>
 
     public RoomController CurrentRoom { get; private set; }
     public PlayerInventory PlayerInventory { get; private set; }
-    public AudioSource FootstepAudioSource { get; private set; }
     public Animator PlayerAnimator { get; private set; }
     public SpriteRenderer PlayerRenderer { get; private set; }
 
     public Color HideColor;
+
+    [Header("Hide Loop")]
+    [SerializeField, Min(0f)] private float hideLoopPauseMin = 0.3f;
+    [SerializeField, Min(0f)] private float hideLoopPauseMax = 1.2f;
+
+    public float HideLoopPauseMin => hideLoopPauseMin;
+    public float HideLoopPauseMax => hideLoopPauseMax;
 
     protected override void Awake()
     {
@@ -39,13 +45,8 @@ public class Player : Singleton<Player>
         Rigidbody2D = GetComponent<Rigidbody2D>();
         _Collider2D = GetComponent<BoxCollider2D>();
         PlayerInventory = GetComponent<PlayerInventory>();
-        FootstepAudioSource = GetComponent<AudioSource>();
         PlayerAnimator = GetComponentInChildren<Animator>();
         PlayerRenderer = GetComponentInChildren<SpriteRenderer>();
-
-        // AudioSource가 없으면 추가
-        if (FootstepAudioSource == null)
-            FootstepAudioSource = gameObject.AddComponent<AudioSource>();
 
         PlayerStateMachine = new PlayerStateMachine(this);
     }

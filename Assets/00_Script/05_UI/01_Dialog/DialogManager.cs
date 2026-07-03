@@ -28,7 +28,7 @@ public class DialogManager : MonoBehaviour
 
     private void Awake()
     {
-        // ÃÊ±â ¼û±è
+        // ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½
         SetVisible(false, immediate: true);
     }
 
@@ -146,13 +146,13 @@ public class DialogManager : MonoBehaviour
     {
         isRunning = false;
 
-        // ÀÔ·Â/»óÅÂ º¹±¸
-        GameManager.Instance.SetGameState(GameState.Playing);
+        // ï¿½Ô·ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        GameManager.Instance.SetGameState(GameState.Default);
 
         if (Player.Instance != null && Player.Instance.PlayerMover != null)
             Player.Instance.PlayerMover.SetMoveEnabled(true);
 
-        // UI ÆäÀÌµå¾Æ¿ô
+        // UI ï¿½ï¿½ï¿½Ìµï¿½Æ¿ï¿½
         if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
         fadeCoroutine = StartCoroutine(FadeOutAndHide());
     }

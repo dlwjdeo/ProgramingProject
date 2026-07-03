@@ -10,9 +10,8 @@ public class Door : Interactable
 
     [SerializeField] private Collider2D doorCollider;
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private int[] openRoomIndices;
     private Coroutine openCoroutine;
-    
-    private AudioSource audioSource;
 
     public bool IsLocked => isLocked;
     public bool IsOpen => isOpen;
@@ -24,26 +23,9 @@ public class Door : Interactable
     {
         base.Awake();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        audioSource = GetComponent<AudioSource>();
-        
-        // AudioSource가 없으면 추가
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent<AudioSource>();
-        
-        // 3D 오디오 자동 설정
-        audioSource.spatialBlend = 1f;  // 3D 오디오
-        audioSource.spread = 0f;
-        audioSource.dopplerLevel = 0f;
-        audioSource.panStereo = 0f;
-        audioSource.minDistance = 1f;
-        audioSource.maxDistance = 20f;
-        audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
-        audioSource.loop = false;
-        audioSource.playOnAwake = false;
     }
     public override void Interact()
     {
-        Debug.Log("문 상호작용");
         if (isLocked)
         {
             if (Player.Instance.PlayerInventory.HasItem(keyItem))
@@ -73,22 +55,26 @@ public class Door : Interactable
     public void Unlock()
     {
         // 열쇠 사용 소리
-        if (audioSource != null && SoundManager.Instance != null)
-            SoundManager.Instance.PlaySFX3D(audioSource, SoundManager.Instance.GetKeyUseSfx());
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayKeyUseCue();
             
         isLocked = false;
+
+        if(openRoomIndices == null || openRoomIndices.Length == 0) return;
+        
+        RoomManager.Instance.OpenRoom(openRoomIndices);
     }
 
-    public bool Open(float delay = 0f)
+    public bool Open(float delay = 0f, bool openedByEnemy = false)
     {
         if (isOpen) return false;
         if (openCoroutine != null) return false;
 
-        openCoroutine = StartCoroutine(OpenCoroutine(delay));
+        openCoroutine = StartCoroutine(OpenCoroutine(delay, openedByEnemy));
         return true;
     }
 
-    private IEnumerator OpenCoroutine(float delay)
+    private IEnumerator OpenCoroutine(float delay, bool openedByEnemy)
     {
         if (delay > 0f)
             yield return new WaitForSeconds(delay);
@@ -100,8 +86,8 @@ public class Door : Interactable
             //spriteRenderer.color = Color.green;
 
         // 문 열리는 소리
-        if (audioSource != null && SoundManager.Instance != null)
-            SoundManager.Instance.PlaySFX3D(audioSource, SoundManager.Instance.GetDoorOpenSfx());
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayDoorOpenAt(transform.position, openedByEnemy);
 
         openCoroutine = null;
         Debug.Log("문 열림");

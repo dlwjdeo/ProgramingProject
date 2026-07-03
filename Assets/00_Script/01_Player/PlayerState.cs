@@ -98,15 +98,9 @@ public class PlayerWalkState : PlayerState
             return;
         }
 
-        // 발걸음 소리 (클립이 끝나면 재생)
-        if (SoundManager.Instance != null && player.FootstepAudioSource != null)
-        {
-            // 현재 재생 중이 아니면 새로 재생
-            if (!player.FootstepAudioSource.isPlaying)
-            {
-                player.FootstepAudioSource.PlayOneShot(SoundManager.Instance.GetPlayerWalkSfx());
-            }
-        }
+        // 발걸음 요청 (재생 간격/클립 선택은 SoundManager에서 처리)
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.RequestPlayerFootstep(player.transform, false);
 
         // 홀드 중 스테미나 부족으로 인한 재진입 방지
         if (player.PlayerInputReader.RunPressed && player.PlayerStamina.CanRun && !player.IsStaminaDepleted)
@@ -118,9 +112,8 @@ public class PlayerWalkState : PlayerState
 
     public override void Exit()
     {
-        // 상태 전환시 발걸음 소리 즉시 중단
-        if (player.FootstepAudioSource != null)
-            player.FootstepAudioSource.Stop();
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.ClearPlayerFootstep(player.transform);
     }
 }
 
@@ -146,15 +139,9 @@ public class PlayerRunState : PlayerState
             return;
         }
 
-        // 달리기 발걸음 소리 (클립이 끝나면 재생)
-        if (SoundManager.Instance != null && player.FootstepAudioSource != null)
-        {
-            // 현재 재생 중이 아니면 새로 재생
-            if (!player.FootstepAudioSource.isPlaying)
-            {
-                player.FootstepAudioSource.PlayOneShot(SoundManager.Instance.GetPlayerRunSfx());
-            }
-        }
+        // 발걸음 요청 (재생 간격/클립 선택은 SoundManager에서 처리)
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.RequestPlayerFootstep(player.transform, true);
 
         if (!player.PlayerInputReader.RunPressed || !player.PlayerStamina.CanRun)
         {
@@ -174,9 +161,8 @@ public class PlayerRunState : PlayerState
     {
         player.PlayerMover.SetSpeedMultiplier(1f);
         
-        // 상태 전환시 발걸음 소리 즉시 중단
-        if (player.FootstepAudioSource != null)
-            player.FootstepAudioSource.Stop();
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.ClearPlayerFootstep(player.transform);
         
         // 입력으로 빠져나간 경우 플래그 초기화
         if (!player.PlayerInputReader.RunPressed)
@@ -188,8 +174,12 @@ public class PlayerRunState : PlayerState
 
 public class PlayerHideState : PlayerState
 {
+    private const string HideClipName = "Sit";
+
     private float hideBuffer = 0.2f;
     private float timer;
+    private bool isWaitingLoopRestart;
+    private float loopRestartTimer;
 
     public Action OnEnterHideState;
     public Action OnExitHideState;
@@ -203,8 +193,11 @@ public class PlayerHideState : PlayerState
         player.PlayerMover.SetMoveInput(Vector2.zero);
 
         timer = hideBuffer;
+        isWaitingLoopRestart = false;
+        loopRestartTimer = 0f;
         player.SetHidden(true);
-        player.PlayerAnimator.CrossFade("Sit", 0.1f);
+        player.PlayerAnimator.speed = 1f;
+        player.PlayerAnimator.CrossFade(HideClipName, 0.1f);
         player.PlayerRenderer.material.color = player.HideColor;
         OnEnterHideState?.Invoke();
     }
@@ -224,14 +217,52 @@ public class PlayerHideState : PlayerState
             player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Idle);
             return;
         }
+
+        HandleHideLoop();
     }
 
     public override void Exit()
     {
+        player.PlayerAnimator.speed = 1f;
         player.PlayerMover.SetMoveEnabled(true);
         player.SetHidden(false);
         player.PlayerRenderer.material.color = Color.white;
         OnExitHideState?.Invoke();
+    }
+
+    private void HandleHideLoop()
+    {
+        Animator animator = player.PlayerAnimator;
+        if (animator == null)
+            return;
+
+        if (isWaitingLoopRestart)
+        {
+            loopRestartTimer -= Time.deltaTime;
+            if (loopRestartTimer <= 0f)
+            {
+                isWaitingLoopRestart = false;
+                animator.speed = 1f;
+                animator.Play(HideClipName, 0, 0f);
+            }
+            return;
+        }
+
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        if (!stateInfo.IsName(HideClipName))
+            return;
+
+        if (stateInfo.normalizedTime < 1f)
+            return;
+
+        // Keep the pose at the first frame until a random delay ends.
+        animator.Play(HideClipName, 0, 0f);
+        animator.speed = 0f;
+
+        float minDelay = Mathf.Max(0f, player.HideLoopPauseMin);
+        float maxDelay = Mathf.Max(minDelay, player.HideLoopPauseMax);
+        loopRestartTimer = UnityEngine.Random.Range(minDelay, maxDelay);
+        isWaitingLoopRestart = true;
     }
 }
 

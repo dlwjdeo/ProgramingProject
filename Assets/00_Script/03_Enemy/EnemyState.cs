@@ -41,7 +41,7 @@ public abstract class EnemyState : IState
         if (enemy?.EnemyVision == null) return false;
         if (!enemy.EnemyVision.TryGetDoorToOpen(out Door door)) return false;
 
-        if (door.Open(enemy.DoorOpenDelay))
+        if (door.Open(enemy.DoorOpenDelay, true))
         {
             enemy.StartDoorPause(enemy.DoorOpenDelay);
             return true;
@@ -298,7 +298,7 @@ public class EnemyChaseState : EnemyState
         lostTimer = LostPlayerDelay;
         enemy.ClearChaseTarget();
         chaseBGMPlayed = false;
-        if(GameManager.Instance.IsEnding == false)
+        if(GameManager.Instance.CurrentState == GameState.Default)
         {
             enemy.EnemyAnimator.CrossFade("Run", 0.1f);
             Debug.Log("추격 시작: 플레이어를 쫓기 시작합니다.");
@@ -308,10 +308,12 @@ public class EnemyChaseState : EnemyState
             enemy.EnemyAnimator.CrossFade("EndRun", 0.1f);
             Debug.Log("엔딩 추격 시작: 플레이어를 쫓기 시작합니다.");
         }
-        
-        // 추격 BGM 재생 (한 번만)
+
         if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayBGM(SoundManager.Instance.GetHutakuchionna_ChaseBGM());
+            SoundManager.Instance.PlayEnemyDetectionCue();
+        
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayEnemyChaseBGM();
         chaseBGMPlayed = true;
     }
 

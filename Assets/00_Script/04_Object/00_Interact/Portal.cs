@@ -4,10 +4,17 @@ using UnityEngine;
 
 public class Portal : Interactable
 {
+    [Header("Visual")]
+    [SerializeField] private SpriteRenderer portalRenderer;
+    [SerializeField, Min(0.01f)] private float visibleXRange = 3f;
+    [SerializeField, Range(0f, 1f)] private float minAlpha = 0f;
+    [SerializeField, Range(0f, 1f)] private float maxAlpha = 1f;
+
     [Header("Destination")]
     [SerializeField] private Portal targetPortal;
     [SerializeField] private CameraArea targetArea;
     [SerializeField] private RoomController targetRoom;
+    public Transform portalPosition;
 
     [Header("Floor Info")]
     [SerializeField] private int fromFloor;
@@ -16,32 +23,31 @@ public class Portal : Interactable
     [Header("Lock")]
     [SerializeField] private Item keyItem;
     [SerializeField] private bool isOpened = false;
+
+    [SerializeField] private bool isDownwardPortal = false;
+
+    
     public bool IsOpened => isOpened;
     public int FromFloor => fromFloor;
     public int ToFloor => toFloor;
 
     private readonly HashSet<int> _operatingEnemies = new HashSet<int>();
-    private AudioSource audioSource;
 
     protected override void Awake()
     {
         base.Awake();
-        audioSource = GetComponent<AudioSource>();
-        
-        // AudioSource? ??? ??
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent<AudioSource>();
-        
-        // 3D ??? ?? ??
-        audioSource.spatialBlend = 1f;  // 3D ???
-        audioSource.spread = 0f;
-        audioSource.dopplerLevel = 0f;
-        audioSource.panStereo = 0f;
-        audioSource.minDistance = 1f;
-        audioSource.maxDistance = 20f;
-        audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
-        audioSource.loop = false;
-        audioSource.playOnAwake = false;
+
+        if (portalRenderer == null)
+            portalRenderer = GetComponent<SpriteRenderer>();
+
+        if(!isDownwardPortal) return;
+        ApplyAlpha(minAlpha);
+    }
+
+    private void Update()
+    {
+        if(!isDownwardPortal) return;
+        UpdateXAxisAlpha();
     }
 
     public override void Interact()
@@ -60,7 +66,7 @@ public class Portal : Interactable
 
     private void TryOpen()
     {
-        if (Player.Instance == null || Player.Instance.PlayerInventory == null)
+        if (Player.Instance == null)
         {
             ShowFail();
             return;
@@ -111,13 +117,20 @@ public class Portal : Interactable
         }
 
         // ?? ?? ? ? ??? ??
-        if (audioSource != null && SoundManager.Instance != null)
-            SoundManager.Instance.PlaySFX(SoundManager.Instance.GetDoorOpenSfx());
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayDoorOpenAt(transform.position);
 
         if (UIManager.Instance != null)
             yield return UIManager.Instance.FadeOut();
 
-        p.transform.position = targetPortal.transform.position;
+        if(targetPortal != null && targetPortal.portalPosition != null)
+        {
+            p.transform.position = targetPortal.portalPosition.position;
+        }
+        else
+        {
+            p.transform.position = targetPortal.transform.position;
+        }
 
         if (RoomManager.Instance != null)
             RoomManager.Instance.SetPlayerRoom(targetRoom);
@@ -138,10 +151,13 @@ public class Portal : Interactable
         yield return new WaitForSeconds(1f);
 
         // ?? ?? ? ? ??? ??
-        if (audioSource != null && SoundManager.Instance != null)
-            SoundManager.Instance.PlaySFX3D(audioSource, SoundManager.Instance.GetDoorOpenSfx());
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayDoorOpenAt(transform.position, true);
 
-        e.transform.position = targetPortal.transform.position;
+        if (targetPortal != null && targetPortal.portalPosition != null)
+            e.transform.position = targetPortal.portalPosition.position;
+        else
+            e.transform.position = targetPortal.transform.position;
 
         if (RoomManager.Instance != null)
             RoomManager.Instance.SetEnemyRoom(targetRoom);
@@ -156,7 +172,55 @@ public class Portal : Interactable
         isOpened = true;
         
         // ?? ??? ?? (?? ?? ??)
-        if (audioSource != null && SoundManager.Instance != null)
-            SoundManager.Instance.PlaySFX3D(audioSource, SoundManager.Instance.GetKeyUseSfx());
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayKeyUseCue();
+    }
+
+    public override void SetInteractable()
+    {
+        if(!isDownwardPortal)
+        {
+            base.SetInteractable();
+            return;
+        }
+        UpdateXAxisAlpha();
+    }
+
+    public override void SetDefault()
+    {
+        if(!isDownwardPortal)
+        {
+            base.SetDefault();
+            return;
+        }
+        UpdateXAxisAlpha();
+    }
+
+    private void UpdateXAxisAlpha()
+    {
+        if (portalRenderer == null)
+            return;
+
+        Transform playerTransform = Player.Instance != null ? Player.Instance.transform : null;
+        if (playerTransform == null)
+        {
+            ApplyAlpha(minAlpha);
+            return;
+        }
+
+        float xDiff = Mathf.Abs(playerTransform.position.x - transform.position.x);
+        float t = Mathf.Clamp01(1f - (xDiff / visibleXRange));
+        float alpha = Mathf.Lerp(minAlpha, maxAlpha, t);
+        ApplyAlpha(alpha);
+    }
+
+    private void ApplyAlpha(float alpha)
+    {
+        if (portalRenderer == null)
+            return;
+
+        Color color = portalRenderer.color;
+        color.a = alpha;
+        portalRenderer.color = color;
     }
 }

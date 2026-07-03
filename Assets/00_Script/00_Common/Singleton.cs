@@ -1,9 +1,12 @@
+using UnityEditor.XR;
 using UnityEngine;
 
 public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T instance;
     public static T Instance => instance;
+
+    public bool IsDontDestroyOnLoad;
 
     protected virtual void Awake()
     {
@@ -12,9 +15,10 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
             instance = this as T;
 
             if (transform.parent != null)
-                transform.SetParent(null); // 루트로 이동
+                transform.SetParent(null); // Detach from parent
 
-            //DontDestroyOnLoad(gameObject);
+            if (IsDontDestroyOnLoad)
+                DontDestroyOnLoad(gameObject);
         }
         else if (instance != this)
         {

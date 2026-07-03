@@ -59,7 +59,7 @@ public class PlayerStamina : MonoBehaviour
             if (IsEmpty && !exhaustedSoundPlayed)
             {
                 if (SoundManager.Instance != null)
-                    SoundManager.Instance.PlaySFX(SoundManager.Instance.GetPlayerExhaustedSfx());
+                    SoundManager.Instance.PlayPlayerExhausted();
                 exhaustedSoundPlayed = true;
             }
         }

@@ -19,21 +19,9 @@ public class ItemExchange : Interactable
         {
             isInteracted = true;
             spriteRenderer.sprite = interactSprite;
-            player.PlayerInventory.DropItem();
-            GameObject bowl = Instantiate(offeringBowl, transform.position + Vector3.down * 0.5f, Quaternion.identity);
-            bowl.SetActive(false);
-
-            if (!player.PlayerInventory.TryAddItem(bowl.GetComponent<PickupItem>().ItemData))
-            {
-                Debug.LogWarning("인벤토리가 비어있지 않아 공양 그릇을 획득하지 못했습니다.");
-                Destroy(bowl);
-                isInteracted = false;
-                spriteRenderer.sprite = normalSprite;
-                ShowFail();
-                return;
-            }
-
-            player.PlayerInventory.SetItemObject(bowl.GetComponent<PickupItem>());
+            // 키 아이템은 교환 시 소비하고, 공양 그릇은 월드에 드롭한다.
+            player.PlayerInventory.ClearItem();
+            Instantiate(offeringBowl, transform.position + Vector3.down * 0.5f, Quaternion.identity);
             ShowSuccess();
         }
         else
