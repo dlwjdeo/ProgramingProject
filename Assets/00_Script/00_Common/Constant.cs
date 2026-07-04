@@ -24,7 +24,8 @@ public enum Item
     Salt,
     Hair,
     Null,
-    BloodstainKey
+    BloodstainKey,
+    Amulet,
 }
 
 public enum CameraArea

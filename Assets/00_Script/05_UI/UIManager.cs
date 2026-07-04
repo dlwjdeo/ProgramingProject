@@ -5,11 +5,13 @@ using UnityEngine;
 public class UIManager : Singleton<UIManager> 
 {
     [SerializeField] private InventoryUI inventoryUI;
+    [SerializeField] private StaminaUI staminaUI;
     [SerializeField] private InterationMessageUI interationMessageUI;
     [SerializeField] private ScreenFader screenFader;
     [SerializeField] private DialogManager dialogManager;
     [SerializeField] private GameOverUI gameOverUI;
     [SerializeField] private GameObject deadPanel;
+    [SerializeField] private GameObject endingPanel;
 
     private void Start()
     {
@@ -37,5 +39,17 @@ public class UIManager : Singleton<UIManager>
 
     public void ShowGameOver() => gameOverUI.Show();
 
-    public void ShowDeadPanel() => deadPanel.SetActive(true);
+    public void ShowDeadPanel() 
+    {
+        deadPanel.SetActive(true);
+        staminaUI.gameObject.SetActive(false);
+        inventoryUI.gameObject.SetActive(false);
+    }
+
+    public void ShowEndingPanel() 
+    {
+        endingPanel.SetActive(true);
+        staminaUI.gameObject.SetActive(false);
+        inventoryUI.gameObject.SetActive(false);
+    }
 }

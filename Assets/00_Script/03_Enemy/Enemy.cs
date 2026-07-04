@@ -6,8 +6,10 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float walkMoveSpeed = 2f;
     [SerializeField] private float runMoveSpeed = 3f;
     [SerializeField] private float doorOpenDelay = 0.5f;
+    [SerializeField] private GameObject hairPrefab;
 
     private AudioSource audioSource;
+    private SpriteRenderer spriteRenderer;
     public AudioClip breathClip;
 
     [Header("Audio Debug")]
@@ -40,6 +42,7 @@ public class Enemy : MonoBehaviour
     {
         Mover = GetComponent<EnemyMover>();
         SetMoveMode(EnemyMoveMode.Walk);
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
         EnemyVision = GetComponentInChildren<EnemyVision>();
         EnemyAnimator = GetComponent<Animator>();
@@ -233,11 +236,27 @@ public class Enemy : MonoBehaviour
 
     private void Flip()
     {
-        Vector3 scale = transform.localScale;
-        scale.x *= -1f;
-        transform.localScale = scale;
+        if (spriteRenderer == null)
+            return;
+
+        spriteRenderer.flipX = Direction < 0f;
     }
 
+    public void SpawnHairEffect()
+    {
+        if (hairPrefab != null)
+        {
+            Instantiate(hairPrefab, transform.position, Quaternion.identity);
+        }
+    }
+    public void ChangeChaseState()
+    {
+        StateMachine.ChangeState(StateMachine.Chase);
+    }
+    public void ChangeDieState()
+    {
+        StateMachine.ChangeState(StateMachine.Die);
+    }
 }
 
 public enum EnemyMoveMode

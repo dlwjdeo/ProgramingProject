@@ -45,8 +45,8 @@ public class Player : Singleton<Player>
         Rigidbody2D = GetComponent<Rigidbody2D>();
         _Collider2D = GetComponent<BoxCollider2D>();
         PlayerInventory = GetComponent<PlayerInventory>();
-        PlayerAnimator = GetComponentInChildren<Animator>();
-        PlayerRenderer = GetComponentInChildren<SpriteRenderer>();
+        PlayerAnimator = GetComponent<Animator>();
+        PlayerRenderer = GetComponent<SpriteRenderer>();
 
         PlayerStateMachine = new PlayerStateMachine(this);
     }

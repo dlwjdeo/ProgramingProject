@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class Hokora : Interactable
 {
@@ -11,6 +12,7 @@ public class Hokora : Interactable
     [SerializeField] private Sprite sultSprite;
     [SerializeField] private Sprite allSprite;
     [SerializeField] private Door door;
+    [SerializeField] private PlayableDirector playableDirector;
     private bool isBowlPlaced = false;
     private bool isSaltPlaced = false;
     public override void Interact()
@@ -33,7 +35,7 @@ public class Hokora : Interactable
             SoundManager.Instance?.PlayItemPickUpCue();
             return;
         }
-        else if(player.PlayerInventory.CurrentItem == Item.Salt && !isSaltPlaced && !isBowlPlaced)
+        else if(player.PlayerInventory.CurrentItem == Item.Salt)
         {
             isSaltPlaced = true;
             if(!isBowlPlaced)
@@ -53,6 +55,8 @@ public class Hokora : Interactable
         if(isBowlPlaced && isSaltPlaced && player.PlayerInventory.CurrentItem == Item.Hair)
         {
             spriteRenderer.sprite = allSprite;
+            player.PlayerInventory.ClearItem();
+            SoundManager.Instance?.PlayItemPickUpCue();
             StartCoroutine(EnemyDieCoroutine());
             return;
         }
@@ -60,16 +64,13 @@ public class Hokora : Interactable
 
     private IEnumerator EnemyDieCoroutine()
     {
-        Enemy enemy = FindObjectOfType<Enemy>();
-        enemy.StateMachine.ChangeState(enemy.StateMachine.Die);
-        
         yield return new WaitForSeconds(1f);
         SetPriority(0);
 
-        
+        yield return UIManager.Instance.FadeOut();
+        playableDirector.Play();
 
-        yield return new WaitForSeconds(2f);
 
-        StartCoroutine(UIManager.Instance.FadeOut());
+        StartCoroutine(UIManager.Instance.FadeIn());
     }
 }

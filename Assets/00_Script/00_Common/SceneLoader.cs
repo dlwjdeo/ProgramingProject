@@ -5,10 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class SceneLoader : Singleton<SceneLoader>
 {
-    protected override void Awake()
-    {
-        
-    }
     public void LoadScene(string sceneName)
     {
         if (string.IsNullOrEmpty(sceneName))

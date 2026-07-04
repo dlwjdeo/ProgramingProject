@@ -38,15 +38,15 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnEnable()
     {
-        playerInputReader.Interaction += interact;
+        playerInputReader.Interaction += Interact;
     }
 
     private void OnDisable()
     {
-        playerInputReader.Interaction -= interact;
+        playerInputReader.Interaction -= Interact;
     }
 
-    private void interact()
+    public void Interact()
     {
         if (interactables.Count == 0) return;
 
@@ -62,11 +62,11 @@ public class PlayerInteraction : MonoBehaviour
         {
             if (obj == null) continue;
 
-            if (obj == interactables[0]) // °¡Àå ³ôÀº Priority¸¦ °¡Áø Interactable¿¡ OutlineMaterial Àû¿ë
+            if (obj == interactables[0]) // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Priorityï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Interactableï¿½ï¿½ OutlineMaterial ï¿½ï¿½ï¿½ï¿½
             {
                 obj.SetInteractable();
             }
-            else // ³ª¸ÓÁö InteractableÀº OutlineMaterial Á¦°Å
+            else // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Interactableï¿½ï¿½ OutlineMaterial ï¿½ï¿½ï¿½ï¿½
             {
                 obj.SetDefault();
             }

@@ -341,7 +341,10 @@ public class EnemyChaseState : EnemyState
         }
         else
         {
-            lostTimer -= Time.deltaTime;
+            if(GameManager.Instance.CurrentState != GameState.Ending)
+            {
+                lostTimer -= Time.deltaTime;
+            }
             if (lostTimer <= 0f)
             {
                 enemy.StateMachine.ChangeState(enemy.StateMachine.Suspicious);
