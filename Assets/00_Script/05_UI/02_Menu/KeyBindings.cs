@@ -6,11 +6,11 @@ public static class KeyBindings
 {
     private static readonly Dictionary<ActionType, KeyCode> defaults = new()
     {
-        { ActionType.MoveLeft,  KeyCode.A },
-        { ActionType.MoveRight, KeyCode.D },
-        { ActionType.Interact,  KeyCode.E },
+        { ActionType.MoveLeft,  KeyCode.LeftArrow },
+        { ActionType.MoveRight, KeyCode.RightArrow },
+        { ActionType.Interact,  KeyCode.Z },
         { ActionType.Run,       KeyCode.LeftShift},
-        { ActionType.ItemDrop,  KeyCode.Q },
+        { ActionType.ItemDrop,  KeyCode.X },
         { ActionType.Pause,     KeyCode.Escape },
     };
 

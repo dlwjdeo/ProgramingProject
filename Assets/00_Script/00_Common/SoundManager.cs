@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SoundManager : Singleton<SoundManager>
 {
@@ -17,10 +18,14 @@ public class SoundManager : Singleton<SoundManager>
         PlayerExhausted,
         HutakuchionnaBreath,
         HutakuchionnaDetection,
+        EnemyDie,
         Heartbeat,
+        OldWoodDoorOpen,
+        Spike,
     }
     [Header("Audio Sources")]
     [SerializeField] private AudioSource bgmSource;
+    [SerializeField] private AudioSource ambientSource;
     [SerializeField] private AudioSource sfxSource;
     [SerializeField] private AudioSource heartbeatSource;
 
@@ -41,7 +46,12 @@ public class SoundManager : Singleton<SoundManager>
 
     [Header("Volume")]
     [Range(0f, 1f)] public float bgmVolume = 1f;
+    [Range(0f, 1f)] public float ambientVolume = 0.4f;
     [Range(0f, 1f)] public float sfxVolume = 1f;
+
+    [Header("Scene Audio")]
+    [SerializeField] private AudioClip titleMainBgm;
+    [SerializeField] private AudioClip natureAmbientLoop;
 
     [Header("Game Sounds")]
     [SerializeField] private AudioClip gameStartSfx;
@@ -50,6 +60,8 @@ public class SoundManager : Singleton<SoundManager>
     [SerializeField] private AudioClip keyUseSfx;
     [SerializeField] private AudioClip doorOpenSfx;
     [SerializeField] private AudioClip holeEnterSfx;
+    [SerializeField] private AudioClip oldWoodDoorOpenSfx;
+    [SerializeField] private AudioClip spikeSfx;
 
     [Header("Player Sounds")]
     [SerializeField] private AudioClip playerWalkSfx;
@@ -60,7 +72,12 @@ public class SoundManager : Singleton<SoundManager>
     [SerializeField] private AudioClip hutakuchionna_breath;
     [SerializeField] private AudioClip hutakuchionna_chaseBGM;
     [SerializeField] private AudioClip hutakuchionna_detection;
+    [SerializeField] private AudioClip enemyDieSfx;
     [SerializeField] private AudioClip heartbeatSfx;
+
+    private float defaultBgmVolume;
+    private float defaultAmbientVolume;
+    private float defaultSfxVolume;
 
     private bool heartbeatRequested;
     private Transform pooled3DRoot;
@@ -69,6 +86,7 @@ public class SoundManager : Singleton<SoundManager>
     private readonly Dictionary<int, float> footstepNextPlayTimeByTargetId = new Dictionary<int, float>();
     private readonly Dictionary<int, HashSet<AudioSource>> activeFootstepSourcesByTargetId = new Dictionary<int, HashSet<AudioSource>>();
     private readonly Dictionary<AudioSource, int> footstepOwnerBySource = new Dictionary<AudioSource, int>();
+    private float nextPlayerExhaustedPlayableTime;
 
     protected override void Awake()
     {
@@ -81,6 +99,9 @@ public class SoundManager : Singleton<SoundManager>
         if (bgmSource == null)
             bgmSource = gameObject.AddComponent<AudioSource>();
 
+        if (ambientSource == null)
+            ambientSource = gameObject.AddComponent<AudioSource>();
+
         if (sfxSource == null)
             sfxSource = gameObject.AddComponent<AudioSource>();
 
@@ -88,10 +109,25 @@ public class SoundManager : Singleton<SoundManager>
             heartbeatSource = gameObject.AddComponent<AudioSource>();
 
         ConfigureBgmSource(bgmSource);
+        ConfigureAmbientSource(ambientSource);
         ConfigureSfxSource(sfxSource);
         ConfigureSfxSource(heartbeatSource);
 
+        defaultBgmVolume = Mathf.Clamp01(bgmVolume);
+        defaultAmbientVolume = Mathf.Clamp01(ambientVolume);
+        defaultSfxVolume = Mathf.Clamp01(sfxVolume);
+
         Initialize3DPool();
+
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+        ApplySceneAudioPolicy(SceneManager.GetActiveScene().name);
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
     }
 
     public void PlayGameStartSfx()
@@ -115,6 +151,45 @@ public class SoundManager : Singleton<SoundManager>
         source.playOnAwake = false;
         source.loop = false;
         source.spatialBlend = 0f;
+    }
+
+    private void ConfigureAmbientSource(AudioSource source)
+    {
+        if (source == null) return;
+
+        source.playOnAwake = false;
+        source.loop = true;
+        source.spatialBlend = 0f;
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ApplySceneAudioPolicy(scene.name);
+    }
+
+    private void ApplySceneAudioPolicy(string sceneName)
+    {
+        bool isTitleScene = sceneName == "Title";
+        bool isIngameOrTutorial = sceneName == "InGame" || sceneName == "Tutorial";
+
+        if (isTitleScene)
+        {
+            RestoreDefaultVolumes();
+            PlayBGM(titleMainBgm);
+            PlayAmbient(natureAmbientLoop, true);
+            return;
+        }
+
+        if (isIngameOrTutorial)
+        {
+            RestoreDefaultVolumes();
+            StopBGM();
+            PlayAmbient(natureAmbientLoop, true);
+            return;
+        }
+
+        StopBGM();
+        StopAmbient();
     }
 
     private void LateUpdate()
@@ -144,6 +219,27 @@ public class SoundManager : Singleton<SoundManager>
     {
         if (bgmSource == null) return;
         bgmSource.Stop();
+    }
+
+    public void PlayAmbient(AudioClip clip, bool restartFromStart = false)
+    {
+        if (ambientSource == null || clip == null) return;
+        if (ambientSource.clip == clip && ambientSource.isPlaying && !restartFromStart) return;
+
+        ambientSource.clip = clip;
+        ambientSource.volume = ambientVolume;
+        ambientSource.loop = true;
+
+        if (restartFromStart)
+            ambientSource.time = 0f;
+
+        ambientSource.Play();
+    }
+
+    public void StopAmbient()
+    {
+        if (ambientSource == null) return;
+        ambientSource.Stop();
     }
 
     // 2D 효과음 재생 (UI/피드백용)
@@ -186,6 +282,11 @@ public class SoundManager : Singleton<SoundManager>
         PlayUISFX(SfxId.HutakuchionnaDetection);
     }
 
+    public void PlayEnemyDieCue()
+    {
+        PlayUISFX(SfxId.EnemyDie);
+    }
+
     public void PlayItemPickUpCue()
     {
         PlayUISFX(SfxId.ItemPickUp);
@@ -201,8 +302,25 @@ public class SoundManager : Singleton<SoundManager>
         PlayUISFX(SfxId.KeyUse);
     }
 
+    public void PlaySpikeCue()
+    {
+        PlayUISFX(SfxId.Spike);
+    }
+
+    public void PlaySpikeAt(Vector3 worldPosition, float minDistance = -1f, float maxDistance = -1f)
+    {
+        PlayWorldSFXAt(SfxId.Spike, worldPosition, minDistance, maxDistance);
+    }
+
     public void PlayDoorOpenAt(Vector3 worldPosition, bool openedByEnemy = false)
     {
+        // 2D 게임 기준으로 문 소리는 XY 거리만 반영하고 Z 차이는 무시한다.
+        AudioListener listener = FindObjectOfType<AudioListener>();
+        if (listener != null)
+        {
+            worldPosition.z = listener.transform.position.z;
+        }
+
         if (openedByEnemy)
         {
             PlayWorldSFXAt(SfxId.DoorOpen, worldPosition, enemyDoorMinDistance, enemyDoorMaxDistance);
@@ -212,9 +330,28 @@ public class SoundManager : Singleton<SoundManager>
         PlayWorldSFXAt(SfxId.DoorOpen, worldPosition);
     }
 
+    public void PlayOldWoodDoorOpenAt(Vector3 worldPosition)
+    {
+        AudioClip clip = GetSfx(SfxId.OldWoodDoorOpen);
+        if (clip == null || sfxSource == null)
+            return;
+
+        // 하프미러 문 소리는 거리 감쇠 없이 전체에서 들리도록 2D로 재생
+        sfxSource.PlayOneShot(clip, sfxVolume * 0.5f);
+    }
+
     public void PlayPlayerExhausted()
     {
-        PlayUISFX(SfxId.PlayerExhausted);
+        AudioClip clip = GetSfx(SfxId.PlayerExhausted);
+        if (clip == null || sfxSource == null)
+            return;
+
+        // 같은 exhausted 사운드가 재생 중인 시간대에는 중복 호출을 막는다.
+        if (Time.time < nextPlayerExhaustedPlayableTime)
+            return;
+
+        PlaySFX(clip);
+        nextPlayerExhaustedPlayableTime = Time.time + clip.length;
     }
 
     public void RequestPlayerFootstep(Transform target, bool isRun)
@@ -325,13 +462,17 @@ public class SoundManager : Singleton<SoundManager>
             case SfxId.ItemDrop: return itemDropSfx;
             case SfxId.KeyUse: return keyUseSfx;
             case SfxId.DoorOpen: return doorOpenSfx;
+            case SfxId.OldWoodDoorOpen: return oldWoodDoorOpenSfx;
             case SfxId.HoleEnter: return holeEnterSfx;
             case SfxId.PlayerWalk: return playerWalkSfx;
             case SfxId.PlayerRun: return playerRunSfx;
             case SfxId.PlayerExhausted: return playerExhaustedSfx;
             case SfxId.HutakuchionnaBreath: return hutakuchionna_breath;
             case SfxId.HutakuchionnaDetection: return hutakuchionna_detection;
+            case SfxId.EnemyDie: return enemyDieSfx;
             case SfxId.Heartbeat: return heartbeatSfx;
+            case SfxId.Spike: return spikeSfx;
+
             default: return null;
         }
     }
@@ -356,12 +497,31 @@ public class SoundManager : Singleton<SoundManager>
     {
         bgmVolume = Mathf.Clamp01(volume);
         bgmSource.volume = bgmVolume;
+        ambientVolume = bgmVolume;
+        if (ambientSource != null)
+            ambientSource.volume = ambientVolume;
     }
 
     // 효과음 볼륨 설정
     public void SetSFXVolume(float volume)
     {
         sfxVolume = Mathf.Clamp01(volume);
+    }
+
+    public void RestoreDefaultVolumes()
+    {
+        bgmVolume = defaultBgmVolume;
+        ambientVolume = defaultAmbientVolume;
+        sfxVolume = defaultSfxVolume;
+
+        if (bgmSource != null)
+            bgmSource.volume = bgmVolume;
+
+        if (ambientSource != null)
+            ambientSource.volume = ambientVolume;
+
+        if (heartbeatSource != null && heartbeatSource.isPlaying)
+            heartbeatSource.volume = sfxVolume;
     }
 
     private void Initialize3DPool()
@@ -508,6 +668,7 @@ public class SoundManager : Singleton<SoundManager>
     public AudioClip GetItemDropSfx() => itemDropSfx;
     public AudioClip GetKeyUseSfx() => keyUseSfx;
     public AudioClip GetDoorOpenSfx() => doorOpenSfx;
+    public AudioClip GetOldWoodDoorOpenSfx() => oldWoodDoorOpenSfx;
     public AudioClip GetHoleEnterSfx() => holeEnterSfx;
     public AudioClip GetPlayerWalkSfx() => playerWalkSfx;
     public AudioClip GetPlayerRunSfx() => playerRunSfx;
@@ -515,5 +676,7 @@ public class SoundManager : Singleton<SoundManager>
     public AudioClip GetHutakuchionna_Breath() => hutakuchionna_breath;
     public AudioClip GetHutakuchionna_ChaseBGM() => hutakuchionna_chaseBGM;
     public AudioClip GetHutakuchionna_Detection() => hutakuchionna_detection;
+    public AudioClip GetEnemyDieSfx() => enemyDieSfx;
     public AudioClip GetHeartbeatSfx() => heartbeatSfx;
+    public AudioClip GetSpikeSfx() => spikeSfx;
 }

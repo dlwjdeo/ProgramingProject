@@ -9,17 +9,19 @@ public class PlayerStamina : MonoBehaviour
     [SerializeField] private float minStaminaToRun = 5f;  // 달리기 가능한 최소 스테미나
 
     public float Current { get; private set; }
-    public bool IsEmpty => Current <= 0f;
-    public bool CanRun => Current >= minStaminaToRun;  // 달리기 가능한지 확인
+    public bool IsEmpty => Current <= 1f;
+    public bool CanRun => canRun;
 
     public event Action<float> OnStaminaChanged;
 
     private bool exhaustedSoundPlayed = false;
+    private bool canRun = true;
 
     private void Awake()
     {
         Current = maxStamina;
         exhaustedSoundPlayed = false;
+        canRun = true;
     }
 
     private void Start()
@@ -50,6 +52,11 @@ public class PlayerStamina : MonoBehaviour
     {
         float prev = Current;
         Current = Mathf.Clamp(value, 0, maxStamina);
+        
+        if (IsEmpty)
+            canRun = false;
+        else if (!canRun && Current >= minStaminaToRun)
+            canRun = true;
 
         if (!Mathf.Approximately(prev, Current))
         {

@@ -65,16 +65,16 @@ public class Door : Interactable
         RoomManager.Instance.OpenRoom(openRoomIndices);
     }
 
-    public bool Open(float delay = 0f, bool openedByEnemy = false)
+    public bool Open(float delay = 0f, bool openedByEnemy = false, bool useOldWoodOpenSound = false)
     {
         if (isOpen) return false;
         if (openCoroutine != null) return false;
 
-        openCoroutine = StartCoroutine(OpenCoroutine(delay, openedByEnemy));
+        openCoroutine = StartCoroutine(OpenCoroutine(delay, openedByEnemy, useOldWoodOpenSound));
         return true;
     }
 
-    private IEnumerator OpenCoroutine(float delay, bool openedByEnemy)
+    private IEnumerator OpenCoroutine(float delay, bool openedByEnemy, bool useOldWoodOpenSound)
     {
         if (delay > 0f)
             yield return new WaitForSeconds(delay);
@@ -87,7 +87,12 @@ public class Door : Interactable
 
         // 문 열리는 소리
         if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayDoorOpenAt(transform.position, openedByEnemy);
+        {
+            if (useOldWoodOpenSound)
+                SoundManager.Instance.PlayOldWoodDoorOpenAt(transform.position);
+            else
+                SoundManager.Instance.PlayDoorOpenAt(transform.position, openedByEnemy);
+        }
 
         openCoroutine = null;
         Debug.Log("문 열림");

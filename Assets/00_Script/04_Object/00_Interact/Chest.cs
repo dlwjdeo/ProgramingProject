@@ -9,6 +9,7 @@ public class Chest : Interactable
     [SerializeField] private Transform dropPoint;
     [SerializeField] private Sprite openedSprite;
     [SerializeField] private Sprite closedSprite;
+    [SerializeField] private Transform openPoint;
 
     private bool isOpened = false;
     public override void Interact()
@@ -36,6 +37,11 @@ public class Chest : Interactable
         if (dropPrefab != null && dropPoint != null)
         {
             Instantiate(dropPrefab, dropPoint.position, Quaternion.identity);
+        }
+        if(openPoint != null)
+        {
+           transform.position = openPoint.position;
+           GetComponent<Collider2D>().enabled = false;
         }
     }
 }

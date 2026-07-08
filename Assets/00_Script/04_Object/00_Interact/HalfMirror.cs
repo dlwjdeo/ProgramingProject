@@ -21,7 +21,7 @@ public class HalfMirror : Interactable
         {
             door.Unlock();
             RoomManager.Instance.OpenRoom(openRoomIndices);
-            door.Open();
+            door.Open(useOldWoodOpenSound: true);
             isUsed = true;
             player.PlayerInventory.ClearItem();
             GetComponent<SpriteRenderer>().sprite = usedSprite;

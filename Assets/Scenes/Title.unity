@@ -347,6 +347,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsDontDestroyOnLoad: 0
   bgmSource: {fileID: 3353722}
+  ambientSource: {fileID: 0}
   sfxSource: {fileID: 3353721}
   heartbeatSource: {fileID: 0}
   initial3DPoolSize: 8
@@ -359,19 +360,25 @@ MonoBehaviour:
   footstepMinDistance: 1
   footstepMaxDistance: 12
   bgmVolume: 1
+  ambientVolume: 0.35
   sfxVolume: 1
+  titleMainBgm: {fileID: 8300000, guid: 215936a63355a534da9eab0f01de871d, type: 3}
+  natureAmbientLoop: {fileID: 8300000, guid: b458fb8d07f03a14ab7e9298fc535a41, type: 3}
   gameStartSfx: {fileID: 8300000, guid: 7cba1cb2f674c0a45b213101897ce105, type: 3}
   itemPickUpSfx: {fileID: 8300000, guid: 13f62f4f906c1aa4394b5445a6ec9a0b, type: 3}
   itemDropSfx: {fileID: 8300000, guid: 1b2b6472d3348a54485ddcf1ebb55195, type: 3}
   keyUseSfx: {fileID: 8300000, guid: fba6d0f768bc28648bec150231416326, type: 3}
   doorOpenSfx: {fileID: 8300000, guid: c0af5caf0ea1dca498b3a327eff97a7a, type: 3}
   holeEnterSfx: {fileID: 8300000, guid: e8fdf30d10fbd79498fcf34f127165cc, type: 3}
+  oldWoodDoorOpenSfx: {fileID: 8300000, guid: 85f1685080edc3346ad11dfae790288b, type: 3}
+  spikeSfx: {fileID: 8300000, guid: 709f8ffce0272e746b32409fc6f31880, type: 3}
   playerWalkSfx: {fileID: 8300000, guid: d98c57ce83fd7a640abcd7e6ec976f37, type: 3}
   playerRunSfx: {fileID: 8300000, guid: 63e31494552df2e41a8c6ac055900aa8, type: 3}
   playerExhaustedSfx: {fileID: 8300000, guid: db7c51cd8f27a2c4a9aca8befed25db7, type: 3}
   hutakuchionna_breath: {fileID: 8300000, guid: f871121d674434b479dba9223dbb0a57, type: 3}
   hutakuchionna_chaseBGM: {fileID: 8300000, guid: e83890de69c9703439ab2a4c74fc994f, type: 3}
   hutakuchionna_detection: {fileID: 8300000, guid: 220259b75f1cdee4c990f7ec8f40be55, type: 3}
+  enemyDieSfx: {fileID: 8300000, guid: 220259b75f1cdee4c990f7ec8f40be55, type: 3}
   heartbeatSfx: {fileID: 8300000, guid: cd1fa4d01fb0537469248b39fda5057a, type: 3}
 --- !u!4 &3353724
 Transform:
@@ -3015,7 +3022,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 881627132}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 82114177}
+        m_TargetAssemblyTypeName: SceneLoader, Assembly-CSharp
+        m_MethodName: QuitGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &881627132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3268,8 +3287,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Master
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 69b7cbce6dd2c76448378bb57c3852b4, type: 2}
+  m_sharedMaterial: {fileID: -85639869267825980, guid: 69b7cbce6dd2c76448378bb57c3852b4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3912,8 +3931,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: BGM
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 69b7cbce6dd2c76448378bb57c3852b4, type: 2}
+  m_sharedMaterial: {fileID: -85639869267825980, guid: 69b7cbce6dd2c76448378bb57c3852b4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5648,8 +5667,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: SFX
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 69b7cbce6dd2c76448378bb57c3852b4, type: 2}
+  m_sharedMaterial: {fileID: -85639869267825980, guid: 69b7cbce6dd2c76448378bb57c3852b4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

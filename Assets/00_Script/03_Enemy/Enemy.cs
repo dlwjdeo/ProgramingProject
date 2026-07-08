@@ -257,6 +257,18 @@ public class Enemy : MonoBehaviour
     {
         StateMachine.ChangeState(StateMachine.Die);
     }
+
+    public void EnemyDieSound()
+    {
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayEnemyDieCue();
+    }
+
+    public void EnemySpikeSound()
+    {
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlaySpikeCue();
+    }
 }
 
 public enum EnemyMoveMode

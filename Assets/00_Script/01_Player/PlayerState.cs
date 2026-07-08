@@ -54,7 +54,7 @@ public class PlayerIdleState : PlayerState
         if (mx > 0.01f)
         {
             // �޸��� �Է��̸� Run, �ƴϸ� Walk
-            if (player.PlayerInputReader.RunPressed && !player.PlayerStamina.IsEmpty)
+            if (player.PlayerInputReader.RunPressed && player.PlayerStamina.CanRun)
                 player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Run);
             else
                 player.PlayerStateMachine.ChangeState(player.PlayerStateMachine.Walk);
@@ -80,8 +80,8 @@ public class PlayerWalkState : PlayerState
 
     public override void Update()
     {
-        // 버튼을 뗐을 때 플래그 초기화
-        if (!player.PlayerInputReader.RunPressed)
+        // 버튼을 뗐거나, 최소 스태미나까지 회복되면 재달리기 잠금 해제
+        if (!player.PlayerInputReader.RunPressed || player.PlayerStamina.CanRun)
         {
             player.SetStaminaDepleted(false);
         }
@@ -143,10 +143,10 @@ public class PlayerRunState : PlayerState
         if (SoundManager.Instance != null)
             SoundManager.Instance.RequestPlayerFootstep(player.transform, true);
 
-        if (!player.PlayerInputReader.RunPressed || !player.PlayerStamina.CanRun)
+        if (!player.PlayerInputReader.RunPressed || player.PlayerStamina.IsEmpty)
         {
-            // 스테미나 부족으로 인해 Walk로 전환되면 플래그 설정 (홀드 중 재진입 방지)
-            if (!player.PlayerStamina.CanRun)
+            // 스테미나가 바닥난 경우에만 재진입 잠금 설정
+            if (player.PlayerStamina.IsEmpty)
             {
                 player.SetStaminaDepleted(true);
             }

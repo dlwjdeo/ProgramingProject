@@ -11,6 +11,7 @@ public class Hokora : Interactable
     [SerializeField] private Sprite bowlSprite;
     [SerializeField] private Sprite sultSprite;
     [SerializeField] private Sprite allSprite;
+    [SerializeField] private Sprite hairSprite;
     [SerializeField] private Door door;
     [SerializeField] private PlayableDirector playableDirector;
     private bool isBowlPlaced = false;
@@ -18,6 +19,21 @@ public class Hokora : Interactable
     public override void Interact()
     {
         if(player == null) return;
+        if(player.PlayerInventory.CurrentItem != Item.OfferingBowl && player.PlayerInventory.CurrentItem != Item.Salt && player.PlayerInventory.CurrentItem != Item.Hair)
+        {
+            if(!isBowlPlaced && !isSaltPlaced)
+            {
+                UIManager.Instance.ShowMessage("I need to offer a sacrifice to the hokora to seal her.");
+            }
+            else if(isBowlPlaced && !isSaltPlaced)
+            {
+                UIManager.Instance.ShowMessage("Something else is required to complete the seal.");
+            }
+            else if(!isBowlPlaced && isSaltPlaced)
+            {
+                UIManager.Instance.ShowMessage("Something else is required to complete the seal.");
+            }
+        }
         if(player.PlayerInventory.CurrentItem == Item.OfferingBowl)
         {
             isBowlPlaced = true;
@@ -54,7 +70,7 @@ public class Hokora : Interactable
         }
         if(isBowlPlaced && isSaltPlaced && player.PlayerInventory.CurrentItem == Item.Hair)
         {
-            spriteRenderer.sprite = allSprite;
+            spriteRenderer.sprite = hairSprite;
             player.PlayerInventory.ClearItem();
             SoundManager.Instance?.PlayItemPickUpCue();
             StartCoroutine(EnemyDieCoroutine());
